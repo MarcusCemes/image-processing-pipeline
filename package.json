@@ -1,0 +1,51 @@
+{
+  "name": "responsive-image-builder",
+  "version": "1.0.0",
+  "description": "Ultra-fast responsive WebP image builder, for the web!",
+  "main": "lib/index.js",
+  "scripts": {
+    "size": "size-limit",
+    "rib": "rib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "size-limit": [
+    {
+      "path": "lib/index.js",
+      "limit": "10 KB"
+    }
+  ],
+  "bin": {
+    "rib": "bin/parse-cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarcusCemes/responsive-image-builder.git"
+  },
+  "keywords": [
+    "npm",
+    "sharp",
+    "image",
+    "webp",
+    "multithreaded",
+    "fast",
+    "modern",
+    "responsive",
+    "website"
+  ],
+  "author": "Marcus Cemes",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+  },
+  "homepage": "https://github.com/MarcusCemes/responsive-image-builder#readme",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "cluster": "^0.7.7",
+    "commander": "^2.19.0",
+    "glob": "^7.1.3",
+    "sharp": "^0.21.0"
+  },
+  "devDependencies": {
+    "size-limit": "^0.20.1"
+  }
+}
