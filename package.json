@@ -1,6 +1,6 @@
 {
   "name": "responsive-image-builder",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Ultra-fast responsive WebP image builder, for the web!",
   "main": "lib/index.js",
   "scripts": {
