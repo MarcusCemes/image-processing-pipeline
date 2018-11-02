@@ -1,6 +1,6 @@
 # Responsive Image Builder
-![MasterMovies RIB](https://img.shields.io/badge/MasterMovies-RIB-blue.svg?style=flat-square) 
 [![Link to npm](https://img.shields.io/badge/🔗-npm-CB3837.svg?style=flat-square)](https://www.npmjs.com/package/responsive-image-builder)
+![MasterMovies RIB](https://img.shields.io/badge/MasterMovies-RIB-FFDC00.svg?style=flat-square) 
 ![GitHub](https://img.shields.io/github/license/marcuscemes/responsive-image-builder.svg?style=flat-square)
 ![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/responsive-image-builder.svg)
 ![Make_the_web lighter](https://img.shields.io/badge/Make_the_web-lighter-7FDBFF.svg?style=flat-square)
@@ -10,8 +10,7 @@ An ultra-fast WebP image building pipeline, for the web.
 A CLI tool and NodeJS module built into one, letting you quickly resize and compress high-resolution images into several sizes in its original format AND the new WebP codec.
 
 <p align="center">
-  <img src="./img/responsive-image-builder.png" alt="Command line example"
-       width="654" height="458">
+  <img src="./img/responsive-image-builder.png" alt="An example with the command line" width="800">
 </p>
 
 
@@ -19,6 +18,8 @@ A CLI tool and NodeJS module built into one, letting you quickly resize and comp
 
 <!--ts-->
 - [Why?](#why?)
+  * [How it works](#how-it-works)
+    + [Performance](#performance)
 - [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installing](#installing)
@@ -43,7 +44,15 @@ Webpack... Angular... React... PHP... Cloudflare... So many solutions for servin
 
 This is the EASIEST solution I found, offering cache-busting responsive WebP goodness, with lanczos3 downscaling, and NO server-processing! And it's free!
 
-Oh... Did I mention it's INTELLIGENT? Never upscale! Never fetch duplicate images! The browser will fetch the BEST image from a manifest file (containing all the available sizes) that is generated with this tool.
+Oh... Did I mention it's INTELLIGENT? Never upscale! Never fetch duplicate images! The browser will fetch the BEST image from a manifest file (containing all the available files) genered during the build process with RIB.
+
+### How it works
+
+Responsive Image Builder traverses a folder full of images, and converts them one-by-one using a distributed cluster network. Each image is resized to fit into each configured preset (without upscaling or duplicates! only unique pictures are exported), before being saved in its original codec and as a WebP image. For example, a high-resolution 4K image may be resized into 4 different sizes (including a thumbnail), while a small JPEG is only resized into a thumbnail and a small image. Each export is then saved to the manifest.json, so your web app knows exactly which sizes are available for that particular image.
+
+#### Performance
+
+Responsive Image Builder is focussed on speed. Image tasks are distributed amongst a cluster network to maximize the system's resources, a dynamic programming design leverages memory to store RAW image data to accelerate the resizing and conversion process. All image operations are done using the high-performance SHARP library that runs on C++. On an 8 core system, a thousand high-fidelity 4K PNG images (~10GB) are processed in roughly a minute. 
 
 ## Getting Started
 
@@ -78,7 +87,7 @@ scripts: {
 }
 ```
 
-If you want global access from any working directory, add the `-g` flag during the NPM installation for the full CLI companion tool:
+If you want global access from any working directory, add the `-g` global flag during the NPM installation for the full CLI companion tool:
 
 ```sh
 $ npm i -g -D responsive-image-builder
@@ -102,7 +111,7 @@ const configuration = new RIBConfig({...});
 const promise: Promise<RIBResponse> = rib(configuration: (RIBConfig|Object));
 ```
 
-Executing `rib({...});` will return a promise. It can be a long wait... You can use this module syncronously with `await rib({...});` or with a callback function `rib({...}).then(() => {...});`.  The promise resolves into a RIBResponse summary (see [lib/reponse.js](tree/master/lib/response.js)).
+Executing `rib({...});` will return a promise. It can be a long wait... You can use this module synchronously with `await rib({...});` or with a callback function `rib({...}).then(() => {...});`.  The promise resolves into a RIBResponse summary (see [lib/reponse.js](tree/master/lib/response.js)).
 
 Here's a list of arguments/configuration values that can be used. If something is missing, a full list of options is available in the configuration class under ```lib/config.js```.
 
@@ -115,20 +124,22 @@ Here's a list of arguments/configuration values that can be used. If something i
 | -f, --force                | force \[boolean\]       | ```false```   | **DANGEROUS!** Delete, create or overwrite files without asking! Make sure you're using the right paths! |
 | -c, --clean                | clean \[boolean\]       | ```false```   | Delete the output directory's contents without asking                                                    |
 | -t, --max-threads \<number\> | max_threads \[number\]  | ```0```       | The number of threads to use. 0 will use all cores available                                             |
-| --shy                      | verbose = 1             | ```3```       | Only report errors                                                                                       |
-| -s, --silent               | verbose = 2             | ```3```       | No STDOUT output at all. Careful... The program may wait for input without you knowing.                  |
-|                            | verbose = 3             | ```3```       | The default verbosity option, including the banner and progress bar.                                     |
+| --shy                      | verbose = 0             | ```2```       | Only report errors                                                                                       |
+| -s, --silent               | verbose = 1             | ```2```       | No STDOUT output at all. Careful... The program may wait for input without you knowing.                  |
+|                            | verbose = 2             | ```2```       | The default verbosity option, including the banner and progress bar.                                     |
 | --no-manifest              | manifest \[boolean\]    | ```true```    | Write a manifest.json summary in the output directory                                                    |
 
 #### Example
 
 ```sh
-rib -i path_a -o -path_b --shy -t 8 
+# Command line
+$ rib -i path_a -o -path_b --shy -t 8 
 ```
 
 is the same as doing:
 
 ```javascript
+// script.js
 rib({
     input: "path_a",
     output: "path_b",
@@ -138,7 +149,7 @@ rib({
 ```
 ### Exports
 
-Export presets are what the images are resized to. The default export preset is:
+Export presets are what the images are resized to. It can either be provided as a Javascript object when using the NodeJS module, or when using the command line, a path to a JSON file containing the exports object. How does it worK? The best way to explain is to show you the default exports object:
 
 ```javascript
 this.exports = [{
@@ -167,17 +178,14 @@ this.exports = [{
   ]
 ```
 
-This generates a 8x8 thumbnail and a 'small' image, with a 'medium' and 'large' image when possible (no duplicate or upscaled images).
+The default exports object generates four sizes at maximum, resulting in a minimum of 4 files, and a maximum of 8. It generates:
 
-The name of the preset is used to suffix the exported image: ```image_large.webp```
+ + A 8x8 *thumbnail*
+ + A 1280x720 *small* image
+ + A 1920x1080 *normal* image (if not a duplicate of *small*)
+ + A 3840x2160 *large* image (if not a duplicate of *large*)
 
-The ```width``` and ```height``` specify the box that the image should fit in.
-
-The ```default: true``` property should *only be given to one image*. It tags the export in the ```manifest.json``` file so that it may be used as a fallback src property.
-
-The ```force: true``` property means the size will be exported regardless of duplicate images.
-
-This will generate at maximum 8 files, and at minimum 4 (WebP + original in four sizes). It provides a good example of what can be achieved.
+The sizes specified are used to designate a "*box*" that the image should fit into. Each size will only be exported if it results in a different image to the previous export, unless ```force: true``` is present. ```default: true``` is used to "*tag*" the image in the manifest.json file as a good all-round choice for the ```src``` fallback option. The name of the image is used to suffix the image (e.g. ```image_large.webp```), and as a name for the manifest.json image export.
 
 ⚠️ *Order the presets from small to large to prevent duplicates. Each export is compared to the previous when deciding whether it should be processed.*
 
@@ -195,11 +203,11 @@ One little secret in Angular is that you can have access to Webpack's ```require
 declare var require: any;
 ```
 
-```require``` has the ability to return the fingerprinted image's URL. It does this by keeping a list of original filenames and the hashed version after building. For example, ```require('image.jpg')``` will return the string ```"image<hash>.jpg"``` if the file was included during the build process. How do you force all images to be included by Webpack's build process if they are not hardcoded? The ```require``` function will take hard-coded paths, and treat the variables as a wildcard. ```require('/path/to/' + image)``` will include ALL FILES in /path/to/ during the build process. It's magic, isn't it?
+```require``` has the ability to return the fingerprinted image's URL. It does this by keeping a list of original filenames and the hashed version after building. For example, ```require('image.jpg')``` will return the string path ```"image<hash>.jpg"``` if the file was included during the build process. How do you force all images to be included by Webpack's build process if they are not hardcoded? The ```require``` function takes a mixture of hard-coded paths and varibles, treating the latter as a wildcard. ```require('/path/to/' + image)``` will include ALL FILES in /path/to/ during the build process. It's magic, isn't it?
 
 Angular lets you bind the ```[src]``` property to a javascript (string) variable, this can be done by calling a function. My solution is to create an ```ImageService``` Angular service that handles image requests. It returns an object with a bindable property (objects are always referenced and never duplicated) when called, (for example ```[src]="image_service.fetch('image.jpg').src"```), storing it until WebP support has been decided asynchronously. The stored "shared" objects are then updated with the correct ```src``` and ```srcset``` properties, updating ```<img>```s in real-time.
 
-An example of the ImageService class can be found under [/extra/image.service.ts](tree/master/extra/image.service.ts).
+An example of the ImageService class can be found under [/extra/image.service.ts](tree/master/extra/image.service.ts). To summarize, the ```[src]``` property calls a function and binds to the returned object. The class that returns the object will asynchronously detect WebP support, and then construct the src and srcset properties of each image object, based on values from the inlined manifest.json file. 
 
 ### Some notes on resources
 
@@ -207,13 +215,13 @@ NodeJS is not the most optimized of languages. Like most other languages, memory
 
 ## JSON Schemas
 
-The RIBConfig object, RIBResponse object and manifest.json file conforms to [https://json-schema.org/](https://json-schema.org/)'s drafts. The respective schemas under available in ./$schema/. 
+The RIBConfig object, RIBResponse object and manifest.json file conform to [https://json-schema.org/](https://json-schema.org/)'s drafts. Their respective schemas are available under [$schema/](tree/master/$schema/). 
 
 
 ## Built With
 
-* [NodeJS](https://nodejs.org) - The web framework used
-* [SHARP](https://github.com/lovell/sharp) - Dependency Management
+* [NodeJS](https://nodejs.org) - Powered by Chrome's V8 Javascript engine
+* [SHARP](https://github.com/lovell/sharp) - A beautiful and extremely powerful image manipulation library
 
 ## Versioning
 
