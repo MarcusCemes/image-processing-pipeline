@@ -87,7 +87,7 @@ scripts: {
 }
 ```
 
-If you want global access from any working directory, add the `-g` global flag during the NPM installation for the full CLI companion tool:
+If you want global access from any working directory, add the `--global` flag during the NPM installation for the full CLI companion tool:
 
 ```sh
 $ npm i -g -D responsive-image-builder
@@ -230,10 +230,6 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **Marcus Cemes** - *Project Owner* - [Website](https://mastermovies.co.uk/) - [GitHub](https://github.com/MarcusCemes)
-
-### TODO
-
-+ Image compression
 
 ## License
 
