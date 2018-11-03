@@ -14,6 +14,7 @@ program
   .option('--shy', 'Talk less (errors only)')
   .option('-s, --silent', 'Disable all stdout output')
   .option('--no-manifest', 'Don\'t generate a manifest.json')
+  .option('--no-optimize', 'Don\'t optimize and compress JPEG and PNG images')
   .parse(process.argv);
 
 
@@ -38,6 +39,7 @@ if (typeof program.maxThreads !== 'undefined' && !isNaN(program.maxThreads)) con
 if (typeof program.shy !== 'undefined') config.verbosity = 1;
 if (typeof program.silent !== 'undefined') config.verbosity = 0;
 if (typeof program.manifest !== 'undefined') config.manifest = program.manifest;
+if (typeof program.optimize !== 'undefined') config.optimize = program.optimize;
 
 const rib = require('../lib/index.js');
 
