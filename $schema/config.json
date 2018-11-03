@@ -115,6 +115,13 @@
             "title": "Tag the image as default in the manifest.json file",
             "description": "Useful as a fallback src image",
             "default": false
+          },
+          "optimize": {
+            "$id": "#/properties/exports/items/optimize",
+            "type": "boolean",
+            "title": "Optimize and compress PNG and JPEG images",
+            "description": "Apply fairly aggressive compression for faster loading",
+            "default": true
           }
         }
       }

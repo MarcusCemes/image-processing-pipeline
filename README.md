@@ -128,6 +128,7 @@ Here's a list of arguments/configuration values that can be used. If something i
 | -s, --silent               | verbose = 1             | ```2```       | No STDOUT output at all. Careful... The program may wait for input without you knowing.                  |
 |                            | verbose = 2             | ```2```       | The default verbosity option, including the banner and progress bar.                                     |
 | --no-manifest              | manifest \[boolean\]    | ```true```    | Write a manifest.json summary in the output directory                                                    |
+| --no-optimize              | optimize \[boolean\]    | ```true```    | Optimze and compress JPEG and PNG images      |
 
 #### Example
 
