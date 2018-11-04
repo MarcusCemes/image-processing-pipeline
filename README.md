@@ -7,7 +7,7 @@
 
 An ultra-fast WebP image building pipeline, for the web.
 
-A CLI tool and NodeJS module built into one, letting you quickly resize and compress high-resolution images into several sizes in its original format AND the new WebP codec.
+A multithreaded CLI tool and NodeJS module built into one, letting you quickly resize and compress high-resolution images into several sizes in its original format AND the shiny new WebP codec, offering incredible reductions in filesize while looking better than JPEG, and supporting transparency.
 
 <p align="center">
   <img src="./img/responsive-image-builder.png" alt="An example with the command line" width="800">
@@ -23,9 +23,7 @@ A CLI tool and NodeJS module built into one, letting you quickly resize and comp
 - [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installing](#installing)
-  * [Stuck?](#stuck?)
 - [Usage](#usage)
-    + [Example](#example)
   * [Exports](#exports)
   * [Where's the magic?](#where's-the-magic?)
     + [A step further... (use case)](#a-step-further...-(use-case))
@@ -34,7 +32,6 @@ A CLI tool and NodeJS module built into one, letting you quickly resize and comp
 - [Built With](#built-with)
 - [Versioning](#versioning)
 - [Authors](#authors)
-  * [TODO](#todo)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 <!--te-->
@@ -44,21 +41,21 @@ Webpack... Angular... React... PHP... Cloudflare... So many solutions for servin
 
 This is the EASIEST solution I found, offering cache-busting responsive WebP goodness, with lanczos3 downscaling, and NO server-processing! And it's free!
 
-Oh... Did I mention it's INTELLIGENT? Never upscale! Never fetch duplicate images! The browser will fetch the BEST image from a manifest file (containing all the available files) genered during the build process with RIB.
+Oh... Did I mention it's INTELLIGENT? Never upscale! Never fetch duplicate images! The browser will fetch the BEST image from a manifest file (containing all the available files) generated during the build process with RIB.
 
 ### How it works
 
-Responsive Image Builder traverses a folder full of images, and converts them one-by-one using a distributed cluster network. Each image is resized to fit into each configured preset (without upscaling or duplicates! only unique pictures are exported), before being saved in its original codec and as a WebP image. For example, a high-resolution 4K image may be resized into 4 different sizes (including a thumbnail), while a small JPEG is only resized into a thumbnail and a small image. Each export is then saved to the manifest.json, so your web app knows exactly which sizes are available for that particular image.
+Responsive Image Builder traverses a folder full of images, and converts them one-by-one using a distributed cluster network, keeping the original folder stucture. Each image is resized to fit into each configured preset (without upscaling or duplicates! only unique pictures are exported), before being saved in its original codec and as a WebP image. A list of all exports are written to *manifest.json*, with relative paths (based on the input diretory's folder structure) ready for upload to a web server. With ```optimize: true``` enabled, JPEG and PNG images can have high-quality compression and quantization applied to them, using [mozjpeg](https://github.com/mozilla/mozjpeg) and [pngquant2](https://github.com/kornelski/pngquant) to reduce their size by up to 4x, while retaining perfectaly acceptable quality. See this [example](https://github.com/MarcusCemes/responsive-image-builder/tree/master/example) to see the results for yourself.
 
 #### Performance
 
-Responsive Image Builder is focussed on speed. Image tasks are distributed amongst a cluster network to maximize the system's resources, a dynamic programming design leverages memory to store RAW image data to accelerate the resizing and conversion process. All image operations are done using the high-performance SHARP library that runs on C++. On an 8 core system, a thousand high-fidelity 4K PNG images (~10GB) are processed in roughly a minute. 
+Responsive Image Builder is focussed on speed. Tasks are distributed amongst a cluster network to maximize the system's resources, a dynamic programming design leverages memory to store RAW image data to accelerate the resizing and conversion process. All image operations are done using the high-performance SHARP library that runs on C++. On an 8 core system, a thousand high-fidelity 4K PNG images (~10GB) are processed in roughly a minute. 
 
 ## Getting Started
 
 This is a tool designed to be used during the build process. It uses one of the fastest image downscaling libraries available, [SHARP](https://github.com/lovell/sharp), which used C++ behind the scenes. RIB merely streamlines the image building pipeline.
 
-It's not magic, it's not a fully-fledged standardized process, it's more of a build-script tool. This does mean, however, that it gives you more freedom! The best tools are those that allow you to design the build process, not everybody has NodeJS backend servers whose sole purpose is to serve an Angular app... See [Where's the magic?](#where's-the-magic) for ideas on how to use this effectively.
+It's not magic, it's not a fully-fledged standardized process, it's more of a build-script tool. This does mean, however, that it gives you more freedom! The best tools are those that allow you to design the build process, not everybody has NodeJS backend servers whose sole purpose is to serve an Angular app... The usefulness is in the *manifest.json* file. See [Where's the magic?](#where's-the-magic) for ideas on how to use this effectively.
  
 ### Prerequisites
 
@@ -83,7 +80,7 @@ You can also add it as an NPM script in your ```package.json```, so that you can
 
 ```json
 scripts: {
-    "rib": "node bin/parse-cli.js -i /path/to/input -o /path/to/output"
+    "rib": "rib -i /path/to/input -o /path/to/output"
 }
 ```
 
@@ -94,24 +91,17 @@ $ npm i -g -D responsive-image-builder
 $ rib -i /path/to/input -o /path/to/output
 ```
 
-### Stuck?
-
-Use `-h` or `--help` to display all accepted arguments. The NodeJS module will also show hints for the configuration object when using a modern editor like Visual Studio Code. See [Usage](#usage) for a full list of accepted options.
-
-```sh
-$ rib --help
-```
 ## Usage
 
 RIB may be used from the command line, or as a NodeJS module. For examples, see [Getting Started](#installing). The TypeScript-like syntax is:
 
 ```typescript
 const rib = require('responsive-image-builder');
-const configuration = new RIBConfig({...});
-const promise: Promise<RIBResponse> = rib(configuration: (RIBConfig|Object));
+const configuration = new RIBConfig({...});  // see $schema/config.js
+const promise: Promise<RIBResponse> = rib(configuration: (RIBConfig|Object));  // see $schema/response.js
 ```
 
-Executing `rib({...});` will return a promise. It can be a long wait... You can use this module synchronously with `await rib({...});` or with a callback function `rib({...}).then(() => {...});`.  The promise resolves into a RIBResponse summary (see [lib/reponse.js](tree/master/lib/response.js)).
+Executing `rib({...});` will return a promise. It can be a long wait... You can use this module synchronously with `await rib({...});` or with a callback function `rib({...}).then(() => {...});`.  The promise resolves into a RIBResponse summary (see [$schema/reponse.json](https://github.com/MarcusCemes/responsive-image-builder/tree/master/$schema/response.json)).
 
 Here's a list of arguments/configuration values that can be used. If something is missing, a full list of options is available in the configuration class under ```lib/config.js```.
 
@@ -128,7 +118,7 @@ Here's a list of arguments/configuration values that can be used. If something i
 | -s, --silent               | verbose = 1             | ```2```       | No STDOUT output at all. Careful... The program may wait for input without you knowing.                  |
 |                            | verbose = 2             | ```2```       | The default verbosity option, including the banner and progress bar.                                     |
 | --no-manifest              | manifest \[boolean\]    | ```true```    | Write a manifest.json summary in the output directory                                                    |
-| --no-optimize              | optimize \[boolean\]    | ```true```    | Optimze and compress JPEG and PNG images      |
+| --no-optimize              | optimize \[boolean\]    | ```true```    | Optimze and compress JPEG and PNG images (mozjpeg+pngquant2)      |
 
 #### Example
 
@@ -208,7 +198,7 @@ declare var require: any;
 
 Angular lets you bind the ```[src]``` property to a javascript (string) variable, this can be done by calling a function. My solution is to create an ```ImageService``` Angular service that handles image requests. It returns an object with a bindable property (objects are always referenced and never duplicated) when called, (for example ```[src]="image_service.fetch('image.jpg').src"```), storing it until WebP support has been decided asynchronously. The stored "shared" objects are then updated with the correct ```src``` and ```srcset``` properties, updating ```<img>```s in real-time.
 
-An example of the ImageService class can be found under [/extra/image.service.ts](tree/master/extra/image.service.ts). To summarize, the ```[src]``` property calls a function and binds to the returned object. The class that returns the object will asynchronously detect WebP support, and then construct the src and srcset properties of each image object, based on values from the inlined manifest.json file. 
+An example of the ImageService class can be found under [/extra/image.service.ts](https://github.com/MarcusCemes/responsive-image-builder/tree/master/extra/image.service.ts). To summarize, the ```[src]``` property calls a function and binds to the returned object. The class that returns the object will asynchronously detect WebP support, and then construct the src and srcset properties of each image object, based on values from the inlined manifest.json file. 
 
 ### Some notes on resources
 
@@ -216,13 +206,18 @@ NodeJS is not the most optimized of languages. Like most other languages, memory
 
 ## JSON Schemas
 
-The RIBConfig object, RIBResponse object and manifest.json file conform to [https://json-schema.org/](https://json-schema.org/)'s drafts. Their respective schemas are available under [$schema/](tree/master/$schema/). 
+The RIBConfig object, RIBResponse object and manifest.json file conform to [https://json-schema.org/](https://json-schema.org/)'s drafts. Their respective schemas are available under [$schema/](https://github.com/MarcusCemes/responsive-image-builder/tree/master/%24schema). 
 
 
 ## Built With
 
 * [NodeJS](https://nodejs.org) - Powered by Chrome's V8 Javascript engine
 * [SHARP](https://github.com/lovell/sharp) - A beautiful and extremely powerful image manipulation library
+
+### Size
+
+This package will add ~100MB to your *node_modules* folder. Despite being only ~500B, the libraries used for high-quality image manipulation take up a lot of space.
+In the future, I would like to convert this tool into a C++ application, benefitting from the efficiency of binaries instead of heavy dependencies.
 
 ## Versioning
 
