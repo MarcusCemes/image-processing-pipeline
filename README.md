@@ -47,6 +47,8 @@ Oh... Did I mention it's INTELLIGENT? Never upscale! Never fetch duplicate image
 
 Responsive Image Builder traverses a folder full of images, and converts them one-by-one using a distributed cluster network, keeping the original folder stucture. Each image is resized to fit into each configured preset (without upscaling or duplicates! only unique pictures are exported), before being saved in its original codec and as a WebP image. A list of all exports are written to *manifest.json*, with relative paths (based on the input diretory's folder structure) ready for upload to a web server. With ```optimize: true``` enabled, JPEG and PNG images can have high-quality compression and quantization applied to them, using [mozjpeg](https://github.com/mozilla/mozjpeg) and [pngquant2](https://github.com/kornelski/pngquant) to reduce their size by up to 4x, while retaining perfectaly acceptable quality. See this [example](https://github.com/MarcusCemes/responsive-image-builder/tree/master/example) to see the results for yourself.
 
+If you are using Angular, I've already made a service that can read the manifest.json, and provide easy image resolution for \[src\] and \[srcset\] binding. See [/extra/image.service.ts](https://github.com/MarcusCemes/responsive-image-builder/tree/master/extra/image.service.ts). With some tweaking, this can work with anything.
+
 #### Performance
 
 Responsive Image Builder is focussed on speed. Tasks are distributed amongst a cluster network to maximize the system's resources, a dynamic programming design leverages memory to store RAW image data to accelerate the resizing and conversion process. All image operations are done using the high-performance SHARP library that runs on C++. On an 8 core system, a thousand high-fidelity 4K PNG images (~10GB) are processed in roughly a minute. 
@@ -198,7 +200,7 @@ declare var require: any;
 
 Angular lets you bind the ```[src]``` property to a javascript (string) variable, this can be done by calling a function. My solution is to create an ```ImageService``` Angular service that handles image requests. It returns an object with a bindable property (objects are always referenced and never duplicated) when called, (for example ```[src]="image_service.fetch('image.jpg').src"```), storing it until WebP support has been decided asynchronously. The stored "shared" objects are then updated with the correct ```src``` and ```srcset``` properties, updating ```<img>```s in real-time.
 
-An example of the ImageService class can be found under [/extra/image.service.ts](https://github.com/MarcusCemes/responsive-image-builder/tree/master/extra/image.service.ts). To summarize, the ```[src]``` property calls a function and binds to the returned object. The class that returns the object will asynchronously detect WebP support, and then construct the src and srcset properties of each image object, based on values from the inlined manifest.json file. 
+For a fully working Angular service that handles image src and srcset binding based on the manifest.json from this tool, see [/extra/image.service.ts](https://github.com/MarcusCemes/responsive-image-builder/tree/master/extra/image.service.ts).
 
 ### Some notes on resources
 
