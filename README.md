@@ -76,7 +76,7 @@ const rib = require('responsive-image-builder');
 rib({ input: 'path/to/input', output: '/path/to/output' });
 ```
 
-You can also add it as an NPM script in your ```package.json```, so that you can simply use ```npm run rib`` inside your repository:
+You can also add it as an NPM script in your ```package.json```, so that you can simply use ```npm run rib``` inside your repository:
 
 ```json
 scripts: {
