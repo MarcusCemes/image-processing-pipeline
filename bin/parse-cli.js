@@ -3,7 +3,7 @@
 const program = require('commander');
 
 program
-  .version('1.0.0')
+  .version('1.1.0')
   .option('-i, --input <path>', 'Folder containing the images')
   .option('-o, --output <path>', 'Folder to output images to')
   .option('-e, --exports <path>', 'Path to JSON encoded export presets')
