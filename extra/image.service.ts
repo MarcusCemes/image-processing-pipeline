@@ -13,7 +13,7 @@
 * ImageService maintains a high-speed cache. Objects for the same requests
 * are shared. Fetching an already resolved image will read the entry
 * already present in cache, and return its shared singleton object.
-* 
+*
 * An error is logged in console if an image can not be resolved. The image
 * database is read from the manifest.json file in the image directory.
 *
@@ -80,13 +80,13 @@ export class Image {
 
 
 /**
- * Provides easy image resolution, maintaining a high-speed cache 
+ * Provides easy image resolution, maintaining a high-speed cache
  * for previously resolved images. There is no cost to fectching
  * the the same image twice.
- * 
+ *
  * Intended to be used with Responsive Image Builder.
  * See https://github.com/MarcusCemes/responsive-image-builder
- * 
+ *
  * @example <img [src]="ImageService.get('image_name').src">
  * @example <img [srcset]="ImageService.get('image_name').srcset">
  * @class ImageService
@@ -111,7 +111,7 @@ export class ImageService {
    * or generates a new Image. If WebP support has been decided,
    * the src and srcset properties will be generated before being
    * returned.
-   * 
+   *
    * @example <img [src]="ImageService.get('image_name').src">
    *
    * @memberof ImageService
@@ -133,7 +133,7 @@ export class ImageService {
     // If yes, generate a new image and return it
     const MANIFEST_LENGTH = this.manifest_exports_dictionary.length;
     for (let i = 0; i < MANIFEST_LENGTH; i++) {
-      
+
       // If there is a manifest entry, create a new image
       // and append it to the images array
       if (name === this.manifest_exports_dictionary[i]){
@@ -178,23 +178,23 @@ export class ImageService {
       const IMAGES_LENGTH = this.images_dictionary.length;
       const MANIFEST_LENGTH = this.manifest_exports_dictionary.length;
       for (let i = 0; i < IMAGES_LENGTH; i++) {
-  
+
         if (!this.images[i].resolved) {
           let resolved = false;
           for (let j = 0; j < MANIFEST_LENGTH; j++) {
-  
+
             if (this.manifest_exports_dictionary[j] === this.images_dictionary[i]) {
-    
+
               // Create the src and srcset properties
               this.generate_properties(this.images[i], this.manifest.exports[j]);
               resolved = true;
               break;
-    
+
             }
           }
-  
+
           if (!resolved) console.error('ImageService: Failed to resolved image \'' + this.images_dictionary[i] + '\'');
-  
+
         }
       }
     });
@@ -225,8 +225,8 @@ export class ImageService {
 
         // require needs to have a hard coded path to the image folder
         srcset += require('../static/image/' + manifest_export.exports[i][support]) + ' ' + manifest_export.exports[i]['width'] + 'w,';
-        
-        
+
+
         // require needs to have a hard coded path to the image folder
         if (manifest_export.exports[i].default)
           image.src = this.sanitizer.bypassSecurityTrustUrl(require('../static/image/' + manifest_export.exports[i][support]));
