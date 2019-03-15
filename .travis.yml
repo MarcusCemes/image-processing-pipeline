@@ -1,0 +1,39 @@
+sudo: false
+language: node_js
+cache: npm
+jobs:
+  include:
+  - stage: Test
+    before_test: echo "Running tests against $(node -v)..."
+    node_js: '8'
+  - stage: Test
+    before_test: echo "Running tests against $(node -v)..."
+    node_js: '10'
+  - stage: Test
+    before_test: echo "Running tests against $(node -v)..."
+    node_js: '11'
+  - stage: Deploy
+    node_js: '11'
+    script: skip
+    before_deploy:
+      - npm run build
+    deploy:
+      - provider: npm
+        email: marcus.cemes@epfl.ch
+        api_key:
+          secure: Fy5KL+j/u6Oe1JjA0fJAdQVNJ83QQ1wg2DnDHp5X5s6pHg/6VdPRpxgavyrB5YxBciVoLo/83CyCxcmiO7IRxz/FL7aCH9QWQgYocIxnchTf8Vd+hhDwIpBt7P/13iW0ee/YeLFGJrYHdbgaSx06fYSTOe4tZm+wE+WDGXEpd/DmL92pmU5rRUsORZDVnH5nr8tMSHKbZxYmB/OZ6hnh9MkoOo7ozKFaFHBZ5yMyxDFDhsaq7erPw82EXPvNvbDRfhLM899/L1EZcHKjAMG4COGqnWQTgWpv4SU4KdsHu1Cmi3s4MMY1L7HpPVlKQDwpJc/3v7ab29tXjs6JZikFjO7lcfIDJblZ6L0OvyyOxnT5Xb3ZLCF9Wbdhj77aAISYEiAPbNLWJxTZGGpzgf/5a6CbL+IevC9iaWpH0U+aKchI18AE5smLcDbU7twiPr4bAX/ZshflEza/DUspEfXlFy7j8KXQ2aAtat6MDBUrCxBr7jswtTTE1tQL66GOvBCPYyCcH27dCEsXxVoue4mvMPlVv2L7XIEE/E3SFWPvoiwrCRPqqXGJpr9xepMyUaA2BCOQdFG7tTBlgdzi6arOZY6uN22h+h+e8S/4R6qd+vrXJJrog45bqNROA7q31PPHPCk7zjrofx+UJOpycQAXpq25vRfQhY4qW+3cGzlcPy8=
+        skip_cleanup: true
+        on:
+          tags: true
+          # Deploy under @latest if it's a normal version number
+          condition: $TRAVIS_TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$
+      - provider: npm
+        email: marcus.cemes@epfl.ch
+        api_key:
+          secure: Fy5KL+j/u6Oe1JjA0fJAdQVNJ83QQ1wg2DnDHp5X5s6pHg/6VdPRpxgavyrB5YxBciVoLo/83CyCxcmiO7IRxz/FL7aCH9QWQgYocIxnchTf8Vd+hhDwIpBt7P/13iW0ee/YeLFGJrYHdbgaSx06fYSTOe4tZm+wE+WDGXEpd/DmL92pmU5rRUsORZDVnH5nr8tMSHKbZxYmB/OZ6hnh9MkoOo7ozKFaFHBZ5yMyxDFDhsaq7erPw82EXPvNvbDRfhLM899/L1EZcHKjAMG4COGqnWQTgWpv4SU4KdsHu1Cmi3s4MMY1L7HpPVlKQDwpJc/3v7ab29tXjs6JZikFjO7lcfIDJblZ6L0OvyyOxnT5Xb3ZLCF9Wbdhj77aAISYEiAPbNLWJxTZGGpzgf/5a6CbL+IevC9iaWpH0U+aKchI18AE5smLcDbU7twiPr4bAX/ZshflEza/DUspEfXlFy7j8KXQ2aAtat6MDBUrCxBr7jswtTTE1tQL66GOvBCPYyCcH27dCEsXxVoue4mvMPlVv2L7XIEE/E3SFWPvoiwrCRPqqXGJpr9xepMyUaA2BCOQdFG7tTBlgdzi6arOZY6uN22h+h+e8S/4R6qd+vrXJJrog45bqNROA7q31PPHPCk7zjrofx+UJOpycQAXpq25vRfQhY4qW+3cGzlcPy8=
+        skip_cleanup: true
+        tag: next
+        on:
+          tags: true
+          # Deploy under @next if it's has a version prefix
+          condition: $TRAVIS_TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)-([a-zA-Z]+)\.*.*$

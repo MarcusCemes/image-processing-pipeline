@@ -1,0 +1,13 @@
+{
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    // TODO: allow devDependencies only in **/*.spec.ts files:
+    // waiting on https://github.com/palantir/tslint/pull/3708
+    "no-implicit-dependencies": [true, "dev"],
+    "no-var-keyword": true,
+    "object-literal-sort-keys": false,
+    "semicolon": true,
+    "no-unused-vars": ["error", { "args": "none" }], // disable for function arguments
+    "max-classes-per-file": false
+  }
+}
