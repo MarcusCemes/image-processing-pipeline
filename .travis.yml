@@ -1,31 +1,10 @@
 sudo: false
-language: node_js
-cache:
-  directories:
-    - "$HOME/.npm"
-    - "node_modules"
+language: node_jsest
 
-stages:
-  - precache
-  - test
-  - deploy
-
-# Create testing matrix
-node_js:
-  - "6"
-  - "8"
-  - "10"
-  - "node"  # Latest
-
-before_test: echo "Running tests against $(node -v)..."
-
+node_js: "node"
 
 jobs:
   include:
-
-    - stage: precache
-      script: true
-      node_js: "node"
 
     - stage: deploy
       node_js: "node"
