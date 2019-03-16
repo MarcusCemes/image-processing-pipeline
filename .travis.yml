@@ -2,18 +2,20 @@ sudo: false
 language: node_js
 cache: npm
 
+# Create testing matrix
+node_js:
+  - "6"
+  - "8"
+  - "10"
+  - "node"  # Latest
+
+before_test: echo "Running tests against $(node -v)..."
+
+
 jobs:
   include:
 
-  - stage: Test
-    before_test: echo "Running tests against $(node -v)..."
-    node_js:
-      - "6"
-      - "8"
-      - "10"
-      - "node"  # Latest
-
-  - stage: Deploy
+  - stage: deploy
     node_js: 'node'
     env:   # GitHub and NPM tokens for semantic-release
       - secure: "blomCZ1zTTq9ZLvvlkn/j+5Oab69OrKYPNVCZZ6Vpp7jfYYNsJOh99WZFAGmp5WR4KYkh1sHwAM1WStem/2zINtnqebV0jDOIIRxHrOJXqpFiIbHhCocvXRIsE56zmc1C6eztXxTheM7Wty4NdLOlQLjwALQpVHUpoA+MLjjpiifAf9ZH4p3t562st3dOIsCWv+qJuinKei/b5xJrFYlPmBfMVgXuDGn/VlLqSDmNamL0D67T/p58p1uv679SjDtY0D9wswABIrvw2N6AVwCTEdPPn9xxWmm71skTcjTa1H05A2hP6ym/+84/6UJt4pbOPtGBWkwsPvvJ58j0wO5oj4HAAQ+q4CZFafdCnK5rCYv26KMoJB+Kax4wscfMQrxowyFAXDjq2+1l4iLVDGJ4TZSMsfERyiZIVsZayRD95Tfbts2EUhDpzFnTtAJaRt+Fk4ESU7+K23NjqVKQzBRXUiYR/bsZrP1hb42824N8U2gTYbAmLgXMIoGYBRHyY8uJlp2usAbWtM2qsnvxR2cvjlqvKjRqXRPtwm6EMjdMVwfu9oYCxVN1Pk/cCxnFpKnZNW32q5Ot5BqHdh5RhAetyThcE/iZlvYc1/Td4iGRyNvj99nSH/pgdC7uW8HXZc6H7+i75N0S+F8qxiockY/C7b2veVDUM5oSlQInSbhypE="
