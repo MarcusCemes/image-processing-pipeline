@@ -2,18 +2,16 @@ sudo: false
 language: node_js
 cache: npm
 
-# Generate a build matrix with different Node.js versions
-node_js:
-  - "6"
-  - "8"
-  - "10"
-  - "node"  # Latest
-
 jobs:
   include:
 
   - stage: Test
     before_test: echo "Running tests against $(node -v)..."
+    node_js:
+      - "6"
+      - "8"
+      - "10"
+      - "node"  # Latest
 
   - stage: Deploy
     node_js: 'node'
