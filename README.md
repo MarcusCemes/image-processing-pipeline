@@ -405,7 +405,7 @@ On a high-end system, you may expect to process a thousand high-quality 4K image
 
 * [NodeJS](https://nodejs.org) - Powered by Chrome's V8 Javascript engine
 * [SHARP](https://github.com/lovell/sharp) - A fantastic Node.js wrapper around the [libvips](https://github.com/jcupitt/libvips) library
-* [Dynamic Terminal](https://githuib.com/marcuscemes/dynamic-terminal) My very own terminal logging library
+* [Dynamic Terminal](https://github.com/marcuscemes/dynamic-terminal) My very own terminal logging library
 
 ### Todo
 
