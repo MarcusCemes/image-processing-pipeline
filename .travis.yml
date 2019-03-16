@@ -1,6 +1,12 @@
 sudo: false
 language: node_js
 cache: npm
+
+env:
+  # GitHub and NPM tokens for semantic-release
+  - secure: "blomCZ1zTTq9ZLvvlkn/j+5Oab69OrKYPNVCZZ6Vpp7jfYYNsJOh99WZFAGmp5WR4KYkh1sHwAM1WStem/2zINtnqebV0jDOIIRxHrOJXqpFiIbHhCocvXRIsE56zmc1C6eztXxTheM7Wty4NdLOlQLjwALQpVHUpoA+MLjjpiifAf9ZH4p3t562st3dOIsCWv+qJuinKei/b5xJrFYlPmBfMVgXuDGn/VlLqSDmNamL0D67T/p58p1uv679SjDtY0D9wswABIrvw2N6AVwCTEdPPn9xxWmm71skTcjTa1H05A2hP6ym/+84/6UJt4pbOPtGBWkwsPvvJ58j0wO5oj4HAAQ+q4CZFafdCnK5rCYv26KMoJB+Kax4wscfMQrxowyFAXDjq2+1l4iLVDGJ4TZSMsfERyiZIVsZayRD95Tfbts2EUhDpzFnTtAJaRt+Fk4ESU7+K23NjqVKQzBRXUiYR/bsZrP1hb42824N8U2gTYbAmLgXMIoGYBRHyY8uJlp2usAbWtM2qsnvxR2cvjlqvKjRqXRPtwm6EMjdMVwfu9oYCxVN1Pk/cCxnFpKnZNW32q5Ot5BqHdh5RhAetyThcE/iZlvYc1/Td4iGRyNvj99nSH/pgdC7uW8HXZc6H7+i75N0S+F8qxiockY/C7b2veVDUM5oSlQInSbhypE="
+  - secure: "O+eAVYUdhshkC3uQ1YZ4az50tkaIrnZm6o3y2bi8tVwXMaZ9IZAuwXqHw/ZqDsCkSjP5i3q4T7PyNME1kj/U9MbUahvNkxFmdbTTWbhJMmBi6tXX2coX55vnXR4WF9MIvcWzC9muVKeQbcFGPw7v2yNXY0g1mHC7YEYiZP9PQAecXkjqIuAlqWvy7DIYwvRiiYA+lSmP4c5dt+nleUtuXlmMEhHD/VYAE9o8Mw8yAbUrz17KNyqhZJwcp3PsL4596KLVhYvWF4AisT5I3Fg1WLiN+x71XsJceSP8fEhK9XGJGMKWHqkKerBmSwUG30Q03rkbJ3gzx4SJWd3pKy0BQB2P+lkKPaORwuzZdOUkqjKrnfUmMT+tMP66A87JB/eQhST45rUnpEa0VCCOSXpxZpxwcnlD6IbR77OsZXMtRWQ/tGO6XyrNJW3mwuQd+r+h3LEUHrAphEgZPmZyo67LDaZW1hJeZ2YMBkZJ7OFdofEejMyuhl7wPGoOyIO+Dhwg8Q19KKkZ1nqVRLOLFenoiTRHDwHcPfmf8aN97NqpIJ3iZjw41wAQ0eRVxYRcT2fnn01xma1WOw1NOqVqx6dpUknsD5OcPWaAGN1C06gRQAZ8tjdSu/ljIhpv0UFDOT56bTi/mriQnWvNfeGS9STxe9XaVFaZazNHHMTR9f0nOGM="
+
 jobs:
   include:
   - stage: Test
@@ -14,26 +20,9 @@ jobs:
     node_js: '11'
   - stage: Deploy
     node_js: '11'
-    script: skip
-    before_deploy:
-      - npm run build
+    script: npm run build
     deploy:
-      - provider: npm
-        email: marcus.cemes@epfl.ch
-        api_key:
-          secure: Fy5KL+j/u6Oe1JjA0fJAdQVNJ83QQ1wg2DnDHp5X5s6pHg/6VdPRpxgavyrB5YxBciVoLo/83CyCxcmiO7IRxz/FL7aCH9QWQgYocIxnchTf8Vd+hhDwIpBt7P/13iW0ee/YeLFGJrYHdbgaSx06fYSTOe4tZm+wE+WDGXEpd/DmL92pmU5rRUsORZDVnH5nr8tMSHKbZxYmB/OZ6hnh9MkoOo7ozKFaFHBZ5yMyxDFDhsaq7erPw82EXPvNvbDRfhLM899/L1EZcHKjAMG4COGqnWQTgWpv4SU4KdsHu1Cmi3s4MMY1L7HpPVlKQDwpJc/3v7ab29tXjs6JZikFjO7lcfIDJblZ6L0OvyyOxnT5Xb3ZLCF9Wbdhj77aAISYEiAPbNLWJxTZGGpzgf/5a6CbL+IevC9iaWpH0U+aKchI18AE5smLcDbU7twiPr4bAX/ZshflEza/DUspEfXlFy7j8KXQ2aAtat6MDBUrCxBr7jswtTTE1tQL66GOvBCPYyCcH27dCEsXxVoue4mvMPlVv2L7XIEE/E3SFWPvoiwrCRPqqXGJpr9xepMyUaA2BCOQdFG7tTBlgdzi6arOZY6uN22h+h+e8S/4R6qd+vrXJJrog45bqNROA7q31PPHPCk7zjrofx+UJOpycQAXpq25vRfQhY4qW+3cGzlcPy8=
-        skip_cleanup: true
-        on:
-          tags: true
-          # Deploy under @latest if it's a normal version number
-          condition: $TRAVIS_TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$
-      - provider: npm
-        email: marcus.cemes@epfl.ch
-        api_key:
-          secure: Fy5KL+j/u6Oe1JjA0fJAdQVNJ83QQ1wg2DnDHp5X5s6pHg/6VdPRpxgavyrB5YxBciVoLo/83CyCxcmiO7IRxz/FL7aCH9QWQgYocIxnchTf8Vd+hhDwIpBt7P/13iW0ee/YeLFGJrYHdbgaSx06fYSTOe4tZm+wE+WDGXEpd/DmL92pmU5rRUsORZDVnH5nr8tMSHKbZxYmB/OZ6hnh9MkoOo7ozKFaFHBZ5yMyxDFDhsaq7erPw82EXPvNvbDRfhLM899/L1EZcHKjAMG4COGqnWQTgWpv4SU4KdsHu1Cmi3s4MMY1L7HpPVlKQDwpJc/3v7ab29tXjs6JZikFjO7lcfIDJblZ6L0OvyyOxnT5Xb3ZLCF9Wbdhj77aAISYEiAPbNLWJxTZGGpzgf/5a6CbL+IevC9iaWpH0U+aKchI18AE5smLcDbU7twiPr4bAX/ZshflEza/DUspEfXlFy7j8KXQ2aAtat6MDBUrCxBr7jswtTTE1tQL66GOvBCPYyCcH27dCEsXxVoue4mvMPlVv2L7XIEE/E3SFWPvoiwrCRPqqXGJpr9xepMyUaA2BCOQdFG7tTBlgdzi6arOZY6uN22h+h+e8S/4R6qd+vrXJJrog45bqNROA7q31PPHPCk7zjrofx+UJOpycQAXpq25vRfQhY4qW+3cGzlcPy8=
-        skip_cleanup: true
-        tag: next
-        on:
-          tags: true
-          # Deploy under @next if it's has a version prefix
-          condition: $TRAVIS_TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)-([a-zA-Z]+)\.*.*$
+      provider: script
+      skip_cleanup: true
+      script:
+        - npx semantic-release
