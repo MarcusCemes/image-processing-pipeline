@@ -1,7 +1,10 @@
 sudo: false
-language: node_jsest
+language: node_js
 
-node_js: "node"
+cache: npm
+
+node_js:
+  - "node"
 
 jobs:
   include:
