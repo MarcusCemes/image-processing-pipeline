@@ -10,7 +10,7 @@
   <a alt="Link to NPM" href="https://www.npmjs.com/package/responsive-image-builder"><img src="https://img.shields.io/badge/npm-CB3837.svg?style=flat-square&logo=npm"></a>
   <img src="https://img.shields.io/badge/Responsive_Image_Builder-__🔨-FFDC00.svg?style=flat-square">
   <img src="https://img.shields.io/github/license/marcuscemes/responsive-image-builder.svg?style=flat-square">
-  <img src="https://img.shields.io/bundlephobia/min/responsive-image-builder.svg?style=flat-square&colorB=0074D9">
+  <img src="https://img.shields.io/badge/project%20size-~90MB-0074D9.svg?style=flat-square">
   <img src="https://img.shields.io/badge/Make_the_web-lighter-7FDBFF.svg?style=flat-square">
 
   <img width="600" src="https://gistcdn.githack.com/MarcusCemes/2d76cf16540d85119d70429cd1ff50e0/raw/665941935f000983c77bbb3142712c7e2bb38fc1/Responsive%20Image%20Builder%20-%20Demo%20%2301.svg" alt="An example of usage">
