@@ -401,6 +401,25 @@ For each image job, a tree-like stream network is created that flows data from t
 
 On a high-end system, you may expect to process a thousand high-quality 4K images a minute with the default program configuration.
 
+## Development
+
+
+<p align="center">
+  Responsive Image Builder using Travis CI to run tests on all pushed tests and to automatically deploy to NPM.
+  <br>
+  Please make sure that your contributions pass tests before submitting a Pull Request.
+</p>
+
+<p align="center">
+  <a href="https://travis-ci.com/MarcusCemes/responsive-image-builder/branches">
+    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/master.svg?label=MASTER&logo=travis&style=for-the-badge">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://travis-ci.com/MarcusCemes/responsive-image-builder/branches">
+    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/develop.svg?label=DEVELOP&logo=travis&style=for-the-badge">
+  </a>
+</p>
+
 ## Built With
 
 * [NodeJS](https://nodejs.org) - Powered by Chrome's V8 Javascript engine
@@ -425,7 +444,7 @@ On a high-end system, you may expect to process a thousand high-quality 4K image
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/MarcusCemes/responsive-image-builder/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/MarcusCemes/responsive-image-builder/tags).
 
 ## Authors
 
