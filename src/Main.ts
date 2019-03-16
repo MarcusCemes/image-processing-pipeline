@@ -25,7 +25,7 @@ export async function main(config: IConfig): Promise<IResult> {
           margin: { top: 1, left: 0, right: 0, bottom: 0 },
           padding: { top: 0, left: 2, right: 2, bottom: 0 },
           borderColor: "greenBright"
-        }),
+        }) + "\n",
         16,
         Logger.VERBOSE
       );
@@ -35,7 +35,7 @@ export async function main(config: IConfig): Promise<IResult> {
           margin: { top: 1, left: 0, right: 0, bottom: 0 },
           padding: { top: 0, left: 2, right: 2, bottom: 0 },
           borderColor: "#FF851B"
-        }),
+        }) + "\n",
         16,
         Logger.VERBOSE
       );
@@ -52,7 +52,7 @@ export async function main(config: IConfig): Promise<IResult> {
         margin: { top: 1, left: 0, right: 0, bottom: 0 },
         padding: { top: 0, left: 2, right: 2, bottom: 0 },
         borderColor: "redBright"
-      }),
+      }) + "\n",
       16,
       Logger.VERBOSE
     );

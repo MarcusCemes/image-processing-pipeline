@@ -1,4 +1,4 @@
-import boxen from "boxen";
+import ansiAlign from "ansi-align";
 import chalk from "chalk";
 import { DynamicTerminal, ILine } from "dynamic-terminal";
 import { prompt } from "enquirer";
@@ -82,13 +82,13 @@ export class Preparation {
       await this.output.stop(false);
       this.output.destroy();
       this.logger.error(
-        boxen(
-          "\n\n" +
-            chalk.bold.red(`    ${figures.warning} START FAILURE ${figures.warning}`) +
-            "\n\n" +
-            err.message.trim() || err,
-          { padding: 1, borderColor: "red" }
-        ),
+        "\r\n" + // Cursor is at position 1 for some reason
+          ansiAlign(
+            chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
+              "\n\n" +
+              err.message.trim() || err
+          ) +
+          "\n",
         2,
         false
       );
