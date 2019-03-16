@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/bundlephobia/min/responsive-image-builder.svg?style=flat-square&colorB=0074D9">
   <img src="https://img.shields.io/badge/Make_the_web-lighter-7FDBFF.svg?style=flat-square">
 
-  <img width="600" src="https://gistcdn.githack.com/MarcusCemes/2d76cf16540d85119d70429cd1ff50e0/raw/Responsive%20Image%20Builder%20-%20Demo%20%2301.svg" alt="An example of usage">
+  <img width="600" src="https://gistcdn.githack.com/MarcusCemes/2d76cf16540d85119d70429cd1ff50e0/raw/665941935f000983c77bbb3142712c7e2bb38fc1/Responsive%20Image%20Builder%20-%20Demo%20%2301.svg" alt="An example of usage">
   <br>
   <sub><i>Don't let its simplicity fool you. It's powerful.</i></sub>
 
