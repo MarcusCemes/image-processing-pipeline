@@ -113,6 +113,7 @@ export class Preparation {
 
         // tiny-glob works with UNIX-style paths, even on Windows
         const files = await glob(path.posix.join(this.config.out, "/**/*"), {
+          cwd: path.isAbsolute(this.config.out) ? "/" : ".",
           absolute: true,
           filesOnly: true
         });
@@ -255,7 +256,7 @@ export class Preparation {
         } else {
           const files = await glob(
             path.posix.join(dir, "/**/*.{" + SUPPORTED_EXTENSIONS.join(",") + "}"),
-            { absolute: true }
+            { absolute: true, cwd: path.isAbsolute(this.config.out) ? "/" : "." }
           );
           result.files.push(...files.map(p => ({ base: dir, path: p })));
         }
