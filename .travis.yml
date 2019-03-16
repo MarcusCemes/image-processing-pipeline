@@ -2,6 +2,11 @@ sudo: false
 language: node_js
 cache: npm
 
+stages:
+   - precache
+   - test
+   - deploy
+
 # Create testing matrix
 node_js:
   - "6"
@@ -14,6 +19,9 @@ before_test: echo "Running tests against $(node -v)..."
 
 jobs:
   include:
+
+  - stage: precache
+    script: true
 
   - stage: deploy
     node_js: 'node'
