@@ -8,6 +8,7 @@ const program = require("commander");
 const cosmiconfig = require("cosmiconfig");
 const explorer = cosmiconfig("rib");
 const loudRejection = require('loud-rejection');
+const { responsiveImageBuilder } = require("../");
 
 loudRejection(error => {
   process.stdout.write("An asynchronous promise encountered an error during execution\n");
@@ -20,6 +21,9 @@ function intParser(input) {
 }
 
 process.stdout.write("\x1b[?25h");
+
+// Remove the message now that everything is loaded
+process.stdout.write("\x1b[K\x1b[?25h");
 
 program
   .version(require("../package.json").version)
@@ -85,8 +89,6 @@ explorer.search()
 
     if (finalConfig.in) finalConfig.in = finalConfig.in.split("..");
 
-    // Load the module, and all of it's dependencies
-    const { responsiveImageBuilder } = require("../");
 
     return { finalConfig, responsiveImageBuilder };
 
@@ -104,9 +106,6 @@ explorer.search()
   }).then(obj => {
 
     if (!obj) return;
-
-    // Remove the message now that everything is loaded
-    process.stdout.write("\x1b[K\x1b[?25h");
 
     // Used to avoid a CMD bug with Windows
     // An empty command is executed when stdin raw mode is disabled and stream is paused
