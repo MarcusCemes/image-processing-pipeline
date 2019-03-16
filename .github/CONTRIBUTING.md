@@ -5,14 +5,13 @@ email, or any other method with the owners of this repository before making a ch
 
 ## Pull Request Process
 
-1. Ensure any install or build dependencies are removed before the end of the layer when doing a
-   build and that the project passes the tests.
+1. Make sure that your improvements pass the tests.
 2. Update the README.md with details of changes to the library if necessary.
 3. Submit a pull request.
 4. \[MAINTAINER\] Merge and Squash the PR respecting
-   [Conventional Commits](https://www.conventionalcommits.org/).
-5. \[MAINTAINER\] Pull the changes, run `standard-version` and push changes to origin. A continuous
-   integration service will publish to NPM.
+   [Conventional Commits](https://www.conventionalcommits.org/). Commitizen is recommended.
+5. \[MAINTAINER\] Push the changes to origin. Travis CI will test the build and deploy automatically
+   to NPM if necessary.
 
 ## Code of Conduct
 

@@ -2,28 +2,25 @@ sudo: false
 language: node_js
 cache: npm
 
+# Generate a build matrix with different Node.js versions
+node_js:
+  - "6"
+  - "8"
+  - "10"
+  - "node"  # Latest
+
 jobs:
   include:
 
   - stage: Test
     before_test: echo "Running tests against $(node -v)..."
-    node_js: '8'
-
-  - stage: Test
-    before_test: echo "Running tests against $(node -v)..."
-    node_js: '10'
-
-  - stage: Test
-    before_test: echo "Running tests against $(node -v)..."
-    node_js: '11'
-
 
   - stage: Deploy
-    node_js: '11'
-    script: npm run build
+    node_js: 'node'
     env:   # GitHub and NPM tokens for semantic-release
       - secure: "blomCZ1zTTq9ZLvvlkn/j+5Oab69OrKYPNVCZZ6Vpp7jfYYNsJOh99WZFAGmp5WR4KYkh1sHwAM1WStem/2zINtnqebV0jDOIIRxHrOJXqpFiIbHhCocvXRIsE56zmc1C6eztXxTheM7Wty4NdLOlQLjwALQpVHUpoA+MLjjpiifAf9ZH4p3t562st3dOIsCWv+qJuinKei/b5xJrFYlPmBfMVgXuDGn/VlLqSDmNamL0D67T/p58p1uv679SjDtY0D9wswABIrvw2N6AVwCTEdPPn9xxWmm71skTcjTa1H05A2hP6ym/+84/6UJt4pbOPtGBWkwsPvvJ58j0wO5oj4HAAQ+q4CZFafdCnK5rCYv26KMoJB+Kax4wscfMQrxowyFAXDjq2+1l4iLVDGJ4TZSMsfERyiZIVsZayRD95Tfbts2EUhDpzFnTtAJaRt+Fk4ESU7+K23NjqVKQzBRXUiYR/bsZrP1hb42824N8U2gTYbAmLgXMIoGYBRHyY8uJlp2usAbWtM2qsnvxR2cvjlqvKjRqXRPtwm6EMjdMVwfu9oYCxVN1Pk/cCxnFpKnZNW32q5Ot5BqHdh5RhAetyThcE/iZlvYc1/Td4iGRyNvj99nSH/pgdC7uW8HXZc6H7+i75N0S+F8qxiockY/C7b2veVDUM5oSlQInSbhypE="
       - secure: "O+eAVYUdhshkC3uQ1YZ4az50tkaIrnZm6o3y2bi8tVwXMaZ9IZAuwXqHw/ZqDsCkSjP5i3q4T7PyNME1kj/U9MbUahvNkxFmdbTTWbhJMmBi6tXX2coX55vnXR4WF9MIvcWzC9muVKeQbcFGPw7v2yNXY0g1mHC7YEYiZP9PQAecXkjqIuAlqWvy7DIYwvRiiYA+lSmP4c5dt+nleUtuXlmMEhHD/VYAE9o8Mw8yAbUrz17KNyqhZJwcp3PsL4596KLVhYvWF4AisT5I3Fg1WLiN+x71XsJceSP8fEhK9XGJGMKWHqkKerBmSwUG30Q03rkbJ3gzx4SJWd3pKy0BQB2P+lkKPaORwuzZdOUkqjKrnfUmMT+tMP66A87JB/eQhST45rUnpEa0VCCOSXpxZpxwcnlD6IbR77OsZXMtRWQ/tGO6XyrNJW3mwuQd+r+h3LEUHrAphEgZPmZyo67LDaZW1hJeZ2YMBkZJ7OFdofEejMyuhl7wPGoOyIO+Dhwg8Q19KKkZ1nqVRLOLFenoiTRHDwHcPfmf8aN97NqpIJ3iZjw41wAQ0eRVxYRcT2fnn01xma1WOw1NOqVqx6dpUknsD5OcPWaAGN1C06gRQAZ8tjdSu/ljIhpv0UFDOT56bTi/mriQnWvNfeGS9STxe9XaVFaZazNHHMTR9f0nOGM="
+    script: npm run build
     deploy:
       provider: script
       skip_cleanup: true

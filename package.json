@@ -37,20 +37,15 @@
     "test": "run-s build test:*",
     "test:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
     "watch": "run-s clean build:main && run-p \"build:main -- -w\"",
-    "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
-    "clean": "trash dist test",
-    "all": "run-s reset test",
-    "prepare-release": "run-s all version"
+    "clean": "trash dist test"
   },
   "scripts-info": {
     "build": "Clean and rebuild the project",
     "fix": "Try to automatically fix any linting problems",
     "test": "Lint test the project",
     "watch": "Watch and rebuild the project on save",
-    "version": "Bump package.json version, update CHANGELOG.md, tag release",
-    "reset": "Delete all untracked files and reset the repo to the last commit",
-    "prepare-release": "One-step: clean, build, test, and prep a release"
+    "reset": "Delete all untracked files and reset the repo to the last commit"
   },
   "engines": {
     "node": ">=8.9"
@@ -89,7 +84,6 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^1.15.2",
     "semantic-release": "^15.13.3",
-    "standard-version": "^4.4.0",
     "trash-cli": "^1.4.0",
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.17.0",
