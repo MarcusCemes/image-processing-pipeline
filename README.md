@@ -412,11 +412,11 @@ On a high-end system, you may expect to process a thousand high-quality 4K image
 
 <p align="center">
   <a href="https://travis-ci.com/MarcusCemes/responsive-image-builder/branches">
-    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/master.svg?label=MASTER&logo=travis&style=for-the-badge">
+    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/master.svg?label=MASTER&logo=travis&style=for-the-badge" alt="Build Status - master">
   </a>
   &nbsp;&nbsp;
   <a href="https://travis-ci.com/MarcusCemes/responsive-image-builder/branches">
-    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/develop.svg?label=DEVELOP&logo=travis&style=for-the-badge">
+    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/develop.svg?label=DEVELOP&logo=travis&style=for-the-badge" alt="Build Status - develop>
   </a>
 </p>
 
@@ -453,3 +453,25 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## License
 
 This project is licensed under the **Apache 2.0** License - see the [LICENSE.md](LICENSE.md) file for details
+
+
+<!-- -- HIDDEN SECTION --
+
+npms.io doesn't support HTML-tags when analyzing a README.md, and markdown images don't support centering.
+Badges and other score-related items are re-declared here as markdown.
+
+[![npm](https://img.shields.io/badge/npm-CB3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/responsive-image-builder)
+
+![Project name](https://img.shields.io/badge/Responsive_Image_Builder-__🔨-FFDC00.svg?style=flat-square)
+
+![Size](https://img.shields.io/badge/project%20size-~90MB-0074D9.svg?style=flat-square)
+
+![License](https://img.shields.io/github/license/marcuscemes/responsive-image-builder.svg?style=flat-square)
+
+![Make the web lighter](https://img.shields.io/badge/Make_the_web-lighter-7FDBFF.svg?style=flat-square)
+
+[![Build Status - master](https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/master.svg?label=MASTER&logo=travis&style=for-the-badge)](https://travis-ci.com/MarcusCemes/responsive-image-builder/branches)
+
+[![Build Status - develop](https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/develop.svg?label=DEVELOP&logo=travis&style=for-the-badge)](https://travis-ci.com/MarcusCemes/responsive-image-builder/branches)
+
+-->
