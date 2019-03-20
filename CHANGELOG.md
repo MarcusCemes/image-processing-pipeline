@@ -5,12 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.2] - 2019-03-20
 ### Added
 - Started keeping a changelog
 - semantic-release integration with Travis CI for automatic deployment to GitHub and NPM
 
 ### Removed
 - standard-version (and other version-related package.json scripts)
+
+### Changed
+- docs:(readme) will now trigger a patch release
+
+### Fixed
+- Badges are now recognized by the npms.io scoring algorithm
 
 ## [2.0.1] - 2019-03-16
 ### Changed
@@ -63,7 +71,8 @@ The TODO list has been extended with future goals, if you have another idea for 
 ## [1.0.3] - 2018-11-03
 First release
 
-[Unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v1.1.3...v2.0.0
 [1.1.3]: https://github.com/marcuscemes/responsive-image-builder/compare/v1.1.2...v1.1.3
