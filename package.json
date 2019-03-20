@@ -98,5 +98,13 @@
     "singleQuote": false,
     "proseWrap": "always",
     "printWidth": 100
+  },
+  "release": {
+    "analyzeCommits": {
+      "preset": "angular",
+      "releaseRules": [
+        { "type": "docs", "scope": "readme", "release": "patch" }
+      ]
+    }
   }
 }
