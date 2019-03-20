@@ -402,7 +402,7 @@ On a high-end system, you may expect to process a thousand high-quality 4K image
 
 ## Development
 
-Responsive Image Builder using [Travis CI](https://travis-ci.com/MarcusCemes/responsive-image-builder) to run tests on all pushed changes, automatically deploying to npm when a significant operational change is made and all the tests have passed.
+Responsive Image Builder uses [Travis CI](https://travis-ci.com/MarcusCemes/responsive-image-builder) to run tests on all pushed changes, automatically deploying to npm when a significant operational change is made and all the tests have passed.
 Please make sure that your contributions pass tests before submitting a Pull Request, and that your commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.3/) specification.
 
 <p align="center">
