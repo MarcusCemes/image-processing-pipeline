@@ -1,12 +1,12 @@
-<div align="center">
 
+<h1 align="center">Responsive Image Builder</h1>
 
-  <h1 align="center">Responsive Image Builder</h1>
-
+<p align="center">
   <b>An ultra-fast WebP image building pipeline, for the web!</b>
   <br>
   <sub><i>The image side of web development should be so much easier by now...</i></sub>
-
+</p>
+<p align="center">
   <a alt="Link to NPM" href="https://www.npmjs.com/package/responsive-image-builder"><img src="https://img.shields.io/badge/npm-CB3837.svg?style=flat-square&logo=npm"></a>
   <img src="https://img.shields.io/badge/Responsive_Image_Builder-__🔨-FFDC00.svg?style=flat-square">
   <img src="https://img.shields.io/github/license/marcuscemes/responsive-image-builder.svg?style=flat-square">
@@ -16,8 +16,7 @@
   <img width="600" src="https://gistcdn.githack.com/MarcusCemes/2d76cf16540d85119d70429cd1ff50e0/raw/665941935f000983c77bbb3142712c7e2bb38fc1/Responsive%20Image%20Builder%20-%20Demo%20%2301.svg" alt="An example of usage">
   <br>
   <sub><i>Don't let its simplicity fool you. It's powerful.</i></sub>
-
-</div>
+</p>
 
 ## Features
 
@@ -403,12 +402,8 @@ On a high-end system, you may expect to process a thousand high-quality 4K image
 
 ## Development
 
-
-<p align="center">
-  Responsive Image Builder using Travis CI to run tests on all pushed tests and to automatically deploy to NPM.
-  <br>
-  Please make sure that your contributions pass tests before submitting a Pull Request.
-</p>
+Responsive Image Builder using [Travis CI](https://travis-ci.com/MarcusCemes/responsive-image-builder) to run tests on all pushed changes, automatically deploying to npm when a significant operational change is made and all the tests have passed.
+Please make sure that your contributions pass tests before submitting a Pull Request, and that your commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.3/) specification.
 
 <p align="center">
   <a href="https://travis-ci.com/MarcusCemes/responsive-image-builder/branches">
@@ -416,7 +411,7 @@ On a high-end system, you may expect to process a thousand high-quality 4K image
   </a>
   &nbsp;&nbsp;
   <a href="https://travis-ci.com/MarcusCemes/responsive-image-builder/branches">
-    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/develop.svg?label=DEVELOP&logo=travis&style=for-the-badge" alt="Build Status - develop>
+    <img src="https://img.shields.io/travis/com/MarcusCemes/responsive-image-builder/develop.svg?label=DEVELOP&logo=travis&style=for-the-badge" alt="Build Status - develop">
   </a>
 </p>
 
