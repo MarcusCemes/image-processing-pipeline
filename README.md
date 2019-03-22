@@ -1,4 +1,3 @@
-
 <h1 align="center">Responsive Image Builder</h1>
 
 <p align="center">
@@ -17,6 +16,9 @@
   <br>
   <sub><i>Don't let its simplicity fool you. It's powerful.</i></sub>
 </p>
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMarcusCemes%2Fresponsive-image-builder.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FMarcusCemes%2Fresponsive-image-builder?ref=badge_large)
 
 ## Features
 
@@ -456,6 +458,7 @@ npms.io doesn't support HTML-tags when analyzing a README.md, and markdown image
 Badges and other score-related items are re-declared here as markdown.
 
 [![npm](https://img.shields.io/badge/npm-CB3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/responsive-image-builder)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMarcusCemes%2Fresponsive-image-builder.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FMarcusCemes%2Fresponsive-image-builder?ref=badge_shield)
 
 ![Project name](https://img.shields.io/badge/Responsive_Image_Builder-__🔨-FFDC00.svg?style=flat-square)
 
