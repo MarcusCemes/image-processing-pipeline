@@ -86,11 +86,14 @@ export class Preparation {
       this.output.destroy();
       this.logger.error(
         "\r\n" + // Cursor is at position 1 for some reason
-          ansiAlign(wrapAnsi(
-            chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
-              "\n\n" +
-              err.message.trim() || err
-          ), WRAP_WIDTH) +
+          ansiAlign(
+            wrapAnsi(
+              chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
+                "\n\n" +
+                err.message.trim() || err
+            ),
+            WRAP_WIDTH
+          ) +
           "\n",
         2,
         false
