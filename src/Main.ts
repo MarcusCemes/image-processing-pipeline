@@ -1,13 +1,13 @@
-import boxen from 'boxen';
-import chalk from 'chalk';
+import boxen from "boxen";
+import chalk from "chalk";
 
-import { IConfig } from './Config';
-import { WRAP_WIDTH } from './Constants';
-import { Controller } from './Controller';
-import { IResult, PreparationError } from './Interfaces';
-import { Logger } from './Logger';
-import { IFile, Preparation } from './Preparation';
-import { centreText } from './Utility';
+import { IConfig } from "./Config";
+import { WRAP_WIDTH } from "./Constants";
+import { Controller } from "./Controller";
+import { IResult, PreparationError } from "./Interfaces";
+import { Logger } from "./Logger";
+import { IFile, Preparation } from "./Preparation";
+import { centreText } from "./Utility";
 
 export async function main(config: IConfig): Promise<IResult> {
   const logger = new Logger(config.verbosity);
@@ -60,7 +60,8 @@ export async function main(config: IConfig): Promise<IResult> {
           padding: { top: 0, left: 2, right: 2, bottom: 0 },
           borderColor: "redBright"
         }) + "\n",
-        WRAP_WIDTH),
+        WRAP_WIDTH
+      ),
       Logger.VERBOSE
     );
     throw err;
@@ -68,17 +69,17 @@ export async function main(config: IConfig): Promise<IResult> {
 }
 
 function showBanner(logger: Logger) {
-  logger.log(chalk.bold.white(`
+  logger.log(
+    chalk.bold.white(`
    ______   _____ _______
   (, /   ) (, /  (, /    )
     /__ /    /     /---(
  ) /   \\____/__ ) / ____)
-(_/    (__ /   (_/ (`), 10);
+(_/    (__ /   (_/ (`),
+    10
+  );
   logger.log(
-    centreText(
-      "\n\n  A WebP build pipeline\n  https://git.io/fjvL7\n",
-      WRAP_WIDTH
-    ),
+    centreText("\n\n  A WebP build pipeline\n  https://git.io/fjvL7\n", WRAP_WIDTH),
     Logger.VERBOSE
   );
 }

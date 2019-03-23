@@ -1,18 +1,18 @@
-import chalk from 'chalk';
-import { DynamicTerminal, ILine } from 'dynamic-terminal';
-import { prompt } from 'enquirer';
-import figures from 'figures';
-import fs from 'fs-extra';
-import os from 'os';
-import path from 'path';
-import slash from 'slash';
-import glob from 'tiny-glob';
+import chalk from "chalk";
+import { DynamicTerminal, ILine } from "dynamic-terminal";
+import { prompt } from "enquirer";
+import figures from "figures";
+import fs from "fs-extra";
+import os from "os";
+import path from "path";
+import slash from "slash";
+import glob from "tiny-glob";
 
-import { IConfig } from './Config';
-import { SUPPORTED_EXTENSIONS, WRAP_WIDTH } from './Constants';
-import { PreparationError } from './Interfaces';
-import { Logger } from './Logger';
-import { centreText } from './Utility';
+import { IConfig } from "./Config";
+import { SUPPORTED_EXTENSIONS, WRAP_WIDTH } from "./Constants";
+import { PreparationError } from "./Interfaces";
+import { Logger } from "./Logger";
+import { centreText } from "./Utility";
 
 export interface IFile {
   base: string;

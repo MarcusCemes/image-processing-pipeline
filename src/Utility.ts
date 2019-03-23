@@ -1,5 +1,5 @@
-import sharp, { Sharp } from "sharp";
 import ansiAlign from "ansi-align";
+import sharp, { Sharp } from "sharp";
 import wrapAnsi from "wrap-ansi";
 
 export function isSharpInstance(instance: object): instance is Sharp {
