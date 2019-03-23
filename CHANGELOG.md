@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.5] - 2019-03-23
+
+### Changed
+
+- Updated all dependencies. Some now require Node.js 8
+
+### Fixed
+
+- Absolute paths on Windows (tiny-glob bug)
+
 ## [2.0.4] - 2019-03-20
 
 ### Fixed
@@ -109,7 +119,9 @@ not fork the project and submit a Pull Request?
 
 First release
 
-[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.3...HEAD
+[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.5...HEAD
+[2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.4...v2.0.5
+[2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.3...v2.0.4
 [2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.0...v2.0.1

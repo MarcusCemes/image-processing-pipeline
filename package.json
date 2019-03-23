@@ -72,7 +72,8 @@
     "indent-string": "^3.2.0",
     "sharp": "^0.22.0",
     "slash": "^2.0.0",
-    "tiny-glob": "^0.2.6"
+    "tiny-glob": "^0.2.6",
+    "wrap-ansi": "^5.0.0"
   },
   "devDependencies": {
     "@types/event-stream": "^3.3.34",
