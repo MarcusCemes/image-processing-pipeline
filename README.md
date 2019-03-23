@@ -253,6 +253,7 @@ All keys in the configuration object have [Typescript](#typescript) typings that
 
 **Note:** The supported keys for codec specific settings are:
 
+- exportOriginal
 - exportWebp
 - resize
 - optimize
@@ -395,11 +396,11 @@ Even without modern editor, you can consult the generated `*.d.ts` typing files 
 
 ## Optimization
 
-Image optimization uses *pngquant*, *mozjpeg*, *svgo*, *gifsicle* and *cwebp* to reduce the output image size as much as possible. By default, it's very aggressive, and also very slow. In most situations it will take more time than the resize process. If `optimize` is set to `false`, then the image will be saved directly from SHARP using default codec settings, instead of being sent to the optimizer first.
+Image optimization uses *pngquant*, *mozjpeg*, *svgo* and *gifsicle* to reduce the output image size as much as possible. By default, it's very aggressive, and also very slow. In most situations it will take more time than the resize process. If `optimize` is set to `false`, then the image will be saved directly from SHARP using default codec settings, instead of being sent to the optimizer first.
 
-You can override all of the optimizer settings by specifying the `optimizerSettings` key in the configuration object (must be under on of the `png`, `jpeg`, `svg` or `gif` keys).
+You can override all of the optimizer settings by specifying the `optimizerSettings` key in the configuration object (must be under on of the `png`, `jpeg`, `svg`, `gif` or `webp` keys).
 
-See [imagemin-pngquant](https://www.npmjs.com/package/imagemin-pngquant), [imagemin-mozjpeg](https://www.npmjs.com/package/imagemin-mozjpeg), [imagemin-svgo](https://www.npmjs.com/package/imagemin-svgo), [imagemin-gifsicle](https://www.npmjs.com/package/imagemin-gifsicle) and [imagemin-webp](https://www.npmjs.com/package/imagemin-webp) for the available optimization options.
+See [imagemin-pngquant](https://www.npmjs.com/package/imagemin-pngquant), [imagemin-mozjpeg](https://www.npmjs.com/package/imagemin-mozjpeg), [imagemin-svgo](https://www.npmjs.com/package/imagemin-svgo) and [imagemin-gifsicle](https://www.npmjs.com/package/imagemin-gifsicle) for the available optimization options. For WebP, you must use the [SHARP configuration object](https://sharp.dimens.io/en/stable/api-output/#webp) instead, as `imagemin-webp` seems to have compatibility issues with libvips.
 
 Usually WebP provides a ~40% difference in file reduction, however you may need to play around with the optimizer settings to achieve this. I have chosen some opinionated settings to try to achieve web-type compression. Specifying a an empty object `{}` as the `optimizerSettings` for the codec (in the config) will override the default settings and revert to the plugin defaults.
 
@@ -407,7 +408,7 @@ Usually WebP provides a ~40% difference in file reduction, however you may need 
 
 RIB has been rewritten from the ground up to be more efficient than previous versions. Instead of writing vast quantities of raw image data to memory buffers for every operation, the new version leverages the performance of Node.js streams, reducing the memory footprint without sacrificing any speed.
 
-For each image job, a tree-like stream network is created that flows data from the source image, through the resize and optimizer streams before being redirected back to the disk. This allows image data to flow through the network as needed until all write streams close, small packets at a time.
+For each image job, a tree-like stream network (that is referred to as a pipeline in this documentation) is created that flows data from the source image, through the resize and optimizer stream modifiers before being redirected back to the disk. This allows image data to flow through the network as needed until all write streams close, small packets at a time.
 
 On a high-end system, you may expect to process a thousand high-quality 4K images a minute with the default program configuration.
 
@@ -430,7 +431,7 @@ Please make sure that your contributions pass tests before submitting a Pull Req
 
 It's hard to make short error messages easy to understand. You can find a description of the error here.
 
-RIB error codes are formatted as the letter E, followed by four digits.
+RIB error codes are formatted as the letter E, followed by three digits.
 
 <details><summary><b>Error codes (click me)</b></summary>
 
@@ -462,6 +463,8 @@ Important files were detected in the output folder, and the user aborted the cle
 
 The controller is in charge of the worker cluster and handles job delegation.
 
+All errors are passed through the the Main class.
+
 ### Thread errors
 
 These errors are thrown by the image processing thread.
@@ -481,7 +484,7 @@ An unlikely error, the image disappeared since the input directory was scanned d
 
 #### E503 - Not a file
 
-An unlikely error. The path for the image was no-longer a file.
+An unlikely error. The path for the image was no longer a file.
 
 </details>
 
@@ -489,7 +492,7 @@ An unlikely error. The path for the image was no-longer a file.
 
 * [NodeJS](https://nodejs.org) - Powered by Chrome's V8 Javascript engine
 * [SHARP](https://github.com/lovell/sharp) - A fantastic Node.js wrapper around the [libvips](https://github.com/jcupitt/libvips) library
-* [Dynamic Terminal](https://github.com/marcuscemes/dynamic-terminal) My very own terminal logging library
+* [Dynamic Terminal](https://github.com/marcuscemes/dynamic-terminal) - My very own terminal logging library
 
 ### Milestones
 
@@ -503,7 +506,6 @@ An unlikely error. The path for the image was no-longer a file.
 - [ ] Support "synchronize" mode where only missing images are exported
 - [ ] Add checksum to manifest for better image searching
 - [ ] Add example with new WebP optimizer and better optimizer settings
-- [ ] Consider removing dependency and use compiled encoders directly
 - [x] Add exportOriginalCodec option
 - [x] Add support for imagemin-webp [REVERTED DUE TO BUG]
 - [x] Avoid double-compressing a file when optimizer is enabled
