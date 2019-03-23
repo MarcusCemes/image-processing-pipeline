@@ -1,29 +1,19 @@
 #!/usr/bin/env node
 
 // Show a message and hide cursor while requiring modules
-process.stdout.write("Just a sec...\r\x1b[?25l");
+if (process.argv.indexOf("-V") === -1) {
+  process.stdout.write("Just a sec...\r\x1b[?25l");
+}
 
 const merge = require("deepmerge");
 const program = require("commander");
 const cosmiconfig = require("cosmiconfig");
 const explorer = cosmiconfig("rib");
-const loudRejection = require('loud-rejection');
-const { responsiveImageBuilder } = require("../");
-
-loudRejection(error => {
-  process.stdout.write("An asynchronous promise encountered an error during execution\n");
-  console.log(error);
-});
 
 function intParser(input) {
   if (typeof input === "string" && input.length > 0) return parseInt(input);
   return undefined;
 }
-
-process.stdout.write("\x1b[?25h");
-
-// Remove the message now that everything is loaded
-process.stdout.write("\x1b[K\x1b[?25h");
 
 program
   .version(require("../package.json").version)
@@ -36,7 +26,7 @@ program
 
   Responsive Image Builder - https://git.io/fjvL7
 
-  An ultra-fast WebP build pipeline, for the web!`) // Show the cursor if help is displayed
+  An ultra-fast WebP build pipeline, for the web!\x1b[?25h`) // Show the cursor if help is displayed
   .usage("-i <paths> -o <path> [options]")
   .option("-i, --in <paths>", 'Input paths (separated with two periods "..")')
   .option("-o, --out <path>", "Output path")
@@ -89,6 +79,10 @@ explorer.search()
 
     if (finalConfig.in) finalConfig.in = finalConfig.in.split("..");
 
+    const { responsiveImageBuilder } = require("../");
+
+    // Remove the message now that everything is loaded
+    process.stdout.write("\x1b[K\x1b[?25h");
 
     return { finalConfig, responsiveImageBuilder };
 

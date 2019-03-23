@@ -8,11 +8,14 @@ import os from "os";
 import path from "path";
 import slash from "slash";
 import glob from "tiny-glob";
+import wrapAnsi from "wrap-ansi";
 
 import { IConfig } from "./Config";
 import { SUPPORTED_EXTENSIONS } from "./Constants";
 import { PreparationError } from "./Interfaces";
 import { Logger } from "./Logger";
+
+const WRAP_WIDTH = 80;
 
 export interface IFile {
   base: string;
@@ -84,9 +87,12 @@ export class Preparation {
       this.logger.error(
         "\r\n" + // Cursor is at position 1 for some reason
           ansiAlign(
-            chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
-              "\n\n" +
-              err.message.trim() || err
+            wrapAnsi(
+              chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
+                "\n\n" +
+                err.message.trim() || err
+            ),
+            WRAP_WIDTH
           ) +
           "\n",
         2,
@@ -113,7 +119,6 @@ export class Preparation {
 
         // tiny-glob works with UNIX-style paths, even on Windows
         const files = await glob(path.posix.join(this.config.out, "/**/*"), {
-          cwd: path.isAbsolute(this.config.out) ? "/" : ".",
           absolute: true,
           filesOnly: true
         });
@@ -256,7 +261,7 @@ export class Preparation {
         } else {
           const files = await glob(
             path.posix.join(dir, "/**/*.{" + SUPPORTED_EXTENSIONS.join(",") + "}"),
-            { absolute: true, cwd: path.isAbsolute(this.config.out) ? "/" : "." }
+            { absolute: true }
           );
           result.files.push(...files.map(p => ({ base: dir, path: p })));
         }
