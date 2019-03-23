@@ -167,12 +167,13 @@ export class Controller {
       if (this.failedFiles.length > 0) {
         this.logger.warning(
           `${this.failedFiles.length} image${
-            this.failedFiles.length !== 1 ? "s" : " "
-          } encountered an error during export`
+            this.failedFiles.length !== 1 ? "s" : ""
+          } failed during export`
         );
 
         try {
-          const json = JSON.stringify({ errors: this.failedFiles });
+          const description = "See the documentation for help with error codes";
+          const json = JSON.stringify({ description, errors: this.failedFiles });
           const writeStream = createWriteStream(path.join(this.config.out, "errors.json"));
           await new Promise(res => {
             writeStream.on("finish", () => res());

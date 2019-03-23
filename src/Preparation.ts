@@ -1,21 +1,18 @@
-import ansiAlign from "ansi-align";
-import chalk from "chalk";
-import { DynamicTerminal, ILine } from "dynamic-terminal";
-import { prompt } from "enquirer";
-import figures from "figures";
-import fs from "fs-extra";
-import os from "os";
-import path from "path";
-import slash from "slash";
-import glob from "tiny-glob";
-import wrapAnsi from "wrap-ansi";
+import chalk from 'chalk';
+import { DynamicTerminal, ILine } from 'dynamic-terminal';
+import { prompt } from 'enquirer';
+import figures from 'figures';
+import fs from 'fs-extra';
+import os from 'os';
+import path from 'path';
+import slash from 'slash';
+import glob from 'tiny-glob';
 
-import { IConfig } from "./Config";
-import { SUPPORTED_EXTENSIONS } from "./Constants";
-import { PreparationError } from "./Interfaces";
-import { Logger } from "./Logger";
-
-const WRAP_WIDTH = 80;
+import { IConfig } from './Config';
+import { SUPPORTED_EXTENSIONS, WRAP_WIDTH } from './Constants';
+import { PreparationError } from './Interfaces';
+import { Logger } from './Logger';
+import { centreText } from './Utility';
 
 export interface IFile {
   base: string;
@@ -76,7 +73,7 @@ export class Preparation {
       }
 
       if (errors !== "") {
-        throw new PreparationError(errors, "Preparation failed");
+        throw new PreparationError("E200 General preparation error", errors);
       }
 
       // Resolve the promise
@@ -86,19 +83,17 @@ export class Preparation {
       this.output.destroy();
       this.logger.error(
         "\r\n" + // Cursor is at position 1 for some reason
-          ansiAlign(
-            wrapAnsi(
-              chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
-                "\n\n" +
-                err.message.trim() || err
-            ),
+          centreText(
+            chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
+              "\n\n" +
+              err.message.trim() || err,
             WRAP_WIDTH
           ) +
           "\n",
         2,
         false
       );
-      throw new PreparationError(err.message || err, "Preparation failed");
+      throw new PreparationError("E201 Fatal preparation error", err.message || err);
     }
   }
 
@@ -142,7 +137,7 @@ export class Preparation {
 
             if (typeof response === "object" && !response.cleanConfirmation) {
               throw new PreparationError(
-                "Output directory not empty",
+                "E202 Output not empty",
                 "The output directory may have contained important files, and you aborted the clean"
               );
             }

@@ -15,25 +15,43 @@ import { Logger } from "./Logger";
  * WebP and fallback codec export.
  */
 export interface IExportPreset {
+  /** The name of the preset, this will be used to suffix the file */
   name: string;
+  /** The maximum horizontal resolution of the image */
   width: number;
+  /** The maximum vertical resolution of the image */
   height: number;
+  /** Always export this preset, regardless of what the program decides */
   force?: boolean;
+  /** Mark the preset as the default export in the manifest file for convenience */
   default?: boolean;
 }
 
 /** Specific settings for each codec. These override the global settings */
 export interface ICodecSettings {
+  /** Enable/Disable original codec exports */
+  exportOriginal?: boolean;
+  /** Enable/disable WebP export next to original codec */
   exportWebp?: boolean;
+  /** Enable/disable image resizing */
   resize?: boolean;
+  /**
+   * Enable/Disable image optimization.
+   * If disabled, the image will be saved directly from SHARP using default options.
+   * If enabled, the image will pass through an optimizer beforehand, which can be
+   * configured using optimizerSettings.
+   */
   optimize?: boolean;
+  /** imagemin plugin-specific settings */
   optimizerSettings?: object;
+  /** The responsive breakpoints to use for resizing */
   exportPresets?: IExportPreset[];
+  /** Convert the original codec into this codec (e.g. TIFF -> JPEG) */
+  convertToCodec?: "jpeg" | "png" | "tiff" | "webp";
 }
 
 /**
- * Contains all the possible config parameters
- * for Responsive Image Builder.
+ * Contains the configuration properties for Responsive Image Builder.
  */
 export interface IConfig {
   /** The input path or paths, separated with a double period ".." */
@@ -41,7 +59,9 @@ export interface IConfig {
   /** The output path to export pictures to */
   out: string;
 
-  /** Enable/Disable WebP exports */
+  /** Enable/Disable original codec exports */
+  exportOriginal?: boolean;
+  /** Enable/Disable WebP exports next to original codec */
   exportWebp?: boolean;
   /** Enable/Disable writing of a manifest file */
   exportManifest?: boolean;
@@ -62,12 +82,16 @@ export interface IConfig {
   threads?: number;
   /** Enable/Disable image resizing using ExportPresets */
   resize?: boolean;
-  /** Enable/Disable image optimization */
+  /**
+   * Enable/Disable image optimization.
+   * If disabled, the image will be saved directly from SHARP using default options.
+   * If enabled, the image will pass through an optimizer beforehand, which can be
+   * configured using optimizerSettings.
+   */
   optimize?: boolean;
-  /** WebP compression factor */
-  webpQuality?: number;
-  /** WebP alpha channel compression factor */
-  webpAlphaQuality?: number;
+
+  /** Convert the original codec into this codec (e.g. TIFF -> JPEG) */
+  convertToCodec?: "jpeg" | "png" | "tiff" | "webp";
 
   /** Export presets to use when resizing the image */
   exportPresets?: IExportPreset[];
@@ -80,6 +104,10 @@ export interface IConfig {
   svg?: ICodecSettings;
   /** GIF-only settings. Only a few sub-settings are supported */
   gif?: ICodecSettings;
+  /** WebP-only settings. Only a few sub-settings are supported */
+  webp?: ICodecSettings;
+  /** TIFF-only settings. Only a few sub-settings are supported */
+  tiff?: ICodecSettings;
 }
 
 /**
@@ -120,6 +148,7 @@ export const DefaultConfig: IConfig = {
   in: null,
   out: null,
 
+  exportOriginal: true,
   exportWebp: true,
   exportManifest: true,
   cleanBeforeExport: true,
@@ -142,6 +171,12 @@ export const DefaultConfig: IConfig = {
   svg: {
     exportWebp: false,
     resize: false
+  },
+
+  webp: {
+    optimizerSettings: {
+      quality: 70
+    }
   }
 };
 
@@ -174,6 +209,9 @@ const configSchema = {
     codecSettings: {
       type: "object",
       properties: {
+        exportOriginal: {
+          type: "boolean"
+        },
         exportWebp: {
           type: "boolean"
         },
@@ -188,6 +226,10 @@ const configSchema = {
         },
         exportPresets: {
           $ref: "#/definitions/exportPresets"
+        },
+        convertToCodec: {
+          type: "string",
+          enum: ["jpeg", "png", "webp", "tiff"]
         }
       }
     }
@@ -204,6 +246,9 @@ const configSchema = {
     },
     out: {
       type: "string"
+    },
+    exportOriginal: {
+      type: "boolean"
     },
     exportWebp: {
       type: "boolean"
@@ -234,15 +279,9 @@ const configSchema = {
     optimize: {
       type: "boolean"
     },
-    webpQuality: {
-      type: "number",
-      minimum: 1,
-      maximum: 100
-    },
-    webpAlphaQuality: {
-      type: "number",
-      minimum: 0,
-      maximum: 100
+    convertToCodec: {
+      type: "string",
+      enum: ["jpeg", "png", "webp", "tiff"]
     },
     exportPresets: {
       $ref: "#/definitions/exportPresets"
@@ -257,6 +296,12 @@ const configSchema = {
       $ref: "#/definitions/codecSettings"
     },
     gif: {
+      $ref: "#/definitions/codecSettings"
+    },
+    webp: {
+      $ref: "#/definitions/codecSettings"
+    },
+    tiff: {
       $ref: "#/definitions/codecSettings"
     }
   }
