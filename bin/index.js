@@ -31,6 +31,7 @@ program
   .option("-i, --in <paths>", 'Input paths (separated with two periods "..")')
   .option("-o, --out <path>", "Output path")
 
+  .option("--no-original", "Disable original codec exports")
   .option("--no-webp", "Disable WebP exports")
   .option("--no-manifest", "disable manifest export")
   .option("--no-clean", "Disable output cleaning before export")
@@ -42,8 +43,7 @@ program
   .option("-t, --threads [number]", "Threads to use (0 for unlimited)", intParser)
   .option("--no-resize", "Disable image resizing (global)")
   .option("--no-optimize", "Disable image optimization (global)")
-  .option("--webp-quality [number]", "WebP encoding quality (1-100)", intParser)
-  .option("--webp-alpha-quality [number]", "WebP alpha channel quality (0-100)", intParser)
+  .option("--convert-to [codec]", "Convert all original codecs into this codec (global)")
   .parse(process.argv);
 
 process.stdout.write("\x1b[?25l");
@@ -63,6 +63,7 @@ explorer.search()
     const CLIConfig = {};
     if (typeof program.in !== "undefined")         CLIConfig.in                = program.in;
     if (typeof program.out !== "undefined")        CLIConfig.out               = program.out;
+    if (typeof program.original !== "undefined")   CLIConfig.exportOriginal    = program.original;
     if (typeof program.webp !== "undefined")       CLIConfig.exportWebp        = program.webp;
     if (typeof program.manifest !== "undefined")   CLIConfig.exportManifest    = program.manifest;
     if (typeof program.clean !== "undefined")      CLIConfig.cleanBeforeExport = program.clean;
@@ -72,8 +73,7 @@ explorer.search()
     if (typeof program.threads !== "undefined")    CLIConfig.threads           = program.threads;
     if (typeof program.resize !== "undefined")     CLIConfig.resize            = program.resize;
     if (typeof program.optimize !== "undefined")   CLIConfig.optimize          = program.optimize;
-    if (typeof program.webpQuality !== "undefined")      CLIConfig.webpQuality      = program.webpQuality;
-    if (typeof program.webpAlphaQuality !== "undefined") CLIConfig.webpAlphaQuality = program.webpAlphaQuality;
+    if (typeof program.convertTo !== "undefined")  CLIConfig.convertToCodec    = program.convertTo;
 
     const finalConfig = merge(config, CLIConfig);
 

@@ -46,13 +46,24 @@
 
 ## Why
 
-Webpack... Angular... React... PHP... Cloudflare... So many solutions for serving images, some terrible, some paid. What if you just want to serve modern [WebP](https://developers.google.com/speed/webp/) images with srcset optimization, lazy-loading (with low-quality placeholder) and a fallback codec for [browsers that are late to the party](https://caniuse.com/#feat=webp) (ahem Safari, Firefox, Edge, ...)?
+Webpack... Angular... React... PHP... Cloudflare... So many solutions for serving images, some terrible, some paid. What if you just want to serve modern [WebP](https://developers.google.com/speed/webp/) images with srcset optimization, lazy-loading (with low-quality placeholder) and the original codec for [browsers that are late to the party](https://caniuse.com/#feat=webp) (ahem Safari, Firefox, Edge, ...)?
 
 <p align="center">Is that really too much to ask?</p>
 
 <p align="center"><sub>🎉 Firefox 65 and Edge 18 finally added support for WebP! Global support is now at 74.78% as of March 2019.</sub></p>
 
-**So what does this do?** This is my homemade solution for building responsive Lanczos3 downscaled WebP images *intelligently*, while making it possible to implement cache-busting (all images are known during build) with the assurance of no duplicate images, therefore no wasted space. Fallback codecs are also generated for incompatible browsers, and optimized aggressively (PNG, JPEG, SVG and GIF supported). Without further configuration, this will create 8 web-optimized images (4 sizes, 2 codecs) from a very high quality source image by default. [See the result](example/) for yourself.
+### What does this do
+
+1. Collects all images in specified input paths
+2. Intelligently resizes them into several responsive breakpoints using [Lanczos3](https://blog.idrsolutions.com/2016/01/generate-good-quality-thumbnails-in-java-lancsoz3-image-downscaling/)
+3. Encodes each size in WebP and the original codec
+4. Passing them through an aggressive optimizer
+5. Saves them to an output folder
+6. Creates a *manifest.json* file with all successful exports and sizes
+
+<sub>All of these stages are configurable</sub>
+
+This makes it possible to serve optimized images, regardless of the screen while making it possible to implement cache-busting (all images are known during build) with the assurance of no duplicate images, therefore no wasted space or bandwidth. Using the default configuration, each image will create 8 web-optimized images (4 sizes, 2 codecs). [See the result](example/) for yourself.
 
 <p align="center">
   <a href="https://i.ibb.co/GP0NW93/Responsive-Image-Builder.png">
@@ -63,7 +74,7 @@ Webpack... Angular... React... PHP... Cloudflare... So many solutions for servin
   <br>
 </p>
 
-Each image's exports are calculated at build-time, and a *manifest.json* file is created with all exported images and their available sizes. It's then up to the client to implement logic to fetch the best image. I have included [example](extra/) usages for Vanilla Javascript, React and Angular 2+, although bear in mind that they are a proof of concept and may not work with the latest *manifest.json* structure.
+It's up to the client to implement logic to fetch the best image. I have included [example](extra/) usages for Vanilla Javascript, React and Angular 2+, although bear in mind that they are a proof of concept and may not work with the latest *manifest.json* structure.
 
 RIB can be used as a pipeline during the build process, piping all images from one folder into another, with options to preserve or flatten the directory structure, merge with existing files, read and consolidate several input paths, etc. Simply run the Node.js module or CLI tool to update the exports. The goal is to create a universal, simple export folder and manifest file. This can be your final destination that you upload through FTP or just a pipe in your cache-busting deployment build-chain.
 
@@ -220,28 +231,28 @@ The configuration object is used to tell RIB how it should execute. When used as
 
 All keys in the configuration object have [Typescript](#typescript) typings that will automatically be picked up by software like VS Code's Intellisense for helpful autocompletion. These provide descriptions of the keys, as well as their accepted types. The config object will also be verified during runtime for inconsistencies.
 
-|     config key    |     CLI flag    | description                                                                                                                                                         |
-|:-----------------:|:---------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|       **in**      |     -i, --in    | (REQUIRED) An array of paths to scan for images. For the CLI flag, these paths have to be separated with two periods ".."                                           |
+|    config key     |    CLI flag     | description                                                                                                                                                         |
+| :---------------: | :-------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|      **in**       |    -i, --in     | (REQUIRED) An array of paths to scan for images. For the CLI flag, these paths have to be separated with two periods ".."                                           |
 |      **out**      |    -o, --out    | (REQUIRED) The output path where to export images                                                                                                                   |
-|     exportWebp    |    --no-webp    | Whether to export WebP images or only keep the original codec (default: true)                                                                                       |
-|   exportManifest  |  --no-manifest  | Whether to export a manifest.json file (default: true)                                                                                                              |
-| cleanBeforeExport |    --no-clean   | Whether to remove all files from the output folder before running. If any non-images files are present, the user will be asked to confirm the clean (default: true) |
-|     flatExport    |    -f, --flat   | Ignores the directory structure of input paths, and exports all images to the root of the output folder (default: false)                                            |
+|    exportWebp     |    --no-webp    | Whether to export WebP images or only keep the original codec (default: true)                                                                                       |
+|  exportManifest   |  --no-manifest  | Whether to export a manifest.json file (default: true)                                                                                                              |
+| cleanBeforeExport |   --no-clean    | Whether to remove all files from the output folder before running. If any non-images files are present, the user will be asked to confirm the clean (default: true) |
+|    flatExport     |   -f, --flat    | Ignores the directory structure of input paths, and exports all images to the root of the output folder (default: false)                                            |
 |     verbosity     | -v, --verbosity | "verbose", "errors" or "silent" (default: "verbose")                                                                                                                |
 |       force       |   -F, --force   | Authorizes file overwriting and overrides the clean confirmation prompt. Allows for complete automation without user input (default: false)                         |
 |      threads      |  -t, --threads  | The maximum number of threads to use. Bear in mind that Node.js may use more threads for IO ops, hyperthreading, etc... 0 for unlimited (default: 0)                |
-|       resize      |   --no-resize   | Whether to resize pictures (default: true)                                                                                                                          |
-|      optimize     |  --no-optimize  | Whether to optimize pictures (default: true)                                                                                                                        |
-|     webpQuality   |  --webp-quality | WebP compression quality (0-100) (default: 80)                                                                                                                        |
-|     webpAlphaQuality   |  --webp-alpha-quality | WebP alpha channel quality (0-100) (default: 100)                                                                                                                        |
+|      resize       |   --no-resize   | Whether to resize pictures (default: true)                                                                                                                          |
+|     optimize      |  --no-optimize  | Whether to optimize pictures (default: true)                                                                                                                        |
 |   exportPresets   |       N/A       | An object that describes the export pipeline (default: *see below*)                                                                                                 |
 |        png        |       N/A       | PNG specific settings                                                                                                                                               |
-|        jpeg       |       N/A       | JPEG specific settings                                                                                                                                              |
+|       jpeg        |       N/A       | JPEG specific settings                                                                                                                                              |
 |        gif        |       N/A       | GIF specific settings (default: no resize, no optimize)                                                                                                             |
 |        svg        |       N/A       | SVG specific settings (default: no resize, no optimize)                                                                                                             |
+|       webp        |       N/A       | WebP specific settings                                                                                                                                              |
 
 **Note:** The supported keys for codec specific settings are:
+
 - exportWebp
 - resize
 - optimize
@@ -384,13 +395,13 @@ Even without modern editor, you can consult the generated `*.d.ts` typing files 
 
 ## Optimization
 
-Image optimization uses *pngquant*, *mozjpeg*, *svgo* and *gifsicle* to reduce the fallback codec size as much as possible. It's a very aggressive, and also very slow. It's more intensive than the resize process.
+Image optimization uses *pngquant*, *mozjpeg*, *svgo*, *gifsicle* and *cwebp* to reduce the output image size as much as possible. By default, it's very aggressive, and also very slow. In most situations it will take more time than the resize process. If `optimize` is set to `false`, then the image will be saved directly from SHARP using default codec settings, instead of being sent to the optimizer first.
 
 You can override all of the optimizer settings by specifying the `optimizerSettings` key in the configuration object (must be under on of the `png`, `jpeg`, `svg` or `gif` keys).
 
-See [imagemin-pngquant](https://www.npmjs.com/package/imagemin-pngquant), [imagemin-mozjpeg](https://www.npmjs.com/package/imagemin-mozjpeg), [imagemin-svgo](https://www.npmjs.com/package/imagemin-svgo) and [imagemin-gifsicle](https://www.npmjs.com/package/imagemin-gifsicle) for the available options.
+See [imagemin-pngquant](https://www.npmjs.com/package/imagemin-pngquant), [imagemin-mozjpeg](https://www.npmjs.com/package/imagemin-mozjpeg), [imagemin-svgo](https://www.npmjs.com/package/imagemin-svgo), [imagemin-gifsicle](https://www.npmjs.com/package/imagemin-gifsicle) and [imagemin-webp](https://www.npmjs.com/package/imagemin-webp) for the available optimization options.
 
-WebP images are already optimized by the WebP encoder. Using the default settings, both a JPEG and WebP export will have very similar file sizes due to aggressive JPEG compression being applied after conversion. Usually WebP provides a ~40% file reduction, if you want to achieve this then you will have to play around with the JPEG and WebP optimizer settings to get the desired results.
+Usually WebP provides a ~40% difference in file reduction, however you may need to play around with the optimizer settings to achieve this. I have chosen some opinionated settings to try to achieve web-type compression. Specifying a an empty object `{}` as the `optimizerSettings` for the codec (in the config) will override the default settings and revert to the plugin defaults.
 
 ### Performance
 
@@ -415,22 +426,88 @@ Please make sure that your contributions pass tests before submitting a Pull Req
   </a>
 </p>
 
+## Errors
+
+It's hard to make short error messages easy to understand. You can find a description of the error here.
+
+RIB error codes are formatted as the letter E, followed by four digits.
+
+<details><summary><b>Error codes (click me)</b></summary>
+
+### Main
+
+Contains the primary program logic
+
+#### E100 No images
+
+No images were found in the input paths that were provided to the program. Perhaps you mistyped the input paths, or the image extension was not recognized.
+
+### Preparation
+
+This is the preparatory phase used to verify the execution environnement, check that paths exist, write access, etc.
+
+#### E200 General preparation error
+
+This could mean that any one of the pre-execution checks failed. The terminal or the returned `Result` object should yield more information.
+
+#### E201 Fatal preparation error
+
+An error was thrown and caught in the main preparation logic from which the program can not recover from. The terminal or the `Result` object should yield more information.
+
+#### E202 Output not empty
+
+Important files were detected in the output folder, and the user aborted the clean when prompted to confirm the action. Simply authorize the clean or use the `force` option.
+
+### Controller
+
+The controller is in charge of the worker cluster and handles job delegation.
+
+### Thread errors
+
+These errors are thrown by the image processing thread.
+
+#### E500 No valid codec to export
+
+Both the original codec and the WebP codec exports were disabled, so there was nothing to export.
+This may be a codec specific issue (such as with SVGs) in the configuration.
+
+#### E501 - Save error, image exists
+
+The image could not be saved to disk because the file already exists. This may be caused by trying to export two images with the same name but a different extension. Either clean the directory beforehand, set force to `true` or use the synchronize option to ignore existing files.
+
+#### E502 - Image not found
+
+An unlikely error, the image disappeared since the input directory was scanned during preparation. Check that nothing else is accessing the directory while RIB is running.
+
+#### E503 - Not a file
+
+An unlikely error. The path for the image was no-longer a file.
+
+</details>
+
 ## Built With
 
 * [NodeJS](https://nodejs.org) - Powered by Chrome's V8 Javascript engine
 * [SHARP](https://github.com/lovell/sharp) - A fantastic Node.js wrapper around the [libvips](https://github.com/jcupitt/libvips) library
 * [Dynamic Terminal](https://github.com/marcuscemes/dynamic-terminal) My very own terminal logging library
 
+### Milestones
+
+- v1.0.0 - First release of the RIB library concept
+- v2.0.0 - Project rewrite using TypeScript
+- v2.1.0 - Better WebP optimization, codec conversion
+
 ### Todo
 
 - [ ] If not cleaning, merge *manifest.json* with existing
 - [ ] Support "synchronize" mode where only missing images are exported
-- [ ] Add exportOriginalCodec option
-- [ ] Add codec conversion support (e.g. TIFF -> JPEG)
 - [ ] Add checksum to manifest for better image searching
-- [ ] Add support for imagemin-webp
 - [ ] Add example with new WebP optimizer and better optimizer settings
-- [ ] Avoid double-compressing a file when optimizer is enabled
+- [ ] Consider removing dependency and use compiled encoders directly
+- [x] Add exportOriginalCodec option
+- [x] Add support for imagemin-webp [REVERTED DUE TO BUG]
+- [x] Avoid double-compressing a file when optimizer is enabled
+- [x] Add codec conversion support (e.g. TIFF -> JPEG)
 
 ### Quirks
 

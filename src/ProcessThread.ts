@@ -1,17 +1,20 @@
 // tslint:disable
 import fs from "fs-extra";
 import path from "path";
-import sharp from "sharp";
+import sharp, { Sharp } from "sharp";
 import { Duplex, PassThrough } from "stream";
 
 import { IConfig } from "./Config";
 import { IExport, IExportSize, IFailedExport } from "./Interfaces";
 import { IFile } from "./Preparation";
+import { isSharpInstance } from "./Utility";
 
-const pngOptimizer = require("imagemin-pngquant");
-const jpegOptimizer = require("imagemin-mozjpeg");
-const svgOptimizer = require("imagemin-svgo");
-const gifOptimizer = require("imagemin-gifsicle");
+const OPTIMIZERS = {
+  png: require("imagemin-pngquant"),
+  jpeg: require("imagemin-mozjpeg"),
+  svg: require("imagemin-svgo"),
+  gif: require("imagemin-gifsicle")
+};
 const debug = require("debug")(
   "RIBThread" + (process.env.WORKER_ID ? ":" + process.env.WORKER_ID : "")
 );
@@ -87,7 +90,9 @@ class ProcessThread {
   }
 
   /**
-   * Generate the image export pipeline, returning the file writers and export job
+   * Generate the image export pipeline, returning the file writers and export job.
+   * This is a tree like structure that will flow image data into various optimizer
+   * functions and file write streams.
    * @returns {ImagePipeline} The completed image pipeline, with relevant information
    */
   public async generateImagePipeline(
@@ -96,7 +101,12 @@ class ProcessThread {
   ): Promise<ImagePipeline> {
     const resizeJobs = this.generateSizes(metadata);
     const paths = this.generatePaths(file);
-    const shouldExportWebp = this.getOption("exportWebp", metadata.format);
+
+    const convertToCodec = this.getOption("convertToCodec", metadata.format);
+    const targetFormat = convertToCodec || metadata.format;
+
+    const shouldExportOriginal = this.getOption("exportOriginal", targetFormat);
+    const shouldExportWebp = this.getOption("exportWebp", targetFormat);
 
     let pipeline: ImagePipeline["pipeline"];
     const writeStreams: ImagePipeline["writeStreams"] = [];
@@ -111,11 +121,18 @@ class ProcessThread {
 
     try {
       if (!resizeJobs) {
-        // Generate a single type export
+        // Generate a single type export (SVG, GIF...)
 
         pipeline = new PassThrough();
         writeStreams.push(
-          ...this.saveImage(pipeline, paths.output, paths.parsed.ext, metadata, shouldExportWebp)
+          ...this.saveImage(
+            pipeline,
+            paths.output,
+            paths.parsed.ext,
+            metadata,
+            shouldExportOriginal,
+            shouldExportWebp
+          )
         );
       } else {
         // Generate a multiple type export
@@ -132,6 +149,7 @@ class ProcessThread {
               paths.output + "_" + resizeJob.name,
               paths.parsed.ext,
               metadata,
+              shouldExportOriginal,
               shouldExportWebp
             )
           );
@@ -150,7 +168,11 @@ class ProcessThread {
     } catch (err) {
       // Perform cleanup
       for (const writer of writeStreams) {
-        writer.on("finish", () => fs.unlink(writer.path));
+        writer.on("finish", () =>
+          fs.unlink(writer.path).catch(() => {
+            /* */
+          })
+        );
         writer.end();
       }
       throw err;
@@ -301,13 +323,13 @@ class ProcessThread {
       stat = await fs.stat(filePath);
     } catch (err) {
       if (err.code === "ENOENT") {
-        throw new Error("Image not found");
+        throw new Error("E502 - Image not found");
       }
       throw err;
     }
 
     if (!stat.isFile()) {
-      throw new Error("The given path is not a file");
+      throw new Error("E503 - Not a file");
     }
   }
 
@@ -337,7 +359,11 @@ class ProcessThread {
     } catch (err) {
       // Cleanup
       for (const writer of imagePipeline.writeStreams) {
-        writer.on("finish", () => fs.unlink(writer.path));
+        writer.on("finish", () =>
+          fs.unlink(writer.path).catch(() => {
+            /* */
+          })
+        );
         writer.end();
       }
       throw err;
@@ -347,9 +373,11 @@ class ProcessThread {
   /**
    * A factory function for a NodeJS image optimizing duplex stream
    *
-   * As the optimizer function requires a buffer, the stream will be entirely buffered.
-   * Once the stream has ended, the image will be optimized and written to the stream,
-   * before being closed as well.
+   * As the optimizer function requires a buffer, the stream will be entirely
+   * read before the image will be optimized and written to the output stream.
+   *
+   * This will optimize based on the configuration for the given codec, the
+   * stream will be passed-through if optimization is disabled for that codec.
    * @returns {Duplex} A duplex (read/write) stream
    */
   private optimizer(codec: string): Duplex {
@@ -357,23 +385,10 @@ class ProcessThread {
     const shouldOptimize = this.getOption("optimize", codec);
     const optimizerSettings = (this.config[codec] || {}).optimizerSettings || {};
 
-    let optimizerFunction;
-    switch (codec) {
-      case "png":
-        optimizerFunction = pngOptimizer(optimizerSettings);
-        break;
-      case "jpeg":
-        optimizerFunction = jpegOptimizer(optimizerSettings);
-        break;
-      case "gif":
-        optimizerFunction = gifOptimizer(optimizerSettings);
-        break;
-      case "svg":
-        optimizerFunction = svgOptimizer(optimizerSettings);
-        break;
-      default:
-        optimizerFunction = data => data;
-    }
+    // Initialize the codec optimizer, or create a pass-through function
+    const optimizerFunction = OPTIMIZERS[codec]
+      ? OPTIMIZERS[codec](optimizerSettings)
+      : data => Promise.resolve(data);
 
     return new Duplex({
       write(chunk, encoding, callback) {
@@ -405,7 +420,9 @@ class ProcessThread {
   }
 
   /**
-   * Takes a stream of raw image data and passes it through an optimizer before saving to disk.
+   * Takes a stream of raw image data and passes it through an optimizer
+   * before saving to disk. The codec option is used to detect whether
+   * compression should be disabled for the optimizer pass.
    * If saveWebp is set to true, a copy will be converted to WebP and saved alongside
    */
   private saveImage(
@@ -413,44 +430,72 @@ class ProcessThread {
     exportPath: string,
     extension: string,
     metadata: sharp.Metadata,
+    saveOriginal: boolean,
     saveWebp: boolean
   ): fs.WriteStream[] {
     const writeStreams: fs.WriteStream[] = [];
-    const writePermission = this.config.force ? "w" : "wx"; // Will cause error if file already exists without force
+    const writePermission = this.config.force ? "w" : "wx"; // if not force, throws error
+
+    const convertToCodec = this.getOption("convertToCodec", metadata.format);
+    const targetFormat = convertToCodec || metadata.format;
+
+    // Disable compression from SHARP, as it will be optimized later
+    const noCompressionOptions = { quality: 100 };
+    const willOptimizeOriginal = this.getOption("optimize", targetFormat) ? true : false;
+
+    if (!saveOriginal && !saveWebp) {
+      throw new Error("E500 No valid codec to export");
+    }
 
     try {
-      const fallbackWriteStream = fs.createWriteStream(exportPath + extension, {
-        flags: writePermission
-      });
-      stream.pipe(this.optimizer(metadata.format)).pipe(fallbackWriteStream);
-      writeStreams.push(fallbackWriteStream);
+      if (saveOriginal) {
+        // Create the original codec write stream
+        const originalWriteStream = fs.createWriteStream(
+          exportPath + (convertToCodec ? "." + convertToCodec : extension),
+          {
+            flags: writePermission
+          }
+        );
 
-      if (saveWebp) {
+        // Convert to the convertToCodec, and optimize if necessary
+        let originalImage: Sharp | Duplex;
+        if (convertToCodec || (willOptimizeOriginal && isSharpInstance(stream))) {
+          originalImage = (isSharpInstance(stream) ? stream.clone() : stream.pipe(sharp()))
+            .toFormat(targetFormat, noCompressionOptions)
+            .pipe(this.optimizer(targetFormat));
+        } else {
+          originalImage = stream;
+        }
+
+        originalImage.pipe(originalWriteStream);
+        writeStreams.push(originalWriteStream);
+      }
+
+      if (saveWebp && targetFormat !== "webp") {
+        const webpOptions = this.getOption("optimize", "webp") || {};
         const webpWriteStream = fs.createWriteStream(exportPath + ".webp", {
           flags: writePermission
         });
-        // @ts-ignore
-        if (typeof stream.clone === "function") {
-          stream
-            // @ts-ignore
-            .clone()
-            .webp({ quality: this.config.webpQuality, alphaQuality: this.config.webpAlphaQuality })
-            .pipe(webpWriteStream);
-        } else {
-          stream
-            .pipe(sharp())
-            .webp({ quality: this.config.webpQuality, alphaQuality: this.config.webpAlphaQuality })
-            .pipe(webpWriteStream);
-        }
+
+        // Detect if stream is a SHARP instance. This allows the WebP conversion
+        // process to happen on the original image without an additional intermediary
+        // conversion to the original codec.
+        (isSharpInstance(stream) ? stream.clone() : stream.pipe(sharp()))
+          .webp(webpOptions)
+          .pipe(webpWriteStream);
         writeStreams.push(webpWriteStream);
       }
     } catch (err) {
       for (const writer of writeStreams) {
-        writer.on("finish", () => fs.unlink(writer.path));
+        writer.on("finish", () =>
+          fs.unlink(writer.path).catch(() => {
+            /* */
+          })
+        );
         writer.end();
       }
       if (err.code === "EEXIST") {
-        throw new Error("EEXIST - Image already exists");
+        throw new Error("E501 - Save error, image exists");
       }
       throw err;
     }

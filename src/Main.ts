@@ -1,11 +1,13 @@
-import boxen from "boxen";
-import chalk from "chalk";
+import boxen from 'boxen';
+import chalk from 'chalk';
 
-import { IConfig } from "./Config";
-import { Controller } from "./Controller";
-import { IResult, PreparationError } from "./Interfaces";
-import { Logger } from "./Logger";
-import { IFile, Preparation } from "./Preparation";
+import { IConfig } from './Config';
+import { WRAP_WIDTH } from './Constants';
+import { Controller } from './Controller';
+import { IResult, PreparationError } from './Interfaces';
+import { Logger } from './Logger';
+import { IFile, Preparation } from './Preparation';
+import { centreText } from './Utility';
 
 export async function main(config: IConfig): Promise<IResult> {
   const logger = new Logger(config.verbosity);
@@ -21,22 +23,26 @@ export async function main(config: IConfig): Promise<IResult> {
 
     if (converted.failed.length === 0) {
       logger.log(
-        boxen(chalk.bold.green("SUCCESS"), {
-          margin: { top: 1, left: 0, right: 0, bottom: 0 },
-          padding: { top: 0, left: 2, right: 2, bottom: 0 },
-          borderColor: "greenBright"
-        }) + "\n",
-        16,
+        centreText(
+          boxen(chalk.bold.green("SUCCESS"), {
+            margin: { top: 1, left: 0, right: 0, bottom: 0 },
+            padding: { top: 0, left: 2, right: 2, bottom: 0 },
+            borderColor: "greenBright"
+          }) + "\n",
+          WRAP_WIDTH
+        ),
         Logger.VERBOSE
       );
     } else {
       logger.log(
-        boxen(chalk.bold.hex("#FF851B")("WARNINGS"), {
-          margin: { top: 1, left: 0, right: 0, bottom: 0 },
-          padding: { top: 0, left: 2, right: 2, bottom: 0 },
-          borderColor: "#FF851B"
-        }) + "\n",
-        16,
+        centreText(
+          boxen(chalk.bold.hex("#FF851B")("WARNINGS"), {
+            margin: { top: 1, left: 0, right: 0, bottom: 0 },
+            padding: { top: 0, left: 2, right: 2, bottom: 0 },
+            borderColor: "#FF851B"
+          }) + "\n",
+          WRAP_WIDTH
+        ),
         Logger.VERBOSE
       );
     }
@@ -48,12 +54,13 @@ export async function main(config: IConfig): Promise<IResult> {
     };
   } catch (err) {
     logger.log(
-      boxen(chalk.bold.red("FAILED"), {
-        margin: { top: 1, left: 0, right: 0, bottom: 0 },
-        padding: { top: 0, left: 2, right: 2, bottom: 0 },
-        borderColor: "redBright"
-      }) + "\n",
-      16,
+      centreText(
+        boxen(chalk.bold.red("FAILED"), {
+          margin: { top: 1, left: 0, right: 0, bottom: 0 },
+          padding: { top: 0, left: 2, right: 2, bottom: 0 },
+          borderColor: "redBright"
+        }) + "\n",
+        WRAP_WIDTH),
       Logger.VERBOSE
     );
     throw err;
@@ -61,14 +68,17 @@ export async function main(config: IConfig): Promise<IResult> {
 }
 
 function showBanner(logger: Logger) {
-  logger.log(
-    chalk.bold.white(`
+  logger.log(chalk.bold.white(`
    ______   _____ _______
   (, /   ) (, /  (, /    )
     /__ /    /     /---(
  ) /   \\____/__ ) / ____)
-(_/    (__ /   (_/ (`) + "\n\n  A WebP build pipeline\n  https://git.io/fjvL7\n",
-    8,
+(_/    (__ /   (_/ (`), 10);
+  logger.log(
+    centreText(
+      "\n\n  A WebP build pipeline\n  https://git.io/fjvL7\n",
+      WRAP_WIDTH
+    ),
     Logger.VERBOSE
   );
 }
@@ -79,7 +89,7 @@ async function prepare(config: IConfig): Promise<IFile[]> {
 
   // If there are no files to process, the program may terminate
   if (files.length === 0) {
-    throw new PreparationError("No files to process", "No images were found to process");
+    throw new PreparationError("E100 No images", "No images were found to process");
   }
 
   return files;

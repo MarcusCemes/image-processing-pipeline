@@ -7,6 +7,27 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.1.0] - 2019-03-23
+
+`imagemin-webp` integration was scrapped as the binary seems to be buggy.
+The cwebp-bin would corrupt images with alpha channels, probably due to an incompatibility with `libvips`.
+
+Instead, the quality for `libvips` WebP was reduced to match `imagemin-webp` sizes (q=70).
+
+### Added
+
+- Better WebP optimization
+- TIFF support
+- `convertToCodec` option, for codec conversion
+- `exportOriginal` option, for only WebP exports
+- More Typescript typings
+- Better error codes + documentation
+
+### Fixed
+
+- The "pass-through optimizer function" wasn't returning a promise
+- Dual-exports of originally .webp images, causing an error
+
 ## [2.0.5] - 2019-03-23
 
 ### Changed
@@ -119,10 +140,11 @@ not fork the project and submit a Pull Request?
 
 First release
 
-[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.5...HEAD
-[2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.4...v2.0.5
-[2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.3...v2.0.4
-[2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.2...v2.0.3
+[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.5...v2.1.0
+[2.0.5]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.4...v2.0.5
+[2.0.4]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.3...v2.0.4
+[2.0.3]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v1.1.3...v2.0.0
