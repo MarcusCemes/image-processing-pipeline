@@ -39,10 +39,10 @@ export interface ICodecSettings {
    * Enable/Disable image optimization.
    * If disabled, the image will be saved directly from SHARP using default options.
    * If enabled, the image will pass through an optimizer beforehand, which can be
-   * configured using optimizerSettings.
+   * configured using optimizerSettings. Doesn't do anything for WebP.
    */
   optimize?: boolean;
-  /** imagemin plugin-specific settings */
+  /** imagemin plugin-specific settings, or the SHARP WebP options for WebP! */
   optimizerSettings?: object;
   /** The responsive breakpoints to use for resizing */
   exportPresets?: IExportPreset[];

@@ -472,7 +472,7 @@ class ProcessThread {
       }
 
       if (saveWebp && targetFormat !== "webp") {
-        const webpOptions = this.getOption("optimize", "webp") || {};
+        const webpOptions = this.getOption("optimizerSettings", "webp") || {};
         const webpWriteStream = fs.createWriteStream(exportPath + ".webp", {
           flags: writePermission
         });
