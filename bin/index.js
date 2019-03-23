@@ -7,13 +7,7 @@ const merge = require("deepmerge");
 const program = require("commander");
 const cosmiconfig = require("cosmiconfig");
 const explorer = cosmiconfig("rib");
-const loudRejection = require('loud-rejection');
 const { responsiveImageBuilder } = require("../");
-
-loudRejection(error => {
-  process.stdout.write("An asynchronous promise encountered an error during execution\n");
-  console.log(error);
-});
 
 function intParser(input) {
   if (typeof input === "string" && input.length > 0) return parseInt(input);
