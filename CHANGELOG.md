@@ -7,6 +7,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Forgot the `bin` field in package.json, CLI is now usable
+
 ## [2.1.0] - 2019-03-23
 
 `imagemin-webp` integration was scrapped as the binary seems to be buggy.
