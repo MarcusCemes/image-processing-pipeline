@@ -7,6 +7,9 @@
   "main": "dist/main/index.js",
   "typings": "dist/main/index.d.ts",
   "module": "dist/module/index.js",
+  "bin": {
+    "rib": "bin/index.js"
+  },
   "files": [
     "LICENSE",
     "/dist"
