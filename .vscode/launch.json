@@ -1,28 +1,32 @@
 {
   "version": "0.2.0",
-  "configurations": [{
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach",
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug Project",
-      // we test in `build` to make cleanup fast and easy
-      "cwd": "${workspaceFolder}/dist",
+      // we test in `dist` to make cleanup fast and easy
+      "cwd": "${workspaceFolder}",
       // Replace this with your project root. If there are multiple, you can
       // automatically run the currently visible file with: "program": ${file}"
-      "program": "${workspaceFolder}/src/cli/cli.ts",
-      // "args": ["--no-install"],
+      "program": "${workspaceFolder}/bin/index.js",
+      "args": ["-i", "in", "-o", "out", "--threads", "1"],
       "outFiles": ["${workspaceFolder}/dist/main/**/*.js"],
       "skipFiles": [
         "<node_internals>/**/*.js",
         "${workspaceFolder}/node_modules/**/*.js"
       ],
       "preLaunchTask": "npm: build",
-      "stopOnEntry": true,
+      "stopOnEntry": false,
       "smartStep": true,
+      "autoAttachChildProcesses": true,
       "runtimeArgs": ["--nolazy"],
-      "env": {
-        "TYPESCRIPT_STARTER_REPO_URL": "${workspaceFolder}"
-      },
-      "console": "externalTerminal"
+      "outputCapture": "std"
     },
     {
       "type": "node",

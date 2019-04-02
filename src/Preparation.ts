@@ -1,21 +1,24 @@
+// Responsive Image Builder - Preparation
+// Runs pre-processing checks and fetches images
 import chalk from "chalk";
 import { DynamicTerminal, ILine } from "dynamic-terminal";
 import { prompt } from "enquirer";
-import figures from "figures";
-import fs from "fs-extra";
-import os from "os";
-import path from "path";
-import slash from "slash";
+import { warning } from "figures";
+import { access, constants, emptyDir, ensureDir, pathExists, stat } from "fs-extra";
+import { platform } from "os";
+import { isAbsolute, posix } from "path";
 import glob from "tiny-glob";
 
 import { IConfig } from "./Config";
-import { SUPPORTED_EXTENSIONS, WRAP_WIDTH } from "./Constants";
+import { PREPARATION_ERRORS, SUPPORTED_EXTENSIONS, WRAP_WIDTH } from "./Constants";
 import { PreparationError } from "./Interfaces";
 import { Logger } from "./Logger";
-import { centreText } from "./Utility";
+import { centreText, cleanUpPath } from "./Utility";
 
 export interface IFile {
+  /** The input path root directory */
   base: string;
+  /** The path to the image file inside of input path directory */
   path: string;
 }
 
@@ -29,24 +32,26 @@ interface IFileTask extends ITaskError {
 
 export class Preparation {
   public lines: ILine[] = [];
-  public output: DynamicTerminal;
+  public terminal: DynamicTerminal;
   public logger: Logger;
   public config: IConfig;
 
-  constructor(configuration: IConfig) {
-    this.config = configuration;
-    this.logger = new Logger(configuration.verbosity);
-    this.output = new DynamicTerminal();
+  constructor(config: IConfig) {
+    this.config = config;
+    this.logger = new Logger(config.verbosity);
+    this.terminal = config.verbosity === "verbose" ? new DynamicTerminal() : null;
   }
 
   public async prepare(): Promise<IFile[]> {
     try {
-      await this.output.start();
+      if (this.terminal) {
+        await this.terminal.start();
+      }
 
       // Clean the input and output paths for cross/compatibility on Windows and Linux
       // A bit of a dirty hack, but its more DRY
-      this.config.in = this.config.in.map(this.cleanUpPath);
-      this.config.out = this.cleanUpPath(this.config.out);
+      this.config.in = this.config.in.map(cleanUpPath);
+      this.config.out = cleanUpPath(this.config.out);
 
       // Clean the output directory
       await this.cleanOutput();
@@ -61,39 +66,45 @@ export class Preparation {
         this.getFiles(2)
       ]);
 
-      await this.output.stop();
-      this.output.destroy();
+      if (this.terminal) {
+        await this.terminal.stop();
+        this.terminal.destroy();
+      }
 
       // Build an error list if something failed
       let errors = "";
       for (const promise of promises) {
         if (promise.error) {
-          errors += "\n" + promise.error + "\n";
+          errors += "\n\n " + DynamicTerminal.CROSS + " " + promise.error + "\n";
         }
       }
 
       if (errors !== "") {
-        throw new PreparationError("E200 General preparation error", errors);
+        throw new PreparationError(PREPARATION_ERRORS.generalError, errors);
       }
 
       // Resolve the promise
       return promises[2].files;
     } catch (err) {
-      await this.output.stop(false);
-      this.output.destroy();
+      if (this.terminal) {
+        await this.terminal.stop(false);
+        this.terminal.destroy();
+      }
+
       this.logger.error(
         "\r\n" + // Cursor is at position 1 for some reason
           centreText(
-            chalk.bold.red(`${figures.warning} START FAILURE ${figures.warning}`) +
+            chalk.bold.red(`${warning} START FAILURE ${warning}`) +
               "\n\n" +
-              err.message.trim() || err,
+              err.message.trim() +
+              (err.userMessage ? "\n\n" + err.userMessage.trim() : "") || err,
             WRAP_WIDTH
           ) +
           "\n",
         2,
         false
       );
-      throw new PreparationError("E201 Fatal preparation error", err.message || err);
+      throw new PreparationError(PREPARATION_ERRORS.fatalError, err.message || err);
     }
   }
 
@@ -104,60 +115,71 @@ export class Preparation {
    * If verbosity is set bellow verbose, the program will fail.
    */
   public async cleanOutput() {
-    if (!(await fs.pathExists(this.config.out))) {
-      await fs.ensureDir(this.config.out);
+    if (!(await pathExists(this.config.out))) {
+      await ensureDir(this.config.out);
     } else if (this.config.cleanBeforeExport) {
       // Don't require prompt if force is true
       if (!this.config.force) {
         // Scan the output directory for important files, and prompt confirmation if yes
-        this.output.update({ text: `${DynamicTerminal.SPINNER} Checking output directory` });
+        if (this.terminal) {
+          this.terminal.update({ text: `${DynamicTerminal.SPINNER} Checking output directory` });
+        }
 
         // tiny-glob works with UNIX-style paths, even on Windows
-        const files = await glob(path.posix.join(this.config.out, "/**/*"), {
+        const cwd = isAbsolute(this.config.out) && platform() !== "win32" ? "/" : "";
+        const files = await glob(posix.join(this.config.out, "/**/*"), {
           absolute: true,
-          filesOnly: true
+          filesOnly: true,
+          cwd
         });
         const knownExtensions = SUPPORTED_EXTENSIONS.map(ext => `.${ext}`).concat(".json");
 
         for (const file of files) {
-          if (knownExtensions.indexOf(path.posix.parse(file).ext) === -1) {
+          if (
+            knownExtensions.indexOf(posix.parse(file).ext) === -1 &&
+            !RegExp(/.rib-[0-9a-zA-Z]*/).test(file)
+          ) {
             // Unknown file extension found, prompt clean
-            await this.output.stop(false);
-            this.output.destroy(); // Worker would block program termination
+            if (this.terminal) {
+              await this.terminal.stop(false);
+              this.terminal.destroy(); // Worker would block program termination
+            }
 
-            const response: true | { cleanConfirmation: boolean } = this.config.force
-              ? true
-              : await prompt({
-                  type: "confirm",
-                  name: "cleanConfirmation",
-                  message: `${chalk.red(
-                    "Warning!"
-                  )} The output directory contains non-image files.\n  Are you sure you want to delete it?`
-                });
+            const response: boolean =
+              this.config.verbosity === "silent"
+                ? false
+                : ((await prompt({
+                    type: "confirm",
+                    name: "cleanConfirmation",
+                    message: `${chalk.red(
+                      "Warning!"
+                    )} The output directory contains non-image files.\n  Are you sure you want to delete it?`
+                  })) as any).cleanConfirmation;
 
-            if (typeof response === "object" && !response.cleanConfirmation) {
-              throw new PreparationError(
-                "E202 Output not empty",
-                "The output directory may have contained important files, and you aborted the clean"
-              );
+            if (!response) {
+              throw new PreparationError(PREPARATION_ERRORS.outputNotEmptyError);
             }
 
             // Clean was accepted, remove the prompt and restart terminal writing
-            this.output.startWorker();
             if (process.stdout.isTTY) {
-              process.stdout.write("\x1b[2A\r\x1b[J");
+              process.stdout.write("\x1b[2A\r\x1b[J"); // remove the prompt
             }
-            await this.output.start(); // All ok, start a new terminal write session
+            if (this.terminal) {
+              this.terminal.startWorker();
+              await this.terminal.start(); // All ok, start a new terminal write session
+            }
             break;
           }
         }
       }
 
-      this.output.update({
-        text: DynamicTerminal.SPINNER + " Cleaning the output directory",
-        indent: 6
-      });
-      await fs.emptyDir(this.config.out);
+      if (this.terminal) {
+        this.terminal.update({
+          text: DynamicTerminal.SPINNER + " Cleaning the output directory",
+          indent: 6
+        });
+      }
+      await emptyDir(this.config.out);
     }
   }
 
@@ -172,7 +194,7 @@ export class Preparation {
     this.update(line, DynamicTerminal.SPINNER + " Verifying write permissions");
 
     // Check write access for output path
-    const writeAccess = fs.access(this.config.out, fs.constants.W_OK);
+    const writeAccess = access(this.config.out, constants.W_OK);
 
     try {
       await writeAccess;
@@ -200,14 +222,22 @@ export class Preparation {
     try {
       this.update(line, DynamicTerminal.SPINNER + " Checking for SHARP dependency");
       require.resolve("sharp");
+      require("sharp");
       this.update(line, DynamicTerminal.TICK + " SHARP is warmed up");
       return response;
-    } catch {
-      this.update(line, DynamicTerminal.CROSS + " SHARP is not installed.");
-      response.error =
-        "SHARP is not installed. This is a required dependency.\n" +
-        chalk.reset("Try running ") +
-        chalk.keyword("orange")("npm i sharp");
+    } catch (err) {
+      if (RegExp(/binaries cannot be used/).test(err.message || err)) {
+        this.update(line, DynamicTerminal.CROSS + " Incompatible SHARP binaries");
+        response.error =
+          chalk.red("RIB has detected that you have the incorrect SHARP binaries installed:\n") +
+          chalk.white(err.message);
+      } else {
+        this.update(line, DynamicTerminal.CROSS + " SHARP is not installed.");
+        response.error =
+          "SHARP is not installed. This is a required dependency.\n" +
+          chalk.white("Try running ") +
+          chalk.keyword("orange")("npm i sharp");
+      }
       return response;
     }
   }
@@ -224,14 +254,14 @@ export class Preparation {
     this.update(line, DynamicTerminal.SPINNER + " Verifying input paths");
 
     for (const dir of this.config.in) {
-      if (!(await fs.pathExists(dir))) {
+      if (!(await pathExists(dir))) {
         this.update(line, DynamicTerminal.CROSS + " Input directory does not exist");
         result.error = 'The input directory "' + dir + '" does not exist';
         return result;
       }
 
       const readAccess = new Promise(resolve => {
-        fs.access(dir, fs.constants.R_OK, err => {
+        access(dir, constants.R_OK, err => {
           if (err) {
             resolve(false);
           }
@@ -251,14 +281,15 @@ export class Preparation {
     // resolve all supported files and append them to the files array as a File object
     for (const dir of this.config.in) {
       try {
-        if ((await fs.stat(dir)).isFile()) {
-          result.files.push({ base: path.posix.parse(dir).dir, path: dir });
+        if ((await stat(dir)).isFile()) {
+          result.files.push({ base: posix.parse(dir).dir, path: dir });
         } else {
+          const cwd = isAbsolute(dir) && platform() !== "win32" ? "/" : "";
           const files = await glob(
-            path.posix.join(dir, "/**/*.{" + SUPPORTED_EXTENSIONS.join(",") + "}"),
-            { absolute: true }
+            posix.join(dir, "/**/*.{" + SUPPORTED_EXTENSIONS.join(",") + "}"),
+            { absolute: true, cwd }
           );
-          result.files.push(...files.map(p => ({ base: dir, path: p })));
+          result.files.push(...files.map(p => ({ base: dir, path: cleanUpPath(p) })));
         }
         this.update(
           line,
@@ -266,14 +297,14 @@ export class Preparation {
         );
       } catch (err) {
         this.update(line, DynamicTerminal.CROSS + " Failed to search for images");
-        result.error = "Failed to search for images\n" + chalk.reset(err.message || err);
+        result.error = "Failed to search for images\n" + chalk.white(err.message || err);
         return result;
       }
     }
 
     if (result.files.length === 0) {
       result.error =
-        "No image files found\n" + chalk.reset("Check that the input paths are correct");
+        "No image files found\n" + chalk.white("Check that the input paths are correct");
       this.update(line, DynamicTerminal.CROSS + " No images found");
       return result;
     }
@@ -293,28 +324,9 @@ export class Preparation {
       if (indent) {
         this.lines[line].indent = indent;
       }
-      this.output.update(this.lines);
+      if (this.terminal) {
+        this.terminal.update(this.lines);
+      }
     }
-  }
-
-  /**
-   * Resolve the path to an absolute path on Windows and Linux based systems.
-   *
-   * On Windows, single backslashes "\\" AND double backslashes "\\\\"
-   * will be converted to a single forward slash "/". This makes Linux and
-   * Windows easier to manage at the same time, and helps some libraries behave
-   * who hate Windows.
-   *
-   * Node.js tends to handle forward slashes on Windows fairly well.
-   */
-  private cleanUpPath(pathToClean: string): string {
-    let newPath = pathToClean;
-    if (os.platform() === "win32") {
-      newPath = newPath.replace(/(?<!\\)\\(?!\\)/g, "\\");
-      newPath = slash(path.resolve(newPath));
-    } else {
-      newPath = path.resolve(newPath);
-    }
-    return newPath;
   }
 }

@@ -1,18 +1,16 @@
-/**
- * Responsive Image Builder - Config
- * Exports the config interface, and the config parser
- */
+// Responsive Image Builder - Config
+// Exports the config interface, and the config parser
 import Ajv from "ajv";
 import chalk from "chalk";
 import merge from "deepmerge";
 
+import { MAIN_ERRORS } from "./Constants";
 import { ConfigurationError } from "./Interfaces";
 import { Logger } from "./Logger";
+import { withoutUndefined } from "./Utility";
 
 /**
- * A single image export preset.
- * This is used as a model for both the
- * WebP and fallback codec export.
+ * A single size preset for an image export. Will output one resized image.
  */
 export interface IExportPreset {
   /** The name of the preset, this will be used to suffix the file */
@@ -27,95 +25,124 @@ export interface IExportPreset {
   default?: boolean;
 }
 
-/** Specific settings for each codec. These override the global settings */
-export interface ICodecSettings {
-  /** Enable/Disable original codec exports */
-  exportOriginal?: boolean;
-  /** Enable/disable WebP export next to original codec */
+/** Universal settings that can be applied locally or on a per-format basis */
+export interface IUniversalSettings {
+  /** Enable/disable fallback format exports */
+  exportFallback?: boolean;
+
+  /** Enable/disable WebP export next to fallback format */
   exportWebp?: boolean;
+
   /** Enable/disable image resizing */
   resize?: boolean;
+
   /**
-   * Enable/Disable image optimization.
-   * If disabled, the image will be saved directly from SHARP using default options.
-   * If enabled, the image will pass through an optimizer beforehand, which can be
-   * configured using optimizerSettings. Doesn't do anything for WebP.
+   * Enable/disable image optimization. When disabled, standard export settings
+   * from the image encoder will be used, which still result in a useable file.
    */
   optimize?: boolean;
-  /** imagemin plugin-specific settings, or the SHARP WebP options for WebP! */
-  optimizerSettings?: object;
-  /** The responsive breakpoints to use for resizing */
+
+  /** Export the fallback image in this format (e.g. TIFF -> JPEG) */
+  convert?: "jpeg" | "png" | "tiff" | "webp";
+
+  /**
+   * Pass the source image through a hash function to get an exact fingerprint
+   * from the original image for reliable image resolution. This will add a "fingerprint"
+   * field to each manifest export.
+   */
+  fingerprint?: boolean;
+
+  /**
+   * Export presets that are used to resize images.
+   * These serve as the "responsive breakpoints" for different device dimensions.
+   */
   exportPresets?: IExportPreset[];
-  /** Convert the original codec into this codec (e.g. TIFF -> JPEG) */
-  convertToCodec?: "jpeg" | "png" | "tiff" | "webp";
+
+  /**
+   * Customize the output filename for non-resized exports.
+   * Supported substituted "template literals" are:
+   * \[name\], \[format\], \[hash\] and \[shortHash\]
+   *
+   * @example default "[name].[format]""
+   */
+  singleExportTemplate?: string;
+  /**
+   * Lets you configure the filename of exports.
+   * Supported substituted "template literals" are:
+   * \[name\], \[format\], \[preset\], \[hash\], \[shortHash\], \[width\] and \[height\]
+   *
+   * @example default "[name]_[preset].[format]""
+   */
+  multipleExportTemplate?: string;
 }
 
-/**
- * Contains the configuration properties for Responsive Image Builder.
- */
-export interface IConfig {
+/** Allows you to override global settings on a per-format settings */
+export interface IFormatSettings extends IUniversalSettings {
+  /** imagemin plugin-specific settings, or the SHARP WebP options for WebP! */
+  optimizerSettings?: object;
+}
+
+/** Global configuration for Responsive Image Builder. */
+export interface IConfig extends IUniversalSettings {
   /** The input path or paths, separated with a double period ".." */
   in: string[];
-  /** The output path to export pictures to */
+
+  /** The output path where to save exported images */
   out: string;
 
-  /** Enable/Disable original codec exports */
-  exportOriginal?: boolean;
-  /** Enable/Disable WebP exports next to original codec */
-  exportWebp?: boolean;
-  /** Enable/Disable writing of a manifest file */
+  /** Enable/disable writing of a manifest file */
   exportManifest?: boolean;
-  /** Remove everything from the output folder */
+
+  /** Empty the output directory beforehand */
   cleanBeforeExport?: boolean;
-  /**
-   * Don't create the input folder structure,
-   * put everything in the top-most directory
-   */
+
+  /** Flatten the directory structure, exporting everything into one folder */
   flatExport?: boolean;
 
-  /** Program verbosity in the terminal */
+  /** Program verbosity in the console. "silent" disables terminal interactivity */
   verbosity?: "verbose" | "errors" | "silent";
+
   /** Overwrite output files without failing and clean without confirmation */
   force?: boolean;
 
-  /** Maximum number of workers to create, which translates roughly to threads */
-  threads?: number;
-  /** Enable/Disable image resizing using ExportPresets */
-  resize?: boolean;
   /**
-   * Enable/Disable image optimization.
-   * If disabled, the image will be saved directly from SHARP using default options.
-   * If enabled, the image will pass through an optimizer beforehand, which can be
-   * configured using optimizerSettings.
+   * Increment file exports if an existing file is already in place.
+   * This will not increment *all* exported sizes from the same image, only the
+   * conflicting export size.
    */
-  optimize?: boolean;
+  incrementConflicts?: boolean;
 
-  /** Convert the original codec into this codec (e.g. TIFF -> JPEG) */
-  convertToCodec?: "jpeg" | "png" | "tiff" | "webp";
+  /** Maximum number of worker threads to create */
+  threads?: number;
 
-  /** Export presets to use when resizing the image */
-  exportPresets?: IExportPreset[];
+  /** The algorithm to use for fingerprinting, system-specific (default: "md5") */
+  hashAlgorithm?: string;
+
+  /** Trim the hash to save space in the manifest */
+  shortHash?: boolean;
 
   /** PNG-only settings. Only a few sub-settings are supported */
-  png?: ICodecSettings;
+  png?: IFormatSettings;
   /** JPEG-only settings. Only a few sub-settings are supported */
-  jpeg?: ICodecSettings;
+  jpeg?: IFormatSettings;
   /** SVG-only settings. Only a few sub-settings are supported */
-  svg?: ICodecSettings;
+  svg?: IFormatSettings;
   /** GIF-only settings. Only a few sub-settings are supported */
-  gif?: ICodecSettings;
+  gif?: IFormatSettings;
   /** WebP-only settings. Only a few sub-settings are supported */
-  webp?: ICodecSettings;
+  webp?: IFormatSettings;
   /** TIFF-only settings. Only a few sub-settings are supported */
-  tiff?: ICodecSettings;
+  tiff?: IFormatSettings;
 }
 
 /**
- * The default export preset used.
- * This creates a thumbnail, and three
- * responsive sizes.
+ * The default export presets, provides four responsive breakpoints for:
+ * - thumbnail
+ * - small (mobile)
+ * - normal
+ * - large (high-DPI/4K screens)
  */
-export const DefaultExportPreset: IExportPreset[] = [
+export const defaultExportPresets: IExportPreset[] = [
   {
     name: "thumbnail",
     height: 16,
@@ -142,13 +169,15 @@ export const DefaultExportPreset: IExportPreset[] = [
 ];
 
 /**
- * The default config for Responsive Image Builder.
+ * The default config for Responsive Image Builder. User configuration
+ * will be merged with this existing config, with the user's options
+ * overriding the default values.
  */
-export const DefaultConfig: IConfig = {
+export const defaultConfig: IConfig = {
   in: null,
   out: null,
 
-  exportOriginal: true,
+  exportFallback: true,
   exportWebp: true,
   exportManifest: true,
   cleanBeforeExport: true,
@@ -156,12 +185,20 @@ export const DefaultConfig: IConfig = {
 
   verbosity: "verbose",
   force: false,
+  incrementConflicts: false,
 
   threads: 0,
   resize: true,
   optimize: true,
 
-  exportPresets: DefaultExportPreset,
+  singleExportTemplate: "[name].[format]",
+  multipleExportTemplate: "[name]_[preset].[format]",
+
+  fingerprint: false,
+  hashAlgorithm: "md5",
+  shortHash: false,
+
+  exportPresets: defaultExportPresets,
 
   gif: {
     exportWebp: false,
@@ -175,11 +212,46 @@ export const DefaultConfig: IConfig = {
 
   webp: {
     optimizerSettings: {
-      quality: 70
+      quality: 75
     }
   }
 };
 
+/* JSON schema time... */
+
+/** JSOn schema for IUniversalSettings */
+const universalSettingsSchema = {
+  exportFallback: {
+    type: "boolean"
+  },
+  exportWebp: {
+    type: "boolean"
+  },
+  resize: {
+    type: "boolean"
+  },
+  optimize: {
+    type: "boolean"
+  },
+  exportPresets: {
+    $ref: "#/definitions/exportPresets"
+  },
+  convert: {
+    type: "string",
+    enum: ["jpeg", "png", "webp", "tiff"]
+  },
+  singleExportTemplate: {
+    type: "string"
+  },
+  multipleExportTemplate: {
+    type: "string"
+  },
+  fingerprint: {
+    type: "boolean"
+  }
+};
+
+/** JSON schema for IConfig */
 const configSchema = {
   definitions: {
     exportPresets: {
@@ -206,31 +278,13 @@ const configSchema = {
         }
       }
     },
-    codecSettings: {
+    formatSettings: {
       type: "object",
       properties: {
-        exportOriginal: {
-          type: "boolean"
-        },
-        exportWebp: {
-          type: "boolean"
-        },
-        resize: {
-          type: "boolean"
-        },
-        optimize: {
-          type: "boolean"
-        },
         optimizerSettings: {
           type: "object"
         },
-        exportPresets: {
-          $ref: "#/definitions/exportPresets"
-        },
-        convertToCodec: {
-          type: "string",
-          enum: ["jpeg", "png", "webp", "tiff"]
-        }
+        ...universalSettingsSchema
       }
     }
   },
@@ -247,12 +301,7 @@ const configSchema = {
     out: {
       type: "string"
     },
-    exportOriginal: {
-      type: "boolean"
-    },
-    exportWebp: {
-      type: "boolean"
-    },
+    ...universalSettingsSchema,
     exportManifest: {
       type: "boolean"
     },
@@ -269,57 +318,52 @@ const configSchema = {
     force: {
       type: "boolean"
     },
+    incrementConflicts: {
+      type: "boolean"
+    },
     threads: {
       type: "number",
       minimum: 0
     },
-    resize: {
+    hashAlgorithm: {
+      type: "string"
+    },
+    shortHash: {
       type: "boolean"
-    },
-    optimize: {
-      type: "boolean"
-    },
-    convertToCodec: {
-      type: "string",
-      enum: ["jpeg", "png", "webp", "tiff"]
-    },
-    exportPresets: {
-      $ref: "#/definitions/exportPresets"
     },
     png: {
-      $ref: "#/definitions/codecSettings"
+      $ref: "#/definitions/formatSettings"
     },
     jpeg: {
-      $ref: "#/definitions/codecSettings"
+      $ref: "#/definitions/formatSettings"
     },
     svg: {
-      $ref: "#/definitions/codecSettings"
+      $ref: "#/definitions/formatSettings"
     },
     gif: {
-      $ref: "#/definitions/codecSettings"
+      $ref: "#/definitions/formatSettings"
     },
     webp: {
-      $ref: "#/definitions/codecSettings"
+      $ref: "#/definitions/formatSettings"
     },
     tiff: {
-      $ref: "#/definitions/codecSettings"
+      $ref: "#/definitions/formatSettings"
     }
   }
 };
 
 /**
- * Parses the given config, and fills in the missing values
- * with the default values from DefaultConfig.
- * @param {Partial<IConfig>} config An object that is used to configure Responsive Image Builder
+ * Verify the config for correct structure and types, and merge wit
+ * the default config.
  */
-export function parseConfig(config: Partial<IConfig>): IConfig {
-  removeUndefined(config);
+export function parseConfig(receivedConfig: Partial<IConfig>): IConfig {
+  const config = withoutUndefined(receivedConfig);
 
-  // Validate the config schema
+  // Validate the user's config
   const ajv = new Ajv();
   const valid = ajv.validate(configSchema, config);
 
-  // If not valid, throw an error string
+  // Try to construct a human-readable error message
   if (!valid) {
     // Reduce the errors and build a long string
     const reducedErrors = ajv.errors.reduce((response, error) => {
@@ -342,7 +386,7 @@ export function parseConfig(config: Partial<IConfig>): IConfig {
       return "> " + error.dataPath + " " + error.message + "\n";
     }, "");
 
-    // Print to the terminal
+    // Display the human-readable error in terminal
     const logger = new Logger();
     logger.error(
       "Could not start due to invalid config:\n" +
@@ -351,20 +395,9 @@ export function parseConfig(config: Partial<IConfig>): IConfig {
         chalk.reset('Refer to the README for acceptable configuration objects, or try "rib --help"')
     );
 
-    throw new ConfigurationError(reducedErrors, "Bad config");
+    throw new ConfigurationError(MAIN_ERRORS.configError, reducedErrors);
   }
 
-  // If valid, return the config
-  return merge(DefaultConfig, config);
-}
-
-/** Recursively removes undefined values */
-function removeUndefined(object: {}) {
-  for (const key of Object.keys(object)) {
-    if (typeof object[key] === "object") {
-      removeUndefined(object[key]);
-    } else if (typeof object[key] === "undefined") {
-      delete object[key];
-    }
-  }
+  // Merge the config with the default
+  return merge(defaultConfig, config);
 }

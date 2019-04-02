@@ -1,85 +1,79 @@
 # Contributing
 
+**Working on your first Pull Request?** You can learn how from this *free* series [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github)
+
 When contributing to this repository, please first discuss the change you wish to make via issue,
-email, or any other method with the owners of this repository before making a change.
+email, or any other method with the owners of this repository before making a change. You wouldn't
+want your work to be for nothing if the change was already being implemented, would you?
 
-## Changelog
+## Make your own personal copy
 
-This project maintains a human-written changelog. It's easy to maintain, please make sure that
-you update it with every commit that produces noticeable modification!
+Fork and clone the repository to your computer with git.
 
-## Pull Request Process
+The source files are found under `src/`. You may make any changes, commit them, and generally do what you like in your own personal copy.
+
+There are a few scripts to you to help you out:
+
+```bash
+$ npm test
+$ npm run watch  # live compilation
+$ npm run build  # final build
+$ npm run fix    # linting and style fixing
+$ npm run reset  # reset to the last commit, and lose changes!
+```
+
+## Contributing back to RIB
+
+- Fork the repository
+- Make your awesome changes
+- Update the CHANGELOG and README
+- Run tests, make sure they pass
+- Use sensible commit messages
+  - We recommend [commitizen](https://github.com/commitizen/cz-cli), it's what we use
+    - If your commits don't follow [Conventional Commits](https://www.conventionalcommits.org/), we will squash and rename them
+  - Include any issue numbers in the message
+- Submit a Pull Request
+  - Try to follow the given template
+  - Add a good description of your changes
+  - Don't add too many commits...
+  - A PR should only address one issue/feature
+
+### Changelog
+
+This project maintains a human-written changelog. It's easy to maintain, please make sure that you
+update it with every commit that produces noticeable modification! It follows the
+[Keep a Changelog](https://keepachangelog.com) format.
+
+### Testing
+
+Contributions must pass style and unit tests. The deployment process ia handled by Travis CI, and any non-compliant commits will be rejected.
+
+```bash
+$ npm test
+```
+
+### The Pull Request
 
 1. Run the tests and verify that your work adheres to the project's guidelines.
 2. Update the README if necessary and make sure that you correctly updated the CHANGELOG.
-3. Submit a Pull Request.
-4. \[MAINTAINER\] Merge and Squash the PR respecting
-   [Conventional Commits](https://www.conventionalcommits.org/). Commitizen is recommended.
-5. \[MAINTAINER\] Push the changes to origin. Travis CI will test the build and deploy automatically
-   to NPM if necessary.
+3. Submit a Pull Request using the template provided and a easily-understandable description.
 
-## Code of Conduct
+Our commits follow the [Conventional Commits](https://www.conventionalcommits.org/) format. Your
+change should only concern itself with a single feature or bug fix, and if possible, the commit
+should adhere to the conventional commit standard. A fantastic tool for committing is
+[commitizen](https://github.com/commitizen/cz-cli), which is configured to work with this
+repository.
 
-### Our Pledge
+If the commits are not compliant with Conventional Commit, don't worry, they will be squashed and
+properly tagged by a maintainer.
 
-In the interest of fostering an open and welcoming environment, we as contributors and maintainers
-pledge to making participation in our project and our community a harassment-free experience for
-everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level
-of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
+### [MAINTAINER] Merge
 
-### Our Standards
+Once the Pull Request has passed the checks, it may be merged into `develop` or `master`. If the
+commits do not follow conventional commits, a squash merge is necessary with a compliant commit
+message.
 
-Examples of behavior that contributes to creating a positive environment include:
+### [AUTOMATIC] Deployment
 
-- Using welcoming and inclusive language
-- Being respectful of differing viewpoints and experiences
-- Gracefully accepting constructive criticism
-- Focusing on what is best for the community
-- Showing empathy towards other community members
-
-Examples of unacceptable behavior by participants include:
-
-- The use of sexualized language or imagery and unwelcome sexual attention or advances
-- Trolling, insulting/derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information, such as a physical or electronic address, without explicit
-  permission
-- Other conduct which could reasonably be considered inappropriate in a professional setting
-
-### Our Responsibilities
-
-Project maintainers are responsible for clarifying the standards of acceptable behavior and are
-expected to take appropriate and fair corrective action in response to any instances of unacceptable
-behavior.
-
-Project maintainers have the right and responsibility to remove, edit, or reject comments, commits,
-code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, or
-to ban temporarily or permanently any contributor for other behaviors that they deem inappropriate,
-threatening, offensive, or harmful.
-
-### Scope
-
-This Code of Conduct applies both within project spaces and in public spaces when an individual is
-representing the project or its community. Examples of representing a project or community include
-using an official project e-mail address, posting via an official social media account, or acting as
-an appointed representative at an online or offline event. Representation of a project may be
-further defined and clarified by project maintainers.
-
-### Enforcement
-
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting
-the project team at [INSERT EMAIL ADDRESS]. All complaints will be reviewed and investigated and
-will result in a response that is deemed necessary and appropriate to the circumstances. The project
-team is obligated to maintain confidentiality with regard to the reporter of an incident. Further
-details of specific enforcement policies may be posted separately.
-
-Project maintainers who do not follow or enforce the Code of Conduct in good faith may face
-temporary or permanent repercussions as determined by other members of the project's leadership.
-
-### Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4, available at
-[http://contributor-covenant.org/version/1/4][version]
-
-[homepage]: http://contributor-covenant.org
-[version]: http://contributor-covenant.org/version/1/4/
+Deployment is automatically handled by Travis CI whenever changes are pushed to the `master` branch
+that pass the repository tests.
