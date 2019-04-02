@@ -219,7 +219,7 @@ export const defaultConfig: IConfig = {
 
 /* JSON schema time... */
 
-/** JSOn schema for IUniversalSettings */
+/** JSON schema for IUniversalSettings */
 const universalSettingsSchema = {
   exportFallback: {
     type: "boolean"

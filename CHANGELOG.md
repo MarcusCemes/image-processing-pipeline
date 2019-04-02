@@ -7,6 +7,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+
+
+## [3.0.1] - 2019-04-02
+
+### Fixed
+
+- CLI ('bin' folder was not whitelisted for deployment)
+
 ## [3.0.0] - 2019.04-02
 
 The third major update that involved a rewrite of the worker thread. The image export system is now
@@ -189,7 +197,8 @@ not fork the project and submit a Pull Request?
 
 First release
 
-[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...HEAD
+[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.1...HEAD
+[3.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.2...v3.0.0
 [2.1.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.0...v2.1.1
