@@ -8,6 +8,7 @@
     "object-literal-sort-keys": false,
     "semicolon": true,
     "no-unused-vars": ["error", { "args": "none" }], // disable for function arguments
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-shadowed-variable": false
   }
 }

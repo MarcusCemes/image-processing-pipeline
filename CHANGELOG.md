@@ -7,14 +7,59 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.0.0] - 2019.04-02
+
+The third major update that involved a rewrite of the worker thread. The image export system is now
+more modular and customizable, making it easier to add "filters" in the future to modify image
+streams.
+
+This update introduces BREAKING CHANGES to the manifest file and program errors.
+
+### Added
+
+- Image fingerprinting! Don't rely on names anymore for resolution, but on a checksum of the
+  original image!
+- Temporary files when exporting, less chance of conflicts and overwriting, with negligible
+  performance cost
+- Better and safer cleanup in case of failed exports
+- Custom file naming using template literals!
+- A better code-based error system
+- Visual Studio Code debug scripts for node `--inspect` debugging (instead of console logging)
+- Typescript interface exports
+- Code of Conduct + better contributing guide
+- Short file header
+
+### Changed
+
+- Rewrote the worker thread to use functions instead of classes, separated into more files, making
+  the worker more modular and upgradable in the future.
+- The format of the manifest file
+- Faster immutable-based undefined value removal (`removeUndefined` replaced with
+  `withoutUndefined`)
+- Major README rewrite to document the new changes
+- Updated dependencies
+
+### Removed
+
+- `WebPictureStyles.ts`, its code was already merged with the react example.
+
+## [2.1.2] - 2019-03-29
+
 ### Fixed
 
 - Forgot the `bin` field in package.json, CLI is now usable
 
+## [2.1.1] - 2019-03-23
+
+### Fixed
+
+- WebP optimization
+- Typos
+
 ## [2.1.0] - 2019-03-23
 
-`imagemin-webp` integration was scrapped as the binary seems to be buggy.
-The cwebp-bin would corrupt images with alpha channels, probably due to an incompatibility with `libvips`.
+`imagemin-webp` integration was scrapped as the binary seems to be buggy. The cwebp-bin would
+corrupt images with alpha channels, probably due to an incompatibility with `libvips`.
 
 Instead, the quality for `libvips` WebP was reduced to match `imagemin-webp` sizes (q=70).
 
@@ -22,7 +67,7 @@ Instead, the quality for `libvips` WebP was reduced to match `imagemin-webp` siz
 
 - Better WebP optimization
 - TIFF support
-- `convertToCodec` option, for codec conversion
+- `convertFormat` option, for codec conversion
 - `exportOriginal` option, for only WebP exports
 - More Typescript typings
 - Better error codes + documentation
@@ -144,7 +189,10 @@ not fork the project and submit a Pull Request?
 
 First release
 
-[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.0...HEAD
+[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.2...v3.0.0
+[2.1.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.5...v2.1.0
 [2.0.5]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.0.3...v2.0.4

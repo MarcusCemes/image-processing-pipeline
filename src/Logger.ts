@@ -1,5 +1,12 @@
+// Responsive Image Builder - Logger
+// Used to print formatted text to the terminal
 import chalk from "chalk";
-import figures from "figures";
+import {
+  cross as figCross,
+  info as figInfo,
+  tick as figTick,
+  warning as figWarning
+} from "figures";
 import indent from "indent-string";
 
 export class Logger {
@@ -7,8 +14,8 @@ export class Logger {
   public static ERRORS = 0;
   public static VERBOSE = 2;
 
-  public static SUCCESS = chalk.green(figures.tick);
-  public static FAIL = chalk.red(figures.cross);
+  public static SUCCESS = chalk.green(figTick);
+  public static FAIL = chalk.red(figCross);
   public verbosity: number = Logger.VERBOSE;
 
   constructor(verbosity: string = "verbose") {
@@ -36,7 +43,7 @@ export class Logger {
     }
     let icon = "";
     if (showIcon) {
-      icon = chalk.green(figures.tick);
+      icon = chalk.green(figTick);
     } else {
       text = chalk.green(text);
     }
@@ -51,7 +58,7 @@ export class Logger {
     }
     let icon = "";
     if (showIcon) {
-      icon = chalk.red(figures.cross);
+      icon = chalk.red(figCross);
     } else {
       text = chalk.red(text);
     }
@@ -66,7 +73,7 @@ export class Logger {
     }
     let icon = "";
     if (showIcon) {
-      icon = chalk.keyword("orange")(figures.warning);
+      icon = chalk.keyword("orange")(figWarning);
     } else {
       text = chalk.keyword("orange")(text);
     }
@@ -81,7 +88,7 @@ export class Logger {
     }
     let icon = "";
     if (showIcon) {
-      icon = chalk.blue(figures.info);
+      icon = chalk.blue(figInfo);
     } else {
       text = chalk.blue(text);
     }

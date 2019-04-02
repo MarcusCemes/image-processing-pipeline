@@ -1,17 +1,21 @@
+// Responsive Image Builder - Controller
+// Contains the worker-controlling logic
 import chalk from "chalk";
 import cluster from "cluster";
 import { DynamicTerminal, ILine } from "dynamic-terminal";
-import { hamburger } from "figures";
-import { createWriteStream } from "fs";
+import { hamburger, warning } from "figures";
+import { createWriteStream } from "fs-extra";
 import { constants, cpus, getPriority, setPriority } from "os";
-import path from "path";
+import { join } from "path";
 import { emitKeypressEvents } from "readline";
 
 import { IConfig } from "./Config";
+import { CONTROLLER_ERRORS, WRAP_WIDTH } from "./Constants";
 import { IExport, IFailedExport } from "./Interfaces";
 import { Logger } from "./Logger";
 import { IFile } from "./Preparation";
-import { ICommand } from "./ProcessThread";
+import { centreText } from "./Utility";
+import { ICommand, WORKER_ERRORS, WorkerError } from "./worker/Interfaces";
 
 const cores = cpus().length;
 
@@ -30,6 +34,7 @@ export class Controller {
   private terminal: DynamicTerminal;
   private terminalLines: ILine[] = [];
   private updateInterval: NodeJS.Timer = null;
+  private lastRender: string = "";
 
   private completedFiles: IExport[] = [];
   private failedFiles: IFailedExport[] = [];
@@ -38,19 +43,21 @@ export class Controller {
     this.config = config;
     this.files = files;
     this.logger = new Logger(config.verbosity);
-    this.terminal = new DynamicTerminal();
+    this.terminal = config.verbosity === "verbose" ? new DynamicTerminal() : null;
 
     cluster.setupMaster({
-      exec: path.join(__dirname, "ProcessThread.js")
+      exec: join(__dirname, "worker/Main.js")
     });
   }
 
   /**
    * Processes the key asynchronously with a worker cluster
    */
-  public async process(): Promise<IControllerResult> {
+  public async processImages(): Promise<IControllerResult> {
     try {
-      this.terminal.start({ updateFrequency: 200 });
+      if (this.terminal) {
+        this.terminal.start({ updateFrequency: 200 });
+      }
       this.prepareRender();
       this.render("Starting the cluster", false);
 
@@ -88,7 +95,6 @@ export class Controller {
           this.workers = this.workers.splice(this.workers.indexOf(worker), 1);
         });
         const cmds: ICommand[] = [
-          // get type annotations
           { cmd: "INIT", config: this.config },
           { cmd: "FILE", file: this.files[this.fileCursor] }
         ];
@@ -124,23 +130,27 @@ export class Controller {
 
       this.workers = [];
 
-      this.terminalLines = [
-        {
-          text: `${DynamicTerminal.TICK} ${
-            this.completedFiles.length
-          } images were successfully converted`,
-          indent: 6
-        }
-      ];
-      this.terminal.update(this.terminalLines);
+      if (this.terminal) {
+        this.terminalLines = [
+          {
+            text: `${DynamicTerminal.TICK} ${
+              this.completedFiles.length
+            } images were successfully converted`,
+            indent: 6
+          }
+        ];
+        this.terminal.update(this.terminalLines);
+      }
 
       if (this.config.exportManifest) {
         const manifestLine = {
           text: `${DynamicTerminal.SPINNER} Writing manifest`,
           indent: 6
         };
-        this.terminalLines.push(manifestLine);
-        this.terminal.update(this.terminalLines);
+        if (this.terminal) {
+          this.terminalLines.push(manifestLine);
+          this.terminal.update(this.terminalLines);
+        }
 
         // Write the manifest
         try {
@@ -148,20 +158,24 @@ export class Controller {
             exports: this.completedFiles
           };
           const json = JSON.stringify(manifest);
-          const writeStream = createWriteStream(path.join(this.config.out, "manifest.json"));
+          const writeStream = createWriteStream(join(this.config.out, "manifest.json"));
           writeStream.write(json);
           writeStream.end();
-          manifestLine.text = `${
-            DynamicTerminal.TICK
-          } An export manifest has been written to ${chalk.keyword("orange")("manifest.json")}`;
+          manifestLine.text = `${DynamicTerminal.TICK} Exports written to ${chalk.keyword("orange")(
+            "manifest.json"
+          )}`;
         } catch (err) {
           manifestLine.text = `${DynamicTerminal.CROSS} Failed to write manifest file:\n${err}`;
         }
-        this.terminal.update(this.terminalLines);
+        if (this.terminal) {
+          this.terminal.update(this.terminalLines);
+        }
       }
 
-      await this.terminal.stop();
-      this.terminal.destroy();
+      if (this.terminal) {
+        await this.terminal.stop();
+        this.terminal.destroy();
+      }
 
       // Show a warning if files failed, and write the errors to errors.json in OUT DIR
       if (this.failedFiles.length > 0) {
@@ -174,7 +188,7 @@ export class Controller {
         try {
           const description = "See the documentation for help with error codes";
           const json = JSON.stringify({ description, errors: this.failedFiles });
-          const writeStream = createWriteStream(path.join(this.config.out, "errors.json"));
+          const writeStream = createWriteStream(join(this.config.out, "errors.json"));
           await new Promise(res => {
             writeStream.on("finish", () => res());
             writeStream.write(json);
@@ -198,18 +212,31 @@ export class Controller {
         failed: this.failedFiles
       };
     } catch (err) {
-      this.terminal.stop(false);
-      this.logger.error("Error while processing files:\n" + err);
+      if (this.terminal) {
+        this.terminal.stop(false);
+      }
+      this.logger.error(
+        "\r\n" + // Cursor is at position 1 for some reason
+          centreText(
+            chalk.bold.red(`${warning} ${CONTROLLER_ERRORS.fatalError} ${warning}`) +
+              "\n\n" +
+              err.message.trim(),
+            WRAP_WIDTH
+          ) +
+          "\n",
+        2,
+        false
+      );
       return {
         completed: [],
-        failed: this.files.map(file => ({ path: file.path, reason: "Unknown: code error" }))
+        failed: this.files.map(file => ({ path: file.path, reason: CONTROLLER_ERRORS.fatalError }))
       };
     }
   }
 
   /** Sets the terminal to raw mode and emits keypress events */
   public block() {
-    if (!process.stdin.isRaw) {
+    if (process.stdin.isTTY && !process.stdin.isRaw) {
       process.stdin.setRawMode(true);
       process.stdin.resume();
     }
@@ -217,7 +244,7 @@ export class Controller {
 
   /** Removes terminal raw mode and allows the program to exit */
   public unblock() {
-    if (process.stdin.isRaw) {
+    if (process.stdin.isTTY && process.stdin.isRaw) {
       process.stdin.setRawMode(false);
       if (!process.env.CLI_MODE) {
         process.stdin.pause();
@@ -258,7 +285,10 @@ export class Controller {
 
   private giveJob(worker: cluster.Worker): boolean {
     if (this.fileCursor < this.files.length) {
-      const cmd = { cmd: "FILE", file: this.files[this.fileCursor] };
+      const cmd: ICommand = { cmd: "FILE", file: this.files[this.fileCursor] };
+      if (this.files.length - this.fileCursor < cores) {
+        cmd.accelerate = true;
+      }
       worker.send(cmd);
       this.fileCursor++;
       return true;
@@ -269,12 +299,20 @@ export class Controller {
   private prepareRender(): void {
     this.terminalLines = [];
     this.terminalLines.push({ text: "", indent: 0 });
-    this.terminalLines.push({ text: "", indent: 2 });
+    this.terminalLines.push({ text: "", indent: 4 });
     this.terminalLines.push({ text: "", indent: 0 });
-    this.terminalLines.push({ text: "", indent: 6 });
+    this.terminalLines.push({ text: "", indent: 8 });
   }
 
   private render(status?: string, showProgress: boolean = true): void {
+    const thisRender = `${status}.${this.completedFiles.length}.${this.failedFiles}.${
+      this.files.length
+    }`;
+    if (this.lastRender === thisRender) {
+      return;
+    }
+    this.lastRender = thisRender;
+
     const complete = this.completedFiles.length + this.failedFiles.length;
     const barWidth = 25;
     const barFilled = Math.min(barWidth, Math.floor((complete / this.files.length) * barWidth));
@@ -287,7 +325,9 @@ export class Controller {
 
     this.terminalLines[1].text = `${DynamicTerminal.SPINNER} ${status}`;
     this.terminalLines[3].text = showProgress ? `${bar}  ${complete}/${this.files.length}` : "";
-    this.terminal.update(this.terminalLines);
+    if (this.terminal) {
+      this.terminal.update(this.terminalLines);
+    }
   }
 
   /** Skip the queue */
@@ -296,7 +336,7 @@ export class Controller {
       while (this.fileCursor < this.files.length) {
         this.failedFiles.push({
           path: this.files[this.fileCursor].path,
-          reason: "The queue was cancelled"
+          error: new WorkerError(WORKER_ERRORS.jobCancelled)
         });
         this.fileCursor++;
       }

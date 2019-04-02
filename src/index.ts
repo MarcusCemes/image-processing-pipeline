@@ -1,27 +1,11 @@
-/*
-/      -- Responsive Image Builder --
-/   -- Copyright (c) 2018 Marcus Cemes --
-/   Build small and optimized web-ready images
-/   in different sizes, multithreaded!
-/
-/   Provides an efficient way to build images
-/   before the main build process.
-/
-/   Each image is compressed into each
-/   provided export preset, before being saved
-/   in the beautiful WebP codec as well
-/   as its original legacy codec;
-/
-/   Supports JPEG, WebP, PNG, TIFF and SVG.
-/   Utilizes the high-performance SHARP library
-/   with lanczos3 downscaling.
-/
-/   Manifest schema under $schema/manifest.json
-*/
-
+// Responsive Image Builder - index.ts
+// The entry point to the program
 import { IConfig, parseConfig } from "./Config";
 import { IResult } from "./Interfaces";
 import { main } from "./Main";
+
+export * from "./Interfaces";
+export { WorkerError } from "./worker/Interfaces";
 
 /**
  * An ultra-fast responsive image building pipeline, for the web.
