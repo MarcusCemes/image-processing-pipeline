@@ -1,6 +1,6 @@
 {
   "name": "responsive-image-builder",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "Ultra-fast responsive WebP image builder, for the web!",
   "author": "Marcus Cemes",
   "license": "Apache-2.0",
@@ -12,7 +12,8 @@
   },
   "files": [
     "LICENSE",
-    "/dist"
+    "/dist",
+    "/bin"
   ],
   "repository": "https://github.com/MarcusCemes/responsive-image-builder",
   "bugs": {
