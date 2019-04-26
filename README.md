@@ -611,7 +611,7 @@ If you have a bug, issue or a feature request, open a [new issue][link-issues] u
 
 If you would like to contribute directly, see [contributing][link-contributing] to learn how to make changes and submit a Pull Request.
 
-Responsive Image Builder uses [Travis CI](link-travis) and [semantic-release][link-semantic-release] to test the master and develop branches and publish any significant changes immediately to npm and GitHub.
+Responsive Image Builder uses [Travis CI][link-travis] and [semantic-release][link-semantic-release] to test the master and develop branches and publish any significant changes immediately to npm and GitHub.
 
 <div align="center">
 
