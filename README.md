@@ -607,6 +607,7 @@ See [changelog][link-changelog].
 
 Stretch goals for the next feature release. Completed goals are removed after the following feature release.
 
+- [ ] Add support for pre-load [traced SVGs](https://github.com/tooolbox/node-potrace) ([demo](https://using-gatsby-image.gatsbyjs.org/traced-svg/))
 - [ ] If not cleaning, merge *manifest.json* with existing
 - [ ] Support "synchronize" mode where only missing images are exported
 - [ ] Add filename reservation for consistent incrementation
