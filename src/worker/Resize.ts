@@ -4,20 +4,23 @@ import sharp from "sharp";
 import { Readable } from "stream";
 
 import { IExportSize } from "../Interfaces";
-import { ImageStreams } from "./Pipeline";
+import { IImageStreams } from "./Pipeline";
 
 export function resize(
   pipeline: Readable,
   format: string,
-  exportSizes: IExportSize[]
-): ImageStreams {
-  const resizedStreams: ImageStreams = [];
+  exportSizes: IExportSize[],
+  singleTemplate: string,
+  multipleTemplate: string
+): IImageStreams {
+  const resizedStreams: IImageStreams = [];
 
   if (!exportSizes) {
     // Single export
     resizedStreams.push({
       stream: pipeline,
-      format
+      format,
+      template: singleTemplate
     });
   } else {
     // Multiple export
@@ -28,7 +31,8 @@ export function resize(
           .clone()
           .resize(exportSize.width, exportSize.height, { fit: "inside", withoutEnlargement: true }),
         format,
-        size: exportSize
+        size: exportSize,
+        template: multipleTemplate
       });
     }
   }

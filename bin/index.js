@@ -47,13 +47,15 @@ program
   .option("-f, --fingerprint", "Enable original file fingerprinting (manifest entry)")
   .option("-a, --hash-algorithm [algorithm]", "The fingerprint algorithm to use, such as 'md5'")
   .option("-s, --short-hash", "Trim hashes in the manifest file to only a few characters")
+  .option("--no-trace", "Disable placeholder SVG tracing")
   .option("--no-fallback", "Disable fallback format exports")
   .option("--no-webp", "Disable WebP format exports")
   .option("--no-resize", "Disable image resizing (based on export presets)")
   .option("--no-optimize", "Disable image optimization")
   .option("-c, --convert [format]", "Convert the fallback format to the specified format")
   .option("--single-template [template]", "The template to use for file-naming single exports")
-  .option("--multiple-template [template]", "The template to sue fo file-naming multiple export")
+  .option("--multiple-template [template]", "The template to sue for file-naming multiple export")
+  .option("--trace-template [template]", "The template to sue for SVG traces")
 
   .parse(process.argv);
 
@@ -72,6 +74,7 @@ explorer.search()
     config = config || {};  // read config
     const CLIConfig = {};   // config from flags
 
+    /** Map the CLI option names to config keys */
     const configMappings = {
       in: null,
       out: null,
@@ -91,7 +94,9 @@ explorer.search()
       convert: null,
       singleTemplate: "singleExportTemplate",
       multipleTemplate: "multipleExportTemplate",
-      fingerprint: null
+      fingerprint: null,
+      trace: null,
+      traceTemplate: null
     }
 
     for (const prop of Object.keys(configMappings)) {

@@ -12,20 +12,20 @@ import {
 import { posix } from "path";
 import { file as tmpFile } from "tmp";
 
-import { IConfig, IUniversalSettings } from "../Config";
+import { IConfig } from "../Config";
 import { INCREMENT_LIMIT, SHORT_HASH_LENGTH } from "../Constants";
 import { IExportSize } from "../Interfaces";
 import { IFile } from "../Preparation";
 import { cleanUpPath } from "../Utility";
 import { WORKER_ERRORS, WorkerError } from "./Interfaces";
-import { ImageStreams } from "./Pipeline";
-import { getFirstDefined } from "./Utility";
+import { IImageStreams } from "./Pipeline";
 
 export interface ITemporaryFile {
   tmpFile: string;
   format: string;
   size?: IExportSize;
   closed: Promise<null | WorkerError>;
+  template: string; // The file-naming template
 }
 
 /**
@@ -35,7 +35,7 @@ export interface ITemporaryFile {
  * information to rename the files to the correct name.
  */
 export async function temporarySave(
-  imageStreams: ImageStreams,
+  imageStreams: IImageStreams,
   outDir: string,
   job: IFile,
   flat: boolean = false
@@ -77,7 +77,8 @@ export async function temporarySave(
                 tmpFile: cleanUpPath(tmpPath),
                 format: imageStream.format,
                 size: imageStream.size,
-                closed
+                closed,
+                template: imageStream.template
               });
             }
           );
@@ -129,12 +130,8 @@ export async function commitSave(
       : "";
 
   for (const tmpFile of temporaryFiles) {
-    const templateType = tmpFile.size ? "multipleExportTemplate" : "singleExportTemplate";
     const size = tmpFile.size || null;
-    let newName = getFirstDefined(
-      ((config[tmpFile.format] as IUniversalSettings) || {})[templateType],
-      config[templateType]
-    );
+    let newName = tmpFile.template;
 
     // These are hard coded as half of them depend on the export, and it has better performance
     // than using universal functions to generate each value on the fly

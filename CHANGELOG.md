@@ -7,7 +7,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.1.0] - 2019-04-26
 
+### Added
+
+- SVG Tracing with *potrace*
+- Better modularization of the pipeline for easier extensibility with newer features
+
+### Fixed
+
+- Image converting (`convert` option would do nothing)
+- Small formatting errors, typos
 
 ## [3.0.1] - 2019-04-02
 
@@ -197,8 +207,9 @@ not fork the project and submit a Pull Request?
 
 First release
 
-[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.1...HEAD
-[3.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...v3.0.1
+[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.1...v3.1.0
+[3.0.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.2...v3.0.0
 [2.1.2]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.0...v2.1.1
