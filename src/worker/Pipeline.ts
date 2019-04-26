@@ -7,12 +7,14 @@ import { PassThrough, Readable } from "stream";
 import { IConfig, IExportPreset, IUniversalSettings } from "../Config";
 import { IExport, IExportSize } from "../Interfaces";
 import { IFile } from "../Preparation";
+import { convert } from "./Convert";
 import { fingerprintFactory, IFingerprint } from "./Fingerprint";
 import { optimize } from "./Optimize";
 import { resize } from "./Resize";
 import { ITemporaryFile, temporarySave } from "./Save";
+import { trace } from "./Trace";
 import { getFirstDefined } from "./Utility";
-import { createWebpStreams } from "./WebP";
+import { webp } from "./WebP";
 
 interface IPipeline {
   stream: Sharp | PassThrough;
@@ -27,7 +29,14 @@ interface IDim {
   h: number; // height
 }
 
-export type ImageStreams = Array<{ stream: Readable; format: string; size?: IExportSize }>;
+export interface IImageStream {
+  stream: Readable;
+  format: string;
+  size?: IExportSize;
+  template: string;
+}
+
+export type IImageStreams = IImageStream[];
 
 export async function generatePipeline(
   config: IConfig,
@@ -37,28 +46,67 @@ export async function generatePipeline(
   // decide what needs to be done for this job
   const {
     targetFormat,
+    shouldConvert,
     exportSizes,
     original,
     shouldFallback,
     shouldOptimize,
     shouldWebp,
-    shouldFingerprint
+    shouldFingerprint,
+    shouldTrace
   } = calculateJobInformation(config, metadata, job);
 
+  // Generate the pipeline using extensible "plug-and-play modules"
   const pipelineRoot = new PassThrough();
 
+  // * FINGERPRINT - hijack the stream and digest
   let fingerprint: IFingerprint;
   if (shouldFingerprint) {
     fingerprint = fingerprintFactory(config.hashAlgorithm);
     pipelineRoot.pipe(fingerprint.stream);
   }
 
-  // * RESIZE - the first step of the pipeline
-  let imageStreams: ImageStreams = resize(pipelineRoot, metadata.format, exportSizes);
+  // * TRACE - hijack the stream and trace an SVG
+  let traceStream: IImageStream;
+  if (shouldTrace) {
+    const traceTemplate = getFirstDefined(
+      ((config[targetFormat] as IUniversalSettings) || {}).traceTemplate,
+      config.traceTemplate
+    );
+    const traceOptions = getFirstDefined(
+      ((config[targetFormat] as IUniversalSettings) || {}).traceOptions,
+      config.traceOptions
+    );
+    traceStream = trace(pipelineRoot, traceTemplate, traceOptions);
+  }
+
+  let pipeline: Readable = pipelineRoot;
+
+  // * CONVERT - convert the source format
+  if (shouldConvert) {
+    pipeline = convert(pipelineRoot, metadata.format, targetFormat);
+  }
+
+  // * RESIZE - the first step of the pipeline, also converts if necessary
+  const singleExportTemplate = getFirstDefined(
+    ((config[targetFormat] as IUniversalSettings) || {}).singleExportTemplate,
+    config.singleExportTemplate
+  );
+  const multipleExportTemplate = getFirstDefined(
+    ((config[targetFormat] as IUniversalSettings) || {}).multipleExportTemplate,
+    config.multipleExportTemplate
+  );
+  let imageStreams: IImageStreams = resize(
+    pipeline,
+    targetFormat,
+    exportSizes,
+    singleExportTemplate,
+    multipleExportTemplate
+  );
 
   // * WEBP - create the webp streams
   const webpOptimizerSettings = (config.webp || {}).optimizerSettings;
-  imageStreams = createWebpStreams(imageStreams, webpOptimizerSettings, shouldFallback, shouldWebp);
+  imageStreams = webp(imageStreams, webpOptimizerSettings, shouldFallback, shouldWebp);
 
   // * OPTIMIZE - optimize the non-webp streams
   if (shouldOptimize) {
@@ -70,6 +118,9 @@ export async function generatePipeline(
   }
 
   // * SAVE - save the image data to temporary files
+  if (traceStream) {
+    imageStreams.push(traceStream);
+  }
   const temporaryFiles = await temporarySave(imageStreams, config.out, job, config.flatExport);
 
   const parsedPath = posix.parse(job.path);
@@ -101,6 +152,8 @@ function calculateJobInformation(config: IConfig, metadata: Metadata, job: IFile
     metadata.format
   );
 
+  const shouldConvert = targetFormat === metadata.format;
+
   const original: IExport["original"] = {
     name: parsedPath.name,
     fullName: posix.relative(job.base, posix.join(parsedPath.dir, parsedPath.name)),
@@ -127,6 +180,10 @@ function calculateJobInformation(config: IConfig, metadata: Metadata, job: IFile
     ((config[targetFormat] as IUniversalSettings) || {}).fingerprint,
     config.fingerprint
   );
+  const shouldTrace = getFirstDefined(
+    ((config[targetFormat] as IUniversalSettings) || {}).trace,
+    config.trace
+  );
 
   let exportSizes: IExportSize[];
   if (shouldResize) {
@@ -139,12 +196,14 @@ function calculateJobInformation(config: IConfig, metadata: Metadata, job: IFile
 
   return {
     targetFormat,
+    shouldConvert,
     original,
     exportSizes,
     shouldOptimize,
     shouldWebp,
     shouldFallback,
-    shouldFingerprint
+    shouldFingerprint,
+    shouldTrace
   };
 }
 

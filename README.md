@@ -24,12 +24,13 @@
 
 ## Features
 
-- ⚡ **Fast** - Uses the lightning-quick [libvips image processing library](https://github.com/jcupitt/libvips/wiki/Speed-and-memory-use)
+- ⚡ **Fast** - Uses the lightning-quick [libvips image processing library][link-libvips-speed]
 - 🔥 **Multithreaded** - Scales to all available CPU cores
 - 📦 **Zero configuration** - Change nothing, change everything. You choose.
 - 🌍 **Universal** - a flexible image build process that doesn't enforce any principles
 - ✂️ **Cross-platform** - Tested on Windows, macOS and Linux
 - 😊 **Friendly experience** - telling you what's going on, from start to finish
+- ✨ **SVG Tracing** - for [really fancy placeholders][link-traced-svg]
 
 <div align="center">
 
@@ -46,7 +47,10 @@
 
 ## Why
 
-Webpack... Angular... React... PHP... Cloudflare... So many solutions for serving images, some terrible, some paid. What if you just want to serve modern [WebP][link-webp-speed] images with [srcset][link-srcset] optimization, [lazy-loading][link-lazy-sizes] (with low-quality placeholder), fingerprint cache-busting, aggressive compression, while also exporting the original codec for [browsers that are late to the party][link-caniuse] (ahem Safari, Firefox, Edge, ...)?
+A lighter web is now more important than ever, with cloud computing taking off and their [ridiculous bandwidth costs][link-bandwidth-costs]! Next to video, images are the largest payload for videos to provide, incurring significant costs if not done correctly, not to mention extra charges and wait times for the user.
+
+Webpack... Angular... React... PHP... Cloudflare... So many solutions for serving images, some terrible, some paid. What if you just want to serve modern [WebP][link-webp-speed] images with [srcset][link-srcset] optimization, [lazy-loading][link-lazy-sizes] (with low-quality placeholder OR amazing traced-SVGs), fingerprint cache-busting, aggressive compression, while also exporting the original codec for [browsers that are late to the party][link-caniuse] (ahem Safari, Firefox, Edge, ...)?
+
 
 <p align="center">
 Is that really too much to ask?
@@ -58,6 +62,8 @@ That's just all that you <i>can</i> do, RIB can help you with any combination of
 
 ### What this does
 
+*Chuck any high-quality originals in a folder, and RIB will non-destructively create a set of web-optimized responsive images for each original image in another folder. No more manual resizing, compressing, "where did I put the original?".*
+
 In it's most basic form. with no additional configuration, RIB will scan a given directory for image files, and export them to a folder of your choosing. The export process consists of creating four different sized images from the source, converting a WebP copy of each size, optimizing them for web use before saving them using unique and predictable files names.
 
 Finally, a [manifest](#manifest) file in [JSON][link-json] format is saved along with the images, containing information about every image's exported sizes, format, accompanying WebP file, final URL, etc...
@@ -68,9 +74,9 @@ The resulting manifest file is a few KB of data that lets you easily resolve an 
 
 It follows the [KISS principle][link-kiss]. We tend to over-complicate everything when it comes to website development when usually most things can be done really simply...
 
-Of course, more elaborate websites require complicated design principles to scale better, but they should have a custom build pipeline anyway, such as a script that suits their needs perfectly (which, incidentally, is how this project came to be).
+Of course, more elaborate websites require complicated design principles to scale better, but they should have a custom build pipeline that suits their needs perfectly (which, incidentally, is how this project came to be).
 
-RIB makes it easy to take a set of high-quality source images and just make them work on the web. Optimized, with several different responsive breakpoints, the assurance of no duplicate files meaning no wasted space or bandwidth. See the [example](example/) to see what it does.
+RIB makes it easy to take a set of high-quality source images and just make them work on the web. Optimized, with several different responsive breakpoints, the assurance of no duplicate sizes or files meaning no wasted space or bandwidth. See the [example](example/) to see what it does.
 
 <p align="center">
   <a href="https://i.ibb.co/GP0NW93/Responsive-Image-Builder.png">
@@ -517,6 +523,31 @@ This will enable fingerprinting, adding a new property to the `original` group o
 "fingerprint": "5ae7554b"                          # When using --short-hash
 ```
 
+## SVG Placeholders
+
+RIB supports [potrace][link-potrace] to create a beautiful SVG placeholder. It can be used like [this][link-traced-svg] as a tiny (2-6KB) placeholder until you have downloaded the full high quality image. In some ways it provides a more pleasing experience than a blurred 8x8 thumbnail.
+
+SVGs are vector graphics that scale to any resolution, it only contains primitive shapes that represents strong edges/contrasts in the source image.
+
+By default, RIB will create a traced image for every non-SVG export. You can customize the name of this traced image using the `traceTemplate` config option.
+
+The `traceOptions` configuration property will pass down all options to [potrace][link-potrace], this lets you change the colour and complexity of the image.
+
+**Example**
+
+```javascript
+rib({
+  traceOptions: {
+    color: 'lightgray',
+    optTolerance: 0.4,
+    turdSize: 100,
+    turnPolicy: potrace.Potrace.TURNPOLICY_MAJORITY
+  }
+})
+```
+
+<p align="center"><sub>You may need to import the potrace library, or used hard-coded constant values</sub></p>
+
 ## Typescript
 
 Since v2.0.0, the entire project has been rewritten in Typescript. This not only provides more robust compilation with less chance of stupid errors but also provides strong typings for practically all function parameters and returns.
@@ -566,7 +597,9 @@ And of course, at the end of the pipeline are beautifully compressed images.
 
 ## Converting
 
-Converting is used to change the format of the fallback image, and can be done using the `convert` option. This can be used, for example, to convert high-quality TIFF image files into JPEG and WebP images optimized for the web. It allows for slightly more compatibility and automation during the build process.
+Converting is used to change the format of the image before entering the pipeline. This is done using the `convert` option.
+
+Converting allows you to, for example, convert high-quality TIFF image files into JPEG (and the accompanying WebP image), which is far more compatible, without the need to convert the original yourself.
 
 ## Troubleshooting
 
@@ -578,7 +611,7 @@ If you have a bug, issue or a feature request, open a [new issue][link-issues] u
 
 If you would like to contribute directly, see [contributing][link-contributing] to learn how to make changes and submit a Pull Request.
 
-Responsive Image Builder uses [Travis CI](link-travis) and [semantic-release][link-semantic-release] to test the master and develop branches and publish any significant changes immediately to npm and GitHub.
+Responsive Image Builder uses [Travis CI][link-travis] and [semantic-release][link-semantic-release] to test the master and develop branches and publish any significant changes immediately to npm and GitHub.
 
 <div align="center">
 
@@ -620,6 +653,7 @@ Stretch goals for the next feature release. Completed goals are removed after th
 - [x] Add codec conversion support (e.g. TIFF -> JPEG) (`convert` option)
 - [x] Add checksum to manifest for better image searching (`fingerprint` option)
 - [x] Add example with new WebP optimizer and better optimizer settings
+- [x] Add support for pre-load traced SVGs
 
 ### Quirks
 
@@ -655,10 +689,13 @@ Stretch goals for the next feature release. Completed goals are removed after th
 [link-marcuscemes]:https://github.com/MarcusCemes
 [link-wiki]:https://github.com/MarcusCemes/responsive-image-builder/wiki/
 
+[link-libvips-speed]:https://github.com/jcupitt/libvips/wiki/Speed-and-memory-use
+[link-traced-svg]:https://using-gatsby-image.gatsbyjs.org/traced-svg/
 [link-webp-speed]:https://developers.google.com/speed/webp/
 [link-srcset]:https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
 [link-lazy-sizes]:https://github.com/aFarkas/lazysizes
 [link-caniuse]:https://caniuse.com/#feat=webp
+[link-bandwidth-costs]:https://news.ycombinator.com/item?id=11301085
 [link-json]:https://en.wikipedia.org/wiki/JSON
 [link-kiss]:https://en.wikipedia.org/wiki/KISS_principle
 [link-win-nvm]:https://github.com/coreybutler/nvm-windows
@@ -672,3 +709,4 @@ Stretch goals for the next feature release. Completed goals are removed after th
 [link-svgo]:https://www.npmjs.com/package/imagemin-svgo
 [link-gifsicle]:https://www.npmjs.com/package/imagemin-gifsicle
 [link-semantic-release]:https://github.com/semantic-release/semantic-release
+[link-potrace]:https://github.com/tooolbox/node-potrace

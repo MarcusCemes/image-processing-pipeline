@@ -3,17 +3,17 @@
 import sharp from "sharp";
 
 import { WORKER_ERRORS, WorkerError } from "./Interfaces";
-import { ImageStreams } from "./Pipeline";
+import { IImageStreams } from "./Pipeline";
 import { isSharpInstance } from "./Utility";
 
 /** Adds a WebP stream to every non-WebP stream */
-export function createWebpStreams(
-  imageStreams: ImageStreams,
+export function webp(
+  imageStreams: IImageStreams,
   webpSettings: object = {},
   shouldFallback: boolean,
   shouldWebp: boolean
-): ImageStreams {
-  const newStreams: ImageStreams = [];
+): IImageStreams {
+  const newStreams: IImageStreams = [];
 
   if (!shouldFallback && !shouldWebp) {
     throw new WorkerError(WORKER_ERRORS.noStreamError);
@@ -31,7 +31,8 @@ export function createWebpStreams(
           : imageStream.stream.pipe(sharp())
         ).webp(webpSettings),
         format: "webp",
-        size: imageStream.size
+        size: imageStream.size,
+        template: imageStream.template
       });
     }
   }

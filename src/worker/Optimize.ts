@@ -2,7 +2,7 @@
 // Optimizes image data
 import { Duplex } from "stream";
 
-import { ImageStreams } from "./Pipeline";
+import { IImageStreams } from "./Pipeline";
 
 export const OPTIMIZERS: {
   [index: string]: (settings: any) => (data: Buffer | string) => Promise<Buffer | string>;
@@ -14,8 +14,8 @@ export const OPTIMIZERS: {
 };
 
 /** Optimize non-webp image streams */
-export function optimize(imageStreams: ImageStreams, optimizerSettings: any): ImageStreams {
-  const optimizedStreams: ImageStreams = [];
+export function optimize(imageStreams: IImageStreams, optimizerSettings: any): IImageStreams {
+  const optimizedStreams: IImageStreams = [];
 
   for (const imageStream of imageStreams) {
     if (imageStream.format !== "webp") {
@@ -26,7 +26,8 @@ export function optimize(imageStreams: ImageStreams, optimizerSettings: any): Im
             createOptimizerStream(optimizerFactory(optimizerSettings))
           ),
           format: imageStream.format,
-          size: imageStream.size
+          size: imageStream.size,
+          template: imageStream.template
         });
       }
     } else {
@@ -57,11 +58,13 @@ function createOptimizerStream(
       const data: Buffer | string = Buffer.isBuffer(buffer[0])
         ? Buffer.concat(buffer)
         : buffer.join("");
-      optimizer(data).then((optimizedImage: string | Buffer) => {
-        this.push(optimizedImage);
-        this.push(null);
-        callback();
-      });
+      optimizer(data)
+        .then((optimizedImage: string | Buffer) => {
+          this.push(optimizedImage);
+          this.push(null);
+          callback();
+        })
+        .catch(callback);
     }
   });
 }

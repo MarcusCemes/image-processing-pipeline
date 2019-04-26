@@ -3,6 +3,7 @@
 import Ajv from "ajv";
 import chalk from "chalk";
 import merge from "deepmerge";
+import potrace from "potrace";
 
 import { MAIN_ERRORS } from "./Constants";
 import { ConfigurationError } from "./Interfaces";
@@ -25,7 +26,7 @@ export interface IExportPreset {
   default?: boolean;
 }
 
-/** Universal settings that can be applied locally or on a per-format basis */
+/** Universal settings that can be applied globally or on a per-format basis */
 export interface IUniversalSettings {
   /** Enable/disable fallback format exports */
   exportFallback?: boolean;
@@ -52,6 +53,12 @@ export interface IUniversalSettings {
    */
   fingerprint?: boolean;
 
+  /** Generate a traced SVG placeholder image */
+  trace?: boolean;
+
+  /** Options that are passed directly to Potrace */
+  traceOptions?: any;
+
   /**
    * Export presets that are used to resize images.
    * These serve as the "responsive breakpoints" for different device dimensions.
@@ -63,7 +70,7 @@ export interface IUniversalSettings {
    * Supported substituted "template literals" are:
    * \[name\], \[format\], \[hash\] and \[shortHash\]
    *
-   * @example default "[name].[format]""
+   * @example default "[name].[format]"
    */
   singleExportTemplate?: string;
   /**
@@ -71,9 +78,18 @@ export interface IUniversalSettings {
    * Supported substituted "template literals" are:
    * \[name\], \[format\], \[preset\], \[hash\], \[shortHash\], \[width\] and \[height\]
    *
-   * @example default "[name]_[preset].[format]""
+   * @example default "[name]_[preset].[format]"
    */
   multipleExportTemplate?: string;
+
+  /**
+   * Lets you configure the filename of traced SVGs.
+   * Supported substituted "template literals" are:
+   * \[name\], \[format\], \[hash\], \[shortHash\], \[width\] and \[height\]
+   *
+   * @example default "[name]_traced.[format]"
+   */
+  traceTemplate?: string;
 }
 
 /** Allows you to override global settings on a per-format settings */
@@ -193,8 +209,16 @@ export const defaultConfig: IConfig = {
 
   singleExportTemplate: "[name].[format]",
   multipleExportTemplate: "[name]_[preset].[format]",
+  traceTemplate: "[name]_traced.[format]",
 
   fingerprint: false,
+  trace: true,
+  traceOptions: {
+    color: `lightgray`,
+    optTolerance: 0.4,
+    turdSize: 100,
+    turnPolicy: potrace.Potrace.TURNPOLICY_MAJORITY
+  },
   hashAlgorithm: "md5",
   shortHash: false,
 
@@ -207,7 +231,8 @@ export const defaultConfig: IConfig = {
 
   svg: {
     exportWebp: false,
-    resize: false
+    resize: false,
+    trace: false
   },
 
   webp: {
@@ -219,7 +244,7 @@ export const defaultConfig: IConfig = {
 
 /* JSON schema time... */
 
-/** JSOn schema for IUniversalSettings */
+/** JSON schema for IUniversalSettings */
 const universalSettingsSchema = {
   exportFallback: {
     type: "boolean"
@@ -248,6 +273,15 @@ const universalSettingsSchema = {
   },
   fingerprint: {
     type: "boolean"
+  },
+  trace: {
+    type: "boolean"
+  },
+  traceOptions: {
+    type: "object"
+  },
+  tracedTemplate: {
+    type: "string"
   }
 };
 
