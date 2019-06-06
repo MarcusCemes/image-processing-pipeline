@@ -214,7 +214,7 @@ not fork the project and submit a Pull Request?
 First release
 
 [unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.1...HEAD
-[3.1.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...v3.1.1
+[3.1.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.1...v3.1.0
 [3.0.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v2.1.2...v3.0.0
