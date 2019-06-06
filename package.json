@@ -58,44 +58,44 @@
     "ajv": "^6.10.0",
     "ansi-align": "^3.0.0",
     "ansi-escapes": "^4.1.0",
-    "boxen": "^3.1.0",
+    "boxen": "^4.0.0",
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
-    "cosmiconfig": "^5.2.0",
+    "cosmiconfig": "^5.2.1",
     "debug": "^4.1.1",
     "deepmerge": "^3.2.0",
-    "dynamic-terminal": "^1.0.4",
+    "dynamic-terminal": "^1.0.5",
     "elegant-spinner": "^2.0.0",
     "enquirer": "^2.3.0",
     "fast-deep-equal": "^2.0.1",
     "figures": "^3.0.0",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^8.0.1",
     "gradient-string": "^1.2.0",
     "imagemin-gifsicle": "^6.0.1",
     "imagemin-mozjpeg": "^8.0.0",
-    "imagemin-pngquant": "^7.0.0",
+    "imagemin-pngquant": "^8.0.0",
     "imagemin-svgo": "^7.0.0",
     "indent-string": "^4.0.0",
     "potrace": "^2.1.1",
     "sharp": "^0.22.1",
-    "slash": "^2.0.0",
+    "slash": "^3.0.0",
     "tiny-glob": "^0.2.6",
     "tmp": "^0.1.0",
     "wrap-ansi": "^5.1.0"
   },
   "devDependencies": {
     "@types/event-stream": "^3.3.34",
-    "@types/fs-extra": "^5.0.5",
-    "@types/node": "^11.13.7",
-    "@types/sharp": "^0.22.1",
+    "@types/fs-extra": "^7.0.0",
+    "@types/node": "^12.0.5",
+    "@types/sharp": "^0.22.2",
     "cz-conventional-changelog": "^2.1.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^1.17.0",
+    "prettier": "^1.17.1",
     "semantic-release": "^15.13.12",
-    "trash-cli": "^2.0.0",
-    "tslint": "^5.16.0",
+    "trash-cli": "^3.0.0",
+    "tslint": "^5.17.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.5.1"
   },
   "config": {
     "commitizen": {
@@ -114,6 +114,11 @@
         {
           "type": "docs",
           "scope": "readme",
+          "release": "patch"
+        },
+        {
+          "type": "chore",
+          "scope": "deps",
           "release": "patch"
         }
       ]
