@@ -133,9 +133,7 @@ export class Controller {
       if (this.terminal) {
         this.terminalLines = [
           {
-            text: `${DynamicTerminal.TICK} ${
-              this.completedFiles.length
-            } images were successfully converted`,
+            text: `${DynamicTerminal.TICK} ${this.completedFiles.length} images were successfully converted`,
             indent: 6
           }
         ];
@@ -305,9 +303,7 @@ export class Controller {
   }
 
   private render(status?: string, showProgress: boolean = true): void {
-    const thisRender = `${status}.${this.completedFiles.length}.${this.failedFiles}.${
-      this.files.length
-    }`;
+    const thisRender = `${status}.${this.completedFiles.length}.${this.failedFiles}.${this.files.length}`;
     if (this.lastRender === thisRender) {
       return;
     }
