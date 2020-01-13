@@ -292,16 +292,16 @@ const configSchema = {
       type: "array",
       items: {
         type: "object",
-        required: ["name", "width", "height"],
+        required: ["name"],
         properties: {
           name: {
             type: "string"
           },
           width: {
-            type: "string"
+            type: "number"
           },
           height: {
-            type: "string"
+            type: "number"
           },
           force: {
             type: "boolean"
@@ -433,5 +433,5 @@ export function parseConfig(receivedConfig: Partial<IConfig>): IConfig {
   }
 
   // Merge the config with the default
-  return merge(defaultConfig, config);
+  return merge(defaultConfig, config, { arrayMerge: (target, source) => source });
 }

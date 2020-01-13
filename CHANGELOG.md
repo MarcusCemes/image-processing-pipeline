@@ -13,6 +13,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Updated dependencies
 
+### Fixed
+
+- Width/height preset properties now (correctly) accept numbers
+- When merging configs, default presets are now overwritten
+
 ## [3.1.1] - 2019-06-06
 
 ### Changed
