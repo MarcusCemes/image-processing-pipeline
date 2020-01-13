@@ -60,7 +60,7 @@ export class Preparation {
       this.update(1, "", 6);
       this.update(2, "", 6);
 
-      const promises = await Promise.all([
+      const promises = await Promise.all<ITaskError, ITaskError, IFileTask>([
         this.checkRequirements(0),
         this.checkAccess(1),
         this.getFiles(2)

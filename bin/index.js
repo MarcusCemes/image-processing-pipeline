@@ -8,7 +8,7 @@ if (allowOutput && process.argv.indexOf("-V") === -1) {
 
 const merge = require("deepmerge");
 const program = require("commander");
-const cosmiconfig = require("cosmiconfig");
+const { cosmiconfig } = require('cosmiconfig');
 const explorer = cosmiconfig("rib");
 const platform = require("os").platform();
 const gradient = platform !== "win32" ? require("gradient-string")

@@ -14,8 +14,10 @@ import { centreText } from "./Utility";
 // tslint:disable:no-var-requires
 const gradient =
   require("os").platform === "win32"
-    ? require("gradient-string")([{ color: "#2193b0", pos: 0 }, { color: "#6dd5ed", pos: 1 }])
-        .multiline
+    ? require("gradient-string")([
+        { color: "#2193b0", pos: 0 },
+        { color: "#6dd5ed", pos: 1 }
+      ]).multiline
     : chalk.bold.white;
 
 export async function main(config: IConfig): Promise<IResult> {
