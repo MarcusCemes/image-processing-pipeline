@@ -1,0 +1,42 @@
+name: Node.js CI
+
+on: push
+
+jobs:
+  ci:
+    name: Build, test, release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Load dependency cache
+        uses: actions/cache@v1
+        with:
+          path: ./.yarn/cache
+          key: linux-x86_64-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 13.x
+      - name: Install dependencies
+        run: npx yarn install --immutable --silent
+
+      - name: Run tests
+        run: yarn test
+        env:
+          CI: true
+
+      - name: Build project
+        run: yarn build
+        env:
+          CI: true
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v1.0.0
+        if: github.ref == 'refs/heads/master'
+        with:
+          name: build
+          path: build/
+
+      - name: Publish release
+        if: github.ref == 'refs/heads/master'
+        run: echo 'Publishing disabled for development'
