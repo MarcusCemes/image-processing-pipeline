@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/MarcusCemes/responsive-image-builder/master/packages/core/src/config/schema.json",
+  "title": "The RIB configuration schema",
+  "description": "Provides acceptable configuration objects for Responsive Image Builder",
+  "definitions": {
+    "pipe": {
+      "type": "object",
+      "required": ["resolve"],
+      "properties": {
+        "resolve": {
+          "type": "string",
+          "title": "The pipe's package name",
+          "description": "The name of the package to import for the pipe",
+          "examples": ["@rib/convert", "@rib/compress", "@rib/resize"]
+        },
+        "options": {
+          "type": "object",
+          "title": "The pipe options",
+          "description": "Unique to each pipe, provides fine-grain control",
+          "additionalProperties": true
+        },
+        "save": {
+          "type": "string",
+          "title": "Save the result",
+          "description": "Saves the output of the pipe to a file, and registers the result in the manifest. Certain variable expansions may be used.",
+          "examples": ["{originalName}.{formatExt}"]
+        },
+        "pipe": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pipe"
+          },
+          "title": "Output pipes",
+          "description": "Additional pipes that should be chained to the output of the current pipe"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": ["pipeline"],
+  "properties": {
+    "options": {
+      "type": "object",
+      "required": ["input", "output"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "title": "The input folder",
+          "description": "The path to the folder containing the source images"
+        },
+        "output": {
+          "type": "string",
+          "title": "The output folder",
+          "description": "The path to the folder to output images to"
+        },
+        "cache": {
+          "type": "string",
+          "enum": ["memory", "disk"],
+          "default": "memory"
+        },
+        "concurrency": {
+          "type": "number",
+          "title": "Parallel concurrency",
+          "description": "The number of jobs to execute in parallel. Defaults to number of CPUs available",
+          "minimum": 1
+        },
+        "structure": {
+          "type": "string",
+          "enum": ["flat", "tree"],
+          "title": "Output layout",
+          "description": "Sets the directory layout to use for the output folder",
+          "default": "tree"
+        },
+        "manifest": {
+          "type": "boolean",
+          "title": "Manifest generation",
+          "description": "Whether to generate a manifest list contains all exported files",
+          "default": true
+        }
+      }
+    },
+    "pipeline": {
+      "type": "array",
+      "title": "The pipeline",
+      "description": "The pipeline starts here, providing all connected pipes with raw image data",
+      "items": {
+        "$ref": "#/definitions/pipe"
+      }
+    }
+  }
+}

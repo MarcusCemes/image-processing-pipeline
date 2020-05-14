@@ -6,26 +6,27 @@
   "author": "Marcus Cemes",
   "license": "MIT",
   "scripts": {
-    "build": "yarn workspaces foreach run build",
-    "clean": "rimraf .yarn/ .pnp.js && yarn workspaces foreach run clean",
+    "build": "tsc -b",
+    "clean": "yarn dlx rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\"",
+    "debug": "yarn workspace @rib/cli run debug",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "start": "ts-node ./packages/cli/",
+    "start": "yarn workspace @rib/cli run start",
     "test": "jest"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.2",
-    "@types/node": "^13.7.6",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.5",
     "@typescript-eslint/eslint-plugin": "^2.32.0",
     "@typescript-eslint/parser": "^2.32.0",
     "@yarnpkg/pnpify": "^2.0.0-rc.22",
     "eslint": "^7.0.0",
-    "jest": "^25.1.0",
-    "prettier": "^1.19.1",
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "ts-jest": "^25.2.0",
-    "ts-node": "^8.6.2",
-    "typescript": "^3.7.5"
+    "ts-jest": "^25.5.1",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3"
   },
   "workspaces": [
     "packages/*"

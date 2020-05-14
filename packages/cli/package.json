@@ -1,0 +1,63 @@
+{
+  "name": "@rib/cli",
+  "version": "0.1.0",
+  "description": "Ultra-fast responsive WebP image builder for the web",
+  "author": "Marcus Cemes",
+  "license": "MIT",
+  "bin": {
+    "rib": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.module.json",
+    "clean": "rimraf dist/",
+    "debug": "node --inspect-brk ./dist/index.js",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "start": "node ./dist/index.js",
+    "test": "jest"
+  },
+  "engines": {
+    "node": ">=10.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarcusCemes/responsive-image-builder"
+  },
+  "bugs": {
+    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+  },
+  "keywords": [
+    "modern",
+    "responsive",
+    "image",
+    "pipeline",
+    "resize",
+    "optimize",
+    "fast",
+    "webp",
+    "sharp",
+    "libvips"
+  ],
+  "dependencies": {
+    "@rib/core": "^0.1.0",
+    "chalk": "^4.0.0",
+    "cosmiconfig": "^6.0.0",
+    "figures": "^3.2.0",
+    "ink": "^2.7.1",
+    "ink-spinner": "^3.0.1",
+    "pretty-error": "^2.1.1",
+    "react": "^16.13.1",
+    "rxjs": "^6.5.5",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "@types/ink": "^2.0.3",
+    "@types/ink-spinner": "^3.0.0",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.5",
+    "@types/react": "^16.9.35",
+    "@types/yargs": "^15.0.4",
+    "typescript": "^3.8.3"
+  }
+}

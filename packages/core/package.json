@@ -1,0 +1,48 @@
+{
+  "name": "@rib/core",
+  "version": "0.1.0",
+  "description": "Ultra-fast responsive WebP image builder for the web",
+  "author": "Marcus Cemes",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.module.json",
+    "clean": "rimraf dist/",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "start": "ts-node ./src/",
+    "test": "jest"
+  },
+  "engines": {
+    "node": ">=10.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarcusCemes/responsive-image-builder"
+  },
+  "bugs": {
+    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+  },
+  "keywords": [
+    "modern",
+    "responsive",
+    "image",
+    "pipeline",
+    "resize",
+    "optimize",
+    "fast",
+    "webp",
+    "sharp",
+    "libvips"
+  ],
+  "dependencies": {
+    "ajv": "^6.12.2",
+    "immer": "^6.0.5",
+    "rxjs": "^6.5.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.5",
+    "typescript": "^3.8.3"
+  }
+}
