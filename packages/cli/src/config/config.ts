@@ -4,7 +4,9 @@ import { cosmiconfig } from "cosmiconfig";
 import deepmerge from "deepmerge";
 import { cpus } from "os";
 
-import schema from "./config.json";
+import schema from "./schema.json";
+
+export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> };
 
 /** The name to use when searching for configs in well-known locations */
 const MODULE_NAME = "rib";
@@ -17,9 +19,9 @@ export interface Config {
     flat: boolean;
     manifest: boolean;
   };
-  manifest?: {
-    image?: { [key: string]: string };
-    format?: { [key: string]: string };
+  manifest: {
+    source: { [key: string]: string };
+    format: { [key: string]: string };
   };
   pipeline: Pipeline[];
 }
@@ -29,6 +31,10 @@ const DEFAULT_CONFIG: Partial<Config> = {
     concurrency: cpus().length,
     flat: false,
     manifest: false,
+  },
+  manifest: {
+    source: {},
+    format: {},
   },
   pipeline: [],
 };
@@ -61,8 +67,8 @@ export async function loadConfig(path?: string): Promise<Partial<Config>> {
   }
 }
 
-export function parseConfig(config: Partial<Config>): Config {
-  const completeConfig = deepmerge<Config>(DEFAULT_CONFIG, config);
+export function parseConfig(config: DeepPartial<Config>): Config {
+  const completeConfig: Config = deepmerge(DEFAULT_CONFIG, config);
 
   friendlyParse(completeConfig);
 

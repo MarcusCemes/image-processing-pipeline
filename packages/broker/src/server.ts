@@ -6,7 +6,8 @@ import { deserializeError } from "serialize-error";
 
 import { BrokerException, ClientAction, ClientResponse } from "./common";
 
-const CLIENT_SCRIPT = `${__dirname}/client`;
+/** Compatible with Jest */
+const CLIENT_SCRIPT = `${__dirname}/../dist/client`;
 
 const DEFAULT_CONCURRENCY = cpus().length;
 const START_TIMEOUT = 5000;
@@ -31,7 +32,7 @@ interface BrokerOptions {
   concurrency?: number;
 }
 
-interface Broker {
+export interface Broker {
   execute: (input: string, output: string, pipeline: Pipeline[]) => Promise<Format[]>;
   stop: () => Promise<void>;
 }

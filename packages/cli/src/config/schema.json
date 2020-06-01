@@ -112,9 +112,9 @@
       "title": "Manifest options",
       "description": "Allows you to customise the generated manifest file",
       "properties": {
-        "image": {
+        "source": {
           "type": "object",
-          "title": "Per-image manifest keys",
+          "title": "Per-source manifest keys",
           "description": "Allows you to add metadata relevant to the source image",
           "patternProperties": {
             "^.*$": {

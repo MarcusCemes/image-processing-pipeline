@@ -1,5 +1,6 @@
 {
-  "name": "@rib/broker",
+  "name": "@rib/testing",
+  "private": true,
   "version": "1.0.0",
   "description": "Ultra-fast responsive WebP image builder for the web",
   "author": "Marcus Cemes",
@@ -28,15 +29,8 @@
     "sharp",
     "libvips"
   ],
-  "dependencies": {
-    "@rib/common": "^1.0.0",
-    "@rib/core": "^1.0.0",
-    "nanoid": "^3.1.9",
-    "serialize-error": "^7.0.1"
-  },
   "devDependencies": {
     "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.6",
-    "typescript": "^3.9.3"
+    "@types/node": "^14.0.6"
   }
 }

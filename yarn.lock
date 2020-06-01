@@ -540,12 +540,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rib/broker@workspace:^1.0.0, @rib/broker@workspace:packages/broker":
+"@rib/broker@^1.0.0, @rib/broker@workspace:packages/broker":
   version: 0.0.0-use.local
   resolution: "@rib/broker@workspace:packages/broker"
   dependencies:
-    "@rib/common": "workspace:^1.0.0"
-    "@rib/core": "workspace:^1.0.0"
+    "@rib/common": ^1.0.0
+    "@rib/core": ^1.0.0
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.6
     nanoid: ^3.1.9
@@ -558,9 +558,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rib/cli@workspace:packages/cli"
   dependencies:
-    "@rib/broker": "workspace:^1.0.0"
-    "@rib/common": "workspace:^1.0.0"
-    "@types/ink": ^2.0.3
+    "@rib/broker": ^1.0.0
+    "@rib/common": ^1.0.0
+    "@rib/testing": ^1.0.0
     "@types/ink-spinner": ^3.0.0
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.6
@@ -585,7 +585,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rib/common@workspace:^1.0.0, @rib/common@workspace:packages/common":
+"@rib/common@^1.0.0, @rib/common@workspace:packages/common":
   version: 0.0.0-use.local
   resolution: "@rib/common@workspace:packages/common"
   dependencies:
@@ -598,7 +598,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rib/compress@workspace:packages/compress"
   dependencies:
-    "@rib/common": "workspace:^1.0.0"
+    "@rib/common": ^1.0.0
     "@types/imagemin-mozjpeg": ^8.0.0
     "@types/imagemin-pngquant": ^7.0.0
     "@types/imagemin-svgo": ^7.0.0
@@ -611,11 +611,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rib/core@workspace:^1.0.0, @rib/core@workspace:packages/core":
+"@rib/core@^1.0.0, @rib/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rib/core@workspace:packages/core"
   dependencies:
-    "@rib/common": "workspace:^1.0.0"
+    "@rib/common": ^1.0.0
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.6
     "@types/sharp": ^0.25.0
@@ -628,11 +628,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rib/primitive@workspace:packages/primitive"
   dependencies:
-    "@rib/common": "workspace:^1.0.0"
+    "@rib/common": ^1.0.0
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.6
     execa: ^4.0.2
     typescript: ^3.9.3
+  languageName: unknown
+  linkType: soft
+
+"@rib/testing@^1.0.0, @rib/testing@workspace:packages/testing":
+  version: 0.0.0-use.local
+  resolution: "@rib/testing@workspace:packages/testing"
+  dependencies:
+    "@types/jest": ^25.2.3
+    "@types/node": ^14.0.6
   languageName: unknown
   linkType: soft
 
@@ -837,15 +846,6 @@ __metadata:
     "@types/cli-spinners": "*"
     "@types/react": "*"
   checksum: 3/0444640c858edc8e421b66cdcbfeb2c4a015d9835e334446acb9705d68b4a4a361f43cc2a8ed8ec2b48623278edcf2feb7f1473f7853774512239d28c6843d09
-  languageName: node
-  linkType: hard
-
-"@types/ink@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "@types/ink@npm:2.0.3"
-  dependencies:
-    ink: "*"
-  checksum: 3/28869034c1dc0d06e7e619ba7ba15c9f5b98887aeb45bb567ac2116009758902913db433100c756c2ceabfcea598474cdabac0fa65aecccb4140a8367c0480c9
   languageName: node
   linkType: hard
 
@@ -4329,7 +4329,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ink@npm:*, ink@npm:^2.7.1":
+"ink@npm:^2.7.1":
   version: 2.7.1
   resolution: "ink@npm:2.7.1"
   dependencies:
@@ -7368,6 +7368,7 @@ resolve@^1.3.2:
   version: 0.0.0-use.local
   resolution: "responsive-image-builder@workspace:."
   dependencies:
+    "@types/jest": ^25.2.3
     "@types/node": ^14.0.6
     "@typescript-eslint/eslint-plugin": ^3.0.2
     "@typescript-eslint/parser": ^3.0.2

@@ -1,6 +1,6 @@
 {
   "include": ["packages/*/src/**/*"],
-  "exclude": ["node_modules/**/*", "packages/**/*.spec.*"],
+  "exclude": ["node_modules/**/*", "packages/**/*.test.*"],
   "compilerOptions": {
     /* Basic Options */
     "incremental": true,                      /* Enable incremental compilation */

@@ -1,15 +1,13 @@
 import { createBroker } from "@rib/broker";
-import { slash } from "@rib/common";
 import chalk from "chalk";
-import glob from "fast-glob";
-import { promises } from "fs";
 import { produce } from "immer";
-import { dirname, join, relative, resolve } from "path";
+import { resolve } from "path";
 import { BehaviorSubject } from "rxjs";
 import { options } from "yargs";
 
-import { EXTENSIONS, JobResult } from "./common";
+import { JobResult } from "./common";
 import { ConfigException, ConfigLoadException, loadConfig } from "./config";
+import { findImages } from "./findImages";
 import { createInterrupt, InterruptException } from "./interrupt";
 import { saveManifest } from "./manifest";
 import { runPreparation } from "./preparation";
@@ -101,7 +99,7 @@ async function run(
 
       Promise.all([
         taskWrapper("search", "Searching for images", "Searching for images", "Failed to search for images", () =>
-          getImages(config.input, config.output, config.options.flat)
+          findImages(config.input, config.output, config.options.flat)
         ).then((r) => {
           updateTask("search", "success", `Found ${r.length} image${r.length === 1 ? "" : "s"}`);
           return r;
@@ -240,29 +238,6 @@ function createUi() {
     updateTask,
     taskWrapper,
   };
-}
-
-/**
- * Iterates over a set of input directories or files, searches them for images.
- * Returns a complete list of images and their corresponding output paths.
- */
-async function getImages(inputs: string | string[], output: string, flat = false): Promise<{ i: string; o: string }[]> {
-  const resolvedImages: { i: string; o: string }[] = [];
-
-  for (const input of typeof inputs === "string" ? [inputs] : inputs) {
-    if ((await promises.stat(input)).isDirectory()) {
-      const files = await glob(slash(join(input, `**/*.{${EXTENSIONS.join(",")}}`)));
-
-      for (const file of files) {
-        const outputPath = flat ? output : join(output, dirname(relative(input, file)));
-        resolvedImages.push({ i: file, o: outputPath });
-      }
-    } else {
-      resolvedImages.push({ i: input, o: output });
-    }
-  }
-
-  return resolvedImages;
 }
 
 function printConfigLoadException(error: any): void {

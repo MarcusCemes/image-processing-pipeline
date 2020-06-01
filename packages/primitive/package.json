@@ -33,7 +33,7 @@
     "libvips"
   ],
   "dependencies": {
-    "@rib/common": "workspace:^1.0.0",
+    "@rib/common": "^1.0.0",
     "execa": "^4.0.2"
   },
   "devDependencies": {

@@ -39,7 +39,7 @@ export async function saveManifest(config: Config, jobs: JobResult[]): Promise<v
     manifest.push({
       f: formats,
       p: slash(relative(config.input + "/", job.source)),
-      m: !config.manifest?.image ? void 0 : processMetadata(config.manifest.image, job.formats[0].metadata),
+      m: !config.manifest?.source ? void 0 : processMetadata(config.manifest.source, job.formats[0].metadata),
     });
   }
 

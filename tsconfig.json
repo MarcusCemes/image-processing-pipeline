@@ -6,6 +6,7 @@
     { "path": "packages/common" },
     { "path": "packages/compress" },
     { "path": "packages/core" },
-    { "path": "packages/primitive" }
+    { "path": "packages/primitive" },
+    { "path": "packages/testing" }
   ]
 }

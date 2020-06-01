@@ -20,14 +20,6 @@ export function createInterrupt(): Interrupt {
 
   const promise = new Promise<never>((res, rej) => {
     const handler = () => {
-      // try {
-      //   throw new InterruptException();
-      // } catch (err) {
-      //   rej(err);
-      // }
-      // const exception = new InterruptException();
-      // Error.captureStackTrace(exception);
-      // rej(exception);
       rej(new InterruptException("Received interrupt signal"));
     };
 

@@ -29,7 +29,7 @@
     "libvips"
   ],
   "dependencies": {
-    "@rib/common": "workspace:^1.0.0",
+    "@rib/common": "^1.0.0",
     "imagemin-mozjpeg": "^9.0.0",
     "imagemin-pngquant": "^8.0.0",
     "imagemin-svgo": "^8.0.0"
