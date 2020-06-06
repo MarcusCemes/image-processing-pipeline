@@ -1,8 +1,11 @@
 {
   "files": [],
   "references": [
+    { "path": "packages/broker" },
     { "path": "packages/cli" },
     { "path": "packages/common" },
+    { "path": "packages/compress" },
     { "path": "packages/core" },
+    { "path": "packages/primitive" }
   ]
 }

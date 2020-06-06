@@ -1,18 +1,11 @@
 {
   "name": "@rib/common",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Ultra-fast responsive WebP image builder for the web",
   "author": "Marcus Cemes",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.module.json",
-    "clean": "rimraf dist/",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "start": "ts-node ./src/",
-    "test": "jest"
-  },
   "engines": {
     "node": ">=10.18"
   },
@@ -36,7 +29,7 @@
     "libvips"
   ],
   "devDependencies": {
-    "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.5"
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.6"
   }
 }

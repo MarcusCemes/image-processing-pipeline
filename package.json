@@ -7,26 +7,24 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b",
-    "clean": "yarn dlx rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\"",
-    "debug": "yarn workspace @rib/cli run debug",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "clean": "rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\"",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "lint": "eslint . --ext .ts,.tsx",
     "start": "yarn workspace @rib/cli run start",
     "test": "jest"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.5",
-    "@typescript-eslint/eslint-plugin": "^2.32.0",
-    "@typescript-eslint/parser": "^2.32.0",
+    "@types/node": "^14.0.6",
+    "@typescript-eslint/eslint-plugin": "^3.0.2",
+    "@typescript-eslint/parser": "^3.0.2",
     "@yarnpkg/pnpify": "^2.0.0-rc.22",
-    "eslint": "^7.0.0",
+    "eslint": "^7.1.0",
     "jest": "^26.0.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "ts-jest": "^25.5.1",
-    "ts-node": "^8.10.1",
-    "typescript": "^3.8.3"
+    "ts-jest": "^26.1.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.3"
   },
   "workspaces": [
     "packages/*"
@@ -63,7 +61,11 @@
       "eslint:recommended",
       "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended"
-    ]
+    ],
+    "rules": {
+      "@typescript-eslint/no-use-before-define": "off",
+      "@typescript-eslint/no-explicit-any": "warn"
+    }
   },
   "prettier": {
     "semi": true,
@@ -74,6 +76,10 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "rootDir": "packages"
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.test.json"
+      }
+    }
   }
 }

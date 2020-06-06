@@ -1,22 +1,17 @@
 {
   "name": "@rib/cli",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Ultra-fast responsive WebP image builder for the web",
   "author": "Marcus Cemes",
   "license": "MIT",
+  "scripts": {
+    "start": "node ."
+  },
   "bin": {
     "rib": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.module.json",
-    "clean": "rimraf dist/",
-    "debug": "node --inspect-brk ./dist/index.js",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "start": "node ./dist/index.js",
-    "test": "jest"
-  },
   "engines": {
     "node": ">=10.18"
   },
@@ -40,10 +35,15 @@
     "libvips"
   ],
   "dependencies": {
-    "@rib/core": "^0.1.0",
+    "@rib/broker": "workspace:^1.0.0",
+    "@rib/common": "workspace:^1.0.0",
+    "ajv": "^6.12.2",
     "chalk": "^4.0.0",
     "cosmiconfig": "^6.0.0",
+    "deepmerge": "^4.2.2",
+    "fast-glob": "^3.2.2",
     "figures": "^3.2.0",
+    "immer": "^6.0.9",
     "ink": "^2.7.1",
     "ink-spinner": "^3.0.1",
     "pretty-error": "^2.1.1",
@@ -54,10 +54,10 @@
   "devDependencies": {
     "@types/ink": "^2.0.3",
     "@types/ink-spinner": "^3.0.0",
-    "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.5",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.6",
     "@types/react": "^16.9.35",
-    "@types/yargs": "^15.0.4",
-    "typescript": "^3.8.3"
+    "@types/yargs": "^15.0.5",
+    "typescript": "^3.9.3"
   }
 }

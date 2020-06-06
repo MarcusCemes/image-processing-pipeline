@@ -1,2 +1,1 @@
-export { Config, ConfigError } from "./config";
-export * from "./main";
+export * from "./core";

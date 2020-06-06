@@ -1,46 +1,44 @@
-import { State, Task } from "@rib/core";
-import { Box, Color, Text } from "ink";
-import React, { useEffect, useState } from "react";
+import { Box, Color, Static, Text } from "ink";
+import React from "react";
 import { Observable } from "rxjs";
 
 import { Indicator } from "./Indicator";
 import { ProgressBar } from "./ProgressBar";
+import { UiState } from "./state";
+import { SystemLoad } from "./SystemLoad";
+import { useObservable } from "./useObservable";
 
-type ObservableStatus = "closed" | "open" | "error" | "complete";
-type ObservableState<T> = [ObservableStatus, T?];
-function useObservable<T>(observable: Observable<T> | undefined): ObservableState<T> {
-  const [status, setStatus] = useState<ObservableStatus>("closed");
-  const [state, setState] = useState<T>();
+const PRINT_WIDTH = 32;
 
-  useEffect(() => {
-    if (!observable) return;
+const Banner: React.FC = () => (
+  <Box marginTop={2} marginBottom={1} flexDirection="column" alignItems="center">
+    <Text>
+      {`   ______   _____ _______
+  (, /   ) (, /  (, /    )
+    /__ /    /     /---(
+ ) /   \\____/__ ) / ____)
+(_/    (__ /   (_/ (
+`}
+    </Text>
+    <Text>A modern image pipeline</Text>
+    <Text>
+      <Color grey>https://git.io/fjvL7</Color>
+    </Text>
+  </Box>
+);
 
-    setStatus("open");
-    const subscription = observable.subscribe(
-      setState,
-      () => setStatus("error"),
-      () => setStatus("complete")
-    );
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [observable]);
-
-  return [status, state];
-}
-
-const Tasks: React.FC<{ tasks?: Task[] }> = ({ tasks }) => {
+const Tasks: React.FC<{ tasks?: UiState["tasks"] }> = ({ tasks }) => {
   if (!tasks) return null;
   return (
-    <Box paddingBottom={1}>
-      {tasks.map((task) =>
-        task.status === "waiting" ? (
-          <Box key={task.id}>
-            <Color grey> {task.status}</Color>
+    <Box paddingBottom={1} flexDirection="column">
+      {Object.entries([tasks.preparation, tasks.search, tasks.process]).map(([id, task]) =>
+        task.status !== "waiting" ? (
+          <Box key={id}>
+            <Indicator state={task.status} colour={task.colour} /> {task.text}
           </Box>
         ) : (
-          <Box key={task.id}>
-            <Indicator state={task.status} /> {task.text}
+          <Box key={id} paddingLeft={2}>
+            <Color grey>{task.text}</Color>
           </Box>
         )
       )}
@@ -48,40 +46,46 @@ const Tasks: React.FC<{ tasks?: Task[] }> = ({ tasks }) => {
   );
 };
 
-const StatusLine: React.FC<{ state?: State }> = ({ state }) => {
-  if (!state) return null;
-
-  const props = !state
-    ? { yellow: true }
-    : state.status === "error"
-    ? { red: true }
-    : state.status === "running"
-    ? { cyan: true }
-    : { green: true };
+const Progress: React.FC<{ progress?: number }> = ({ progress }) => {
+  if (typeof progress !== "number") return null;
 
   return (
-    <Box>
-      <Text bold>
-        Status: <Color {...props}>{state ? state.status : "Connecting..."}</Color>
-        {"  "}
-        {state?.status === "running" && (
-          <Box>
-            <ProgressBar size={20} progress={state.done / state.total || 0} />{" "}
-            {Math.round((100 * state.done) / state.total || 0)}%
-          </Box>
-        )}
-      </Text>
+    <Box justifyContent="center">
+      <Box>
+        <ProgressBar size={20} progress={progress} /> {Math.round(100 * progress || 0)}%
+      </Box>
     </Box>
   );
 };
 
-export const Terminal: React.FC<{ observable: Observable<State> }> = ({ observable }) => {
+export const Terminal: React.FC<{ version: string | null; observable: Observable<UiState> }> = ({ observable }) => {
   const [status, state] = useObservable(observable);
 
   return (
-    <Box paddingLeft={4} flexDirection="column">
-      <Tasks tasks={state?.tasks} />
-      {status === "open" && <StatusLine state={state} />}
-    </Box>
+    <>
+      <Static>
+        {[
+          <Box key="static" paddingLeft={4} width={PRINT_WIDTH} flexDirection="column" alignItems="center">
+            <Banner />
+          </Box>,
+        ]}
+      </Static>
+      <Box paddingLeft={4} width={PRINT_WIDTH} flexDirection="column" alignItems="center">
+        <Tasks tasks={state?.tasks} />
+        {status === "open" && typeof state?.progress === "number" && (
+          <>
+            <Color cyanBright>
+              <Progress progress={state.progress} />
+            </Color>
+
+            <Box>
+              <Color cyanBright>
+                Concurrency: {state.concurrency} | Load: <SystemLoad />
+              </Color>
+            </Box>
+          </>
+        )}
+      </Box>
+    </>
   );
 };

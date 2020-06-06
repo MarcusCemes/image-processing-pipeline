@@ -1,17 +1,29 @@
 import { cross, tick, warning as warningSymbol } from "figures";
-import { Color, Text } from "ink";
+import { Box, Color, ColorProps } from "ink";
 import Spinner from "ink-spinner";
 import React from "react";
 
-export const Indicator: React.FC<{ state: "none" | "pending" | "success" | "error" | "warning" }> = ({ state }) => {
-  if (state === "pending")
-    return (
-      <Color cyan>
+type IndicatorState = "none" | "pending" | "success" | "error" | "warning";
+
+export const Indicator: React.FC<{ state: IndicatorState; colour?: ColorProps }> = ({ state, colour }) => {
+  const symbol =
+    state === "pending" ? (
+      <Color cyanBright={!colour} {...colour}>
         <Spinner />
       </Color>
-    );
-  if (state === "warning") return <Color yellow>{warningSymbol}</Color>;
-  if (state === "error") return <Color red>{cross}</Color>;
-  if (state === "success") return <Color green>{tick}</Color>;
-  return <Text> </Text>;
+    ) : state === "warning" ? (
+      <Color yellow={!colour} {...colour}>
+        {warningSymbol}
+      </Color>
+    ) : state === "error" ? (
+      <Color red={!colour} {...colour}>
+        {cross}
+      </Color>
+    ) : state === "success" ? (
+      <Color green={!colour} {...colour}>
+        {tick}
+      </Color>
+    ) : null;
+
+  return <Box width={1}>{symbol}</Box>;
 };

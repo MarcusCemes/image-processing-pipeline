@@ -6,7 +6,6 @@ it("exports Exception class", () => {
 
 it("extends Exception and Error", () => {
   const exception = new Exception();
-  expect(exception).toBeInstanceOf(Exception);
   expect(exception).toBeInstanceOf(Error);
 });
 

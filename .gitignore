@@ -117,6 +117,13 @@ dist/
 !.yarn/releases
 !.yarn/plugins
 .pnp.*
+package-lock.json
 
 # Experimental
 .untracked
+
+# RIB related files
+.ribrc*
+
+# Binary files
+vendor/
