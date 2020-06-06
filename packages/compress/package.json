@@ -1,7 +1,7 @@
 {
   "name": "@rib/compress",
   "version": "1.0.0",
-  "description": "Ultra-fast responsive WebP image builder for the web",
+  "description": "A modern image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",
   "main": "dist/index.js",
@@ -17,21 +17,19 @@
     "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
   },
   "keywords": [
-    "modern",
-    "responsive",
-    "image",
     "pipeline",
-    "resize",
-    "optimize",
-    "fast",
+    "responsive",
+    "libvips",
     "webp",
-    "sharp",
-    "libvips"
+    "modern",
+    "frontend",
+    "cli",
+    "image"
   ],
   "dependencies": {
     "@rib/common": "^1.0.0",
     "imagemin-mozjpeg": "^9.0.0",
-    "imagemin-pngquant": "^8.0.0",
+    "imagemin-pngquant": "^9.0.0",
     "imagemin-svgo": "^8.0.0"
   },
   "devDependencies": {
@@ -39,7 +37,7 @@
     "@types/imagemin-pngquant": "^7.0.0",
     "@types/imagemin-svgo": "^7.0.0",
     "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.6",
-    "typescript": "^3.9.3"
+    "@types/node": "^14.0.11",
+    "typescript": "^3.9.5"
   }
 }

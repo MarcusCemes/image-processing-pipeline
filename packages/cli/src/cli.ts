@@ -44,7 +44,10 @@ export async function startCLI(): Promise<void> {
     } else if (err instanceof InterruptException) {
       return printInterrupted();
     }
-    throw err;
+
+    // Otherwise bubble the error
+    if (!argv.silent) throw err;
+    process.exitCode = 1;
   }
 }
 
@@ -177,6 +180,8 @@ async function run(
       })
     );
   }
+
+  printSuccess();
 }
 
 /** Creates the UI state data structure and helper functions */
@@ -262,4 +267,8 @@ function printConfigException(error: any): void {
 
 function printInterrupted(): void {
   printPadded(chalk.bold.red("Interrupted"), "The program received an interrupt signal\n");
+}
+
+function printSuccess(): void {
+  printPadded(chalk.greenBright(`The image pipeline completed successfully\n`));
 }

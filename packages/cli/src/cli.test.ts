@@ -25,11 +25,18 @@ describe("function startCLI()", () => {
     process.stderr.write = stderr;
   });
 
-  test("should fail with no config", () =>
+  test("should not throw", () =>
     withTempDir(async (dir) => {
-      await writeFile(join(dir, "config.json"), "{}");
+      const configPath = join(dir, "config.json");
+      await writeFile(configPath, "{}");
 
-      await expect(startCLI()).rejects.toBeTruthy();
+      const oldArgv = process.argv;
+      process.argv = oldArgv.slice();
+      process.argv.push("-c", `${configPath}`);
+
+      await expect(startCLI()).resolves.toBeUndefined();
       expect(mock).toHaveBeenCalled();
+
+      process.argv = oldArgv;
     }));
 });

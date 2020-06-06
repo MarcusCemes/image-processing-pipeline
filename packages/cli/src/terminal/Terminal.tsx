@@ -8,7 +8,7 @@ import { UiState } from "./state";
 import { SystemLoad } from "./SystemLoad";
 import { useObservable } from "./useObservable";
 
-const PRINT_WIDTH = 32;
+const PRINT_WIDTH = 36;
 
 const Banner: React.FC = () => (
   <Box marginTop={2} marginBottom={1} flexDirection="column" alignItems="center">
