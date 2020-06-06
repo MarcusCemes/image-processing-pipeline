@@ -7,6 +7,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [4.0.0] - 2020-06-06
+
+Responsive Image Builder has been split into several packages.
+This makes it more modular and reduces the installation size.
+The core functionality of RIB has been upgraded to process an image pipeline, instead
+of fixed functionality based around breakpoint generation.
+
+- @rib/broker - Task distribution
+- @rib/cli - UI
+- @rib/common - Shared interfaces
+- @rib/core - Image processing
+- @rib/compress - Image compression
+- @rib/primitive - Primitive SVG generation
+- @rib/testing - Shared testing utilities
+
 ## [3.1.3] - 2020-01-13
 
 ### Changed
@@ -28,7 +43,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- SVG Tracing with *potrace*
+- SVG Tracing with _potrace_
 - Better modularization of the pipeline for easier extensibility with newer features
 
 ### Fixed
@@ -224,7 +239,8 @@ not fork the project and submit a Pull Request?
 
 First release
 
-[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.1...HEAD
+[unreleased]: https://github.com/marcuscemes/responsive-image-builder/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.3...v4.0.0
 [3.1.3]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.1...v3.1.3
 [3.1.1]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/marcuscemes/responsive-image-builder/compare/v3.0.1...v3.1.0

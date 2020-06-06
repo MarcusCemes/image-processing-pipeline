@@ -1,0 +1,33 @@
+{
+  "name": "@rib/common",
+  "version": "1.0.0",
+  "description": "A modern image processing pipeline",
+  "author": "Marcus Cemes",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarcusCemes/responsive-image-builder"
+  },
+  "bugs": {
+    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+  },
+  "keywords": [
+    "pipeline",
+    "responsive",
+    "libvips",
+    "webp",
+    "modern",
+    "frontend",
+    "cli",
+    "image"
+  ],
+  "devDependencies": {
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.11"
+  }
+}

@@ -1,0 +1,34 @@
+name: Node.js CI
+
+on: [push]
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install Golang
+        uses: actions/setup-go@v2
+
+      - name: Install yarn
+        run: npm i -g yarn
+
+      - name: Link dependencies
+        run: yarn
+
+      - name: Build project
+        run: yarn build
+
+      - name: Build vendor libraries
+        run: yarn build-vendor
+
+      - name: Run tests
+        run: yarn test
