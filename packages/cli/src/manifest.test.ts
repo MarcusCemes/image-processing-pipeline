@@ -7,7 +7,7 @@ import { Config } from "./config";
 import { saveManifest } from "./manifest";
 
 test("should save the manifest the preparation", async () => {
-  const tmpDir = join(tmpdir(), "rib-" + randomBytes(4).toString("hex"));
+  const tmpDir = join(tmpdir(), "ipp-" + randomBytes(4).toString("hex"));
 
   const config: Config = {
     input: tmpDir,

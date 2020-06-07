@@ -1,4 +1,4 @@
-import { withTempDir } from "@rib/testing";
+import { withTempDir } from "@ipp/testing";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 

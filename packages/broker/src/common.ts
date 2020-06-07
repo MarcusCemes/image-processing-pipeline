@@ -1,4 +1,4 @@
-import { Exception, Pipeline, Metadata } from "@rib/common";
+import { Exception, Pipeline, Metadata } from "@ipp/common";
 import { ErrorObject } from "serialize-error";
 export type ClientAction =
   | { id: string; type: "JOB"; input: string; pipeline: Pipeline[]; outDir: string }

@@ -1,4 +1,4 @@
-import { Exception } from "@rib/common";
+import { Exception } from "@ipp/common";
 
 interface Interrupt {
   promise: Promise<never>;

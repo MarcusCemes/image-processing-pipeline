@@ -1,4 +1,4 @@
-import { Pipe } from "@rib/common";
+import { Pipe } from "@ipp/common";
 
 import { ConvertPipe } from "./convert";
 import { PassthroughPipe } from "./passthrough";

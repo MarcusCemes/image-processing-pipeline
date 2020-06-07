@@ -1,4 +1,4 @@
-import { createBroker } from "@rib/broker";
+import { createBroker } from "@ipp/broker";
 import chalk from "chalk";
 import { produce } from "immer";
 import { resolve } from "path";
@@ -28,7 +28,7 @@ export async function startCLI(): Promise<void> {
   const { argv } = options({
     input: { type: "string", alias: "i", description: "The folder containing source images" },
     output: { type: "string", alias: "o", description: "The folder to output images to" },
-    config: { type: "string", alias: "c", description: "The path to the RIB config file" },
+    config: { type: "string", alias: "c", description: "The path to the IPP config file" },
     silent: { type: "boolean", alias: "s", description: "Suppress program output" },
   }).version(version || "[Unknown version]");
 

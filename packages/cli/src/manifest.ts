@@ -1,4 +1,4 @@
-import { Metadata, slash } from "@rib/common";
+import { Metadata, slash } from "@ipp/common";
 import { promises } from "fs";
 import { join, relative } from "path";
 

@@ -1,4 +1,4 @@
-import { Pipe, PipeException } from "@rib/common";
+import { Pipe, PipeException } from "@ipp/common";
 import execa from "execa";
 import { arch, platform } from "os";
 import { join, resolve } from "path";

@@ -1,4 +1,4 @@
-import { createTempDir } from "@rib/testing";
+import { createTempDir } from "@ipp/testing";
 import { mkdir, rmdir, writeFile } from "fs/promises";
 import { join, normalize, relative } from "path";
 

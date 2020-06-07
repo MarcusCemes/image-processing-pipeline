@@ -1,4 +1,4 @@
-import { slash } from "@rib/common";
+import { slash } from "@ipp/common";
 import glob from "fast-glob";
 import { promises } from "fs";
 import { dirname, join, relative } from "path";

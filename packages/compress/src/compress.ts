@@ -1,4 +1,4 @@
-import { Pipe, PipeException } from "@rib/common";
+import { Pipe, PipeException } from "@ipp/common";
 import mozjpeg, { Options as JpegOptions } from "imagemin-mozjpeg";
 import pngquant, { Options as PngOptions } from "imagemin-pngquant";
 import svgo, { Options as SvgOptions } from "imagemin-svgo";

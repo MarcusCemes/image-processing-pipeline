@@ -1,5 +1,5 @@
-import { Metadata, Pipeline } from "@rib/common";
-import { processPipeline } from "@rib/core";
+import { Metadata, Pipeline } from "@ipp/common";
+import { processPipeline } from "@ipp/core";
 import { F_OK } from "constants";
 import { promises } from "fs";
 import { join, parse } from "path";

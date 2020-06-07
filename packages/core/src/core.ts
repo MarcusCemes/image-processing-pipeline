@@ -1,4 +1,4 @@
-import { Metadata, Pipe, Pipeline, PipelineException, PipeResult } from "@rib/common";
+import { Metadata, Pipe, Pipeline, PipelineException, PipeResult } from "@ipp/common";
 import sharp from "sharp";
 
 import { PIPES } from "./pipes";

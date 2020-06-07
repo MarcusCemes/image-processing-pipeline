@@ -1,4 +1,4 @@
-import { Metadata, Pipeline } from "@rib/common";
+import { Metadata, Pipeline } from "@ipp/common";
 import { ChildProcess, fork } from "child_process";
 import { nanoid } from "nanoid";
 import { cpus } from "os";

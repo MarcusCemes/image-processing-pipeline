@@ -1,14 +1,14 @@
 {
-  "name": "@rib/cli",
+  "name": "@ipp/cli",
   "version": "1.0.0",
-  "description": "A modern image processing pipeline",
+  "description": "A modern parallel image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",
   "scripts": {
     "start": "node ."
   },
   "bin": {
-    "rib": "dist/index.js"
+    "ipp": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,10 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MarcusCemes/responsive-image-builder"
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline"
   },
   "bugs": {
-    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline/issues"
   },
   "keywords": [
     "pipeline",
@@ -33,8 +33,8 @@
     "image"
   ],
   "dependencies": {
-    "@rib/broker": "^1.0.0",
-    "@rib/common": "^1.0.0",
+    "@ipp/broker": "^1.0.0",
+    "@ipp/common": "^1.0.0",
     "ajv": "^6.12.2",
     "chalk": "^4.0.0",
     "cosmiconfig": "^6.0.0",
@@ -50,7 +50,7 @@
     "yargs": "^15.3.1"
   },
   "devDependencies": {
-    "@rib/testing": "^1.0.0",
+    "@ipp/testing": "^1.0.0",
     "@types/ink-spinner": "^3.0.0",
     "@types/jest": "^25.2.3",
     "@types/node": "^14.0.11",

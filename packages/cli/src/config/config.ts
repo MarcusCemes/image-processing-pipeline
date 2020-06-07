@@ -1,4 +1,4 @@
-import { Exception, Pipeline } from "@rib/common";
+import { Exception, Pipeline } from "@ipp/common";
 import Ajv from "ajv";
 import { cosmiconfig } from "cosmiconfig";
 import deepmerge from "deepmerge";
@@ -9,7 +9,7 @@ import schema from "./schema.json";
 export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> };
 
 /** The name to use when searching for configs in well-known locations */
-const MODULE_NAME = "rib";
+const MODULE_NAME = "ipp";
 
 export interface Config {
   input: string | string[];

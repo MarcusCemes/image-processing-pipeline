@@ -122,8 +122,8 @@ package-lock.json
 # Experimental
 .untracked
 
-# RIB related files
-.ribrc*
+# IPP related files
+.ipprc*
 
 # Binary files
 vendor/

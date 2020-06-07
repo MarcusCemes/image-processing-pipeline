@@ -1,4 +1,4 @@
-import { PipeException, PipeResult } from "@rib/common";
+import { PipeException, PipeResult } from "@ipp/common";
 
 import { ConvertPipe } from "./convert";
 

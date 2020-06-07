@@ -1,4 +1,4 @@
-import { Pipe } from "@rib/common";
+import { Pipe } from "@ipp/common";
 import sharp, { Raw, ResizeOptions as SharpOptions } from "sharp";
 
 sharp.concurrency(1);

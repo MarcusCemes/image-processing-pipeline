@@ -1,4 +1,4 @@
-import { Pipe, PipeException } from "@rib/common";
+import { Pipe, PipeException } from "@ipp/common";
 import sharp, { Raw, Sharp } from "sharp";
 
 interface ConvertOptions {

@@ -1,8 +1,8 @@
 {
-  "name": "responsive-image-builder",
+  "name": "image-processing-pipeline",
   "private": true,
   "version": "4.0.0",
-  "description": "A modern image processing pipeline",
+  "description": "A modern parallel image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",
   "scripts": {
@@ -11,7 +11,7 @@
     "clean": "rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,json}\"",
     "lint": "eslint . --ext .ts,.tsx",
-    "start": "yarn workspace @rib/cli run start",
+    "start": "yarn workspace @ipp/cli run start",
     "test": "jest",
     "test:format": "prettier --check \"packages/*/src/**/*.{ts,tsx,json}\""
   },
@@ -37,10 +37,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MarcusCemes/responsive-image-builder"
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline"
   },
   "bugs": {
-    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline/issues"
   },
   "keywords": [
     "pipeline",
@@ -50,7 +50,8 @@
     "modern",
     "frontend",
     "cli",
-    "image"
+    "image",
+    "processing"
   ],
   "eslintConfig": {
     "root": true,

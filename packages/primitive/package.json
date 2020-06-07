@@ -1,7 +1,7 @@
 {
-  "name": "@rib/primitive",
+  "name": "@ipp/primitive",
   "version": "1.0.0",
-  "description": "A modern image processing pipeline",
+  "description": "A modern parallel image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",
   "main": "dist/index.js",
@@ -19,10 +19,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MarcusCemes/responsive-image-builder"
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline"
   },
   "bugs": {
-    "url": "https://github.com/MarcusCemes/responsive-image-builder/issues"
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline/issues"
   },
   "keywords": [
     "pipeline",
@@ -35,7 +35,7 @@
     "image"
   ],
   "dependencies": {
-    "@rib/common": "^1.0.0",
+    "@ipp/common": "^1.0.0",
     "execa": "^4.0.2"
   },
   "devDependencies": {

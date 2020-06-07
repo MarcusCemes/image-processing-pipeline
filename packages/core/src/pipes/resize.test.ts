@@ -1,4 +1,4 @@
-import { PipeResult } from "@rib/common";
+import { PipeResult } from "@ipp/common";
 
 import { ResizePipe } from "./resize";
 

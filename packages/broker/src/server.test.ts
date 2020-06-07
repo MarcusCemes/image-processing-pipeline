@@ -26,7 +26,7 @@ test("creates a broker", async () => {
 });
 
 test("handles jobs", async () => {
-  const testingDir = join(tmpdir(), "rib-" + randomBytes(8).toString("hex"));
+  const testingDir = join(tmpdir(), "ipp-" + randomBytes(8).toString("hex"));
   const input = join(testingDir, "input");
 
   try {
@@ -59,7 +59,7 @@ test("handles jobs", async () => {
 });
 
 test("handles errors", async () => {
-  const testingDir = join(tmpdir(), "rib-" + randomBytes(8).toString("hex"));
+  const testingDir = join(tmpdir(), "ipp-" + randomBytes(8).toString("hex"));
   const input = join(testingDir, "input");
 
   try {

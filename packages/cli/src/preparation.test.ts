@@ -15,7 +15,7 @@ test("should export PreparationException", () => {
 });
 
 test("should run the preparation", async () => {
-  const tmpDir = join(tmpdir(), "rib-" + randomBytes(4).toString("hex"));
+  const tmpDir = join(tmpdir(), "ipp-" + randomBytes(4).toString("hex"));
   const inputDir = join(tmpDir, "input");
   const outputDir = join(tmpDir, "output");
 

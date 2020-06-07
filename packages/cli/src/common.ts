@@ -1,4 +1,4 @@
-import { Format } from "@rib/broker";
+import { Format } from "@ipp/broker";
 
 export interface JobResult {
   source: string;

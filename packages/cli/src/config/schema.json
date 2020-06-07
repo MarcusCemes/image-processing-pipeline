@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/MarcusCemes/responsive-image-builder/master/packages/core/src/config/schema.json",
-  "title": "The RIB configuration schema",
+  "$id": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/core/src/config/schema.json",
+  "title": "The IPP configuration schema",
   "description": "Provides acceptable configuration objects for Responsive Image Builder",
   "definitions": {
     "pipeline": {
@@ -12,8 +12,8 @@
           "oneOf": [
             {
               "type": "string",
-              "title": "RIB pipe",
-              "description": "The name of a core RIB pipe",
+              "title": "IPP pipe",
+              "description": "The name of a core IPP pipe",
               "examples": ["resize", "convert"]
             },
             {
@@ -24,7 +24,7 @@
                   "type": "string",
                   "title": "NPM pipe package",
                   "description": "The name of an NPM package to resolve",
-                  "examples": ["@rib/primitive"]
+                  "examples": ["@ipp/primitive"]
                 },
                 "module": {
                   "type": "string",

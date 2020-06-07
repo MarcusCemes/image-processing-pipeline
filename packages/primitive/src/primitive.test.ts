@@ -1,5 +1,5 @@
 import { PrimitivePipe } from "./primitive";
-import { PipeResult } from "@rib/common";
+import { PipeResult } from "@ipp/common";
 
 const pngPixel = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGP6DwABBQECz6AuzQAAAABJRU5ErkJggg==",

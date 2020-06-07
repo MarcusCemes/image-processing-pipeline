@@ -1,4 +1,4 @@
-import { Exception } from "@rib/common";
+import { Exception } from "@ipp/common";
 import { constants, promises, Stats } from "fs";
 
 import { Config, parseConfig } from "./config";
