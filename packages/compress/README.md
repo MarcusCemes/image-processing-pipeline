@@ -11,9 +11,10 @@
   -->
 
   <h2 align="center">Image Processing Pipeline</h2>
-  <h4 align="center"><i>Formally known as Responsive Image Builder</i></h4>
+  <i>Formally known as Responsive Image Builder</i>
 
   <div align="center">
+    <br />
     A modern parallel image processing pipeline
     <br />
     <a href="https://marcus-cemes.gitbook.io/image-processing-pipeline/"><strong>Explore the docs »</strong></a>
@@ -22,6 +23,8 @@
     <a href="https://github.com/MarcusCemes/image-processing-pipeline/issues">Report Bug</a>
     ·
     <a href="https://github.com/MarcusCemes/image-processing-pipeline/issues">Request Feature</a>
+    <br />
+    <br />
   </div>
 
 [![npm][badge-npm]][link-npm]&nbsp;&nbsp;
