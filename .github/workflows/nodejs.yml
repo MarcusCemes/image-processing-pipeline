@@ -10,6 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          path: |
+            .yarn/cache
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
       - name: Install Node.js
         uses: actions/setup-node@v1
         with:
@@ -31,4 +38,9 @@ jobs:
         run: yarn build-vendor
 
       - name: Run tests
-        run: yarn test
+        run: yarn test --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage/clover.xml

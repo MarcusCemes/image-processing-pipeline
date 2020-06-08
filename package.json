@@ -81,6 +81,14 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "packages/*/src/**/*.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/.yarn/",
+      "/index.ts"
+    ],
     "globals": {
       "ts-jest": {
         "tsConfig": "tsconfig.test.json",
