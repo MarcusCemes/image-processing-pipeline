@@ -18,6 +18,7 @@
   "engines": {
     "node": ">=10.18"
   },
+  "homepage": "https://marcus-cemes.gitbook.io/image-processing-pipeline/",
   "repository": {
     "type": "git",
     "url": "https://github.com/MarcusCemes/image-processing-pipeline"

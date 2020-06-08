@@ -43,16 +43,23 @@
   <img width="600" alt="Product screenshot" src="https://gistcdn.githack.com/MarcusCemes/9b4a3bbfefdae55e435d5fc98d3df062/raw/2499e76d587db2d5d65466b10c7f8432b11e720a/responsive-image-builder-demo-2.svg" alt="An example of usage">
 </div>
 
-Image Processing Pipeline is a CLI tool to help you automate your image build process. It does this with speed and quality in mind, to give your end-user the best possible experience.
+At its highest level, Image Processing Pipeline is a CLI tool that helps you automate your website's image build process in a **non destructive** way, with **speed** and **quality** in mind.
+
+It supports several image transformations that can easily be defined in a YAML pipeline syntax, from resizing/converting the image codec to generating tiny SVG placeholders.
+
+To learn why you should optimize your website's images, see the motivation section in the [documentation][link-docs].
+
+### Name change
+
+The v4.0.0 rewrite fundamentally changed how the tool works. To set it apart from the old version, and to better reflect the new functionality, this project has changed its name from **Responsive Image Builder** to **Image Processing Pipeline**.
+
+If you prefer, you may continue to use the old unmaintained version [here][link-legacy].
 
 ### Built With
 
-- [Node.js](https://nodejs.org/en/) (TypeScript)
-- [libvips](https://github.com/libvips/libvips) (sharp)
-
-## Motivation
-
-A lighter web is now more important than ever, with cloud computing taking off and their ridiculous bandwidth costs! Your website's images can be the largest source of your outgoing bandwidth, incurring significant costs if not done correctly. Users will thank you for not draining their phone's battery and internet allowance.
+- [Node.js](https://nodejs.org/en/) ([TypeScript][link-typescript])
+- [libvips](https://github.com/libvips/libvips) ([sharp][link-sharp])
+- And lots of other helpful tools
 
 ## Getting started
 
@@ -90,12 +97,6 @@ Marcus Cemes - [@MarcusCemes](https://twitter.com/MarcusCemes)
 
 Project Link: [https://github.com/MarcusCemes/image-processing-pipeline](https://github.com/MarcusCemes/image-processing-pipeline)
 
-<!-- ACKNOWLEDGEMENTS -->
-
-## Acknowledgements
-
-- [SHARP](https://github.com/lovell/sharp) - A fantastic wrapper for libvips
-
 <!-- BADGES -->
 
 [badge-npm]: https://img.shields.io/badge/npm-CB3837.svg?style=for-the-badge&logo=npm
@@ -104,7 +105,7 @@ Project Link: [https://github.com/MarcusCemes/image-processing-pipeline](https:/
 [badge-node]: https://img.shields.io/badge/Node.js--339933.svg?style=for-the-badge&logo=node.js
 [badge-typescript]: https://img.shields.io/badge/Typescript--0074D9.svg?style=for-the-badge&logo=typescript
 [badge-lighter]: https://img.shields.io/badge/Make_the_web-lighter-7FDBFF.svg?style=for-the-badge
-[badge-docs]: https://img.shields.io/badge/Documentation-007ACC.svg?style=for-the-badge&logo=read-the-docs
+[badge-docs]: https://img.shields.io/badge/Documentation--007ACC.svg?style=for-the-badge&logo=read-the-docs
 
 <!-- LINKS -->
 
@@ -113,3 +114,5 @@ Project Link: [https://github.com/MarcusCemes/image-processing-pipeline](https:/
 [link-node]: https://nodejs.org
 [link-typescript]: https://www.typescriptlang.org
 [link-docs]: https://marcus-cemes.gitbook.io/image-processing-pipeline/
+[link-legacy]: https://github.com/MarcusCemes/image-processing-pipeline/tree/legacy
+[link-sharp]:https://github.com/lovell/sharp
