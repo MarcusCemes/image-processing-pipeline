@@ -2,6 +2,8 @@ import { promises } from "fs";
 import { join } from "path";
 import PrettyError from "pretty-error";
 
+export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> };
+
 const MAX_ITEMS = 3;
 const PADDING = 2;
 

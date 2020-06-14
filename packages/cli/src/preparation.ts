@@ -2,6 +2,7 @@ import { Exception } from "@ipp/common";
 import { constants, promises, Stats } from "fs";
 
 import { Config, parseConfig } from "./config";
+import { DeepPartial } from "./utils";
 
 export class PreparationException extends Exception {
   public name = "PreparationException";
@@ -11,7 +12,7 @@ export class PreparationException extends Exception {
   }
 }
 
-export async function runPreparation(config: Partial<Config>): Promise<Config> {
+export async function runPreparation(config: DeepPartial<Config>): Promise<Config> {
   const parsedConfig = parseConfig(config);
   await Promise.all([checkInputPath(parsedConfig.input), checkOutputPath(parsedConfig.output)]);
   return parsedConfig;

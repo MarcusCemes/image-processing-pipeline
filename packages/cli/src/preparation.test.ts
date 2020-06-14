@@ -1,9 +1,11 @@
 import { randomBytes } from "crypto";
-import { mkdir, rmdir } from "fs/promises";
+import { promises } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
 import { PreparationException, runPreparation } from "./preparation";
+
+const { mkdir, rmdir } = promises;
 
 test("should export PreparationException", () => {
   const message = randomBytes(8).toString("hex");

@@ -1,6 +1,6 @@
 {
   "name": "@ipp/common",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A modern parallel image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",

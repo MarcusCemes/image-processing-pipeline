@@ -292,12 +292,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ipp/broker@^1.0.0, @ipp/broker@workspace:packages/broker":
+"@ipp/broker@^1.0.1, @ipp/broker@workspace:packages/broker":
   version: 0.0.0-use.local
   resolution: "@ipp/broker@workspace:packages/broker"
   dependencies:
-    "@ipp/common": ^1.0.0
-    "@ipp/core": ^1.0.0
+    "@ipp/common": ^1.0.1
+    "@ipp/core": ^1.0.1
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.11
     nanoid: ^3.1.9
@@ -310,9 +310,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@ipp/cli@workspace:packages/cli"
   dependencies:
-    "@ipp/broker": ^1.0.0
-    "@ipp/common": ^1.0.0
-    "@ipp/testing": ^1.0.0
+    "@ipp/broker": ^1.0.1
+    "@ipp/common": ^1.0.1
+    "@ipp/testing": ^1.0.1
     "@types/ink-spinner": ^3.0.0
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.11
@@ -337,7 +337,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ipp/common@^1.0.0, @ipp/common@workspace:packages/common":
+"@ipp/common@^1.0.1, @ipp/common@workspace:packages/common":
   version: 0.0.0-use.local
   resolution: "@ipp/common@workspace:packages/common"
   dependencies:
@@ -350,7 +350,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@ipp/compress@workspace:packages/compress"
   dependencies:
-    "@ipp/common": ^1.0.0
+    "@ipp/common": ^1.0.1
     "@types/imagemin-mozjpeg": ^8.0.0
     "@types/imagemin-pngquant": ^7.0.0
     "@types/imagemin-svgo": ^7.0.0
@@ -363,11 +363,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ipp/core@^1.0.0, @ipp/core@workspace:packages/core":
+"@ipp/core@^1.0.1, @ipp/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@ipp/core@workspace:packages/core"
   dependencies:
-    "@ipp/common": ^1.0.0
+    "@ipp/common": ^1.0.1
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.11
     "@types/sharp": ^0.25.0
@@ -380,7 +380,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@ipp/primitive@workspace:packages/primitive"
   dependencies:
-    "@ipp/common": ^1.0.0
+    "@ipp/common": ^1.0.1
     "@types/jest": ^25.2.3
     "@types/node": ^14.0.11
     execa: ^4.0.2
@@ -388,7 +388,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ipp/testing@^1.0.0, @ipp/testing@workspace:packages/testing":
+"@ipp/testing@^1.0.1, @ipp/testing@workspace:packages/testing":
   version: 0.0.0-use.local
   resolution: "@ipp/testing@workspace:packages/testing"
   dependencies:

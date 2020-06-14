@@ -38,14 +38,6 @@ async function readMetadata(input: Buffer): Promise<Metadata> {
 
 async function processPipelineChunk(input: Buffer, pipeline: Pipeline, metadata: Metadata): Promise<PipelineResult[]> {
   const { pipe, name } = await resolvePipe(pipeline.pipe);
-  if (typeof pipe !== "function")
-    throw new PipelineException(
-      `Could not resolve pipe: ${
-        typeof pipeline.pipe === "object"
-          ? `${pipeline.pipe.resolve}${pipeline.pipe.module ? `.${pipeline.pipe.module}` : ""}`
-          : pipeline.pipe
-      }`
-    );
 
   const result = await processPipe(pipe, input, metadata, name, pipeline.options);
 
@@ -74,15 +66,25 @@ async function processPipelineChunk(input: Buffer, pipeline: Pipeline, metadata:
 }
 
 async function resolvePipe(pipe: Pipeline["pipe"]): Promise<{ pipe: Pipe; name: string }> {
-  if (typeof pipe === "string") return { pipe: PIPES[pipe], name: pipe };
+  try {
+    if (typeof pipe === "string") return { pipe: PIPES[pipe], name: pipe };
 
-  if (typeof pipe === "object" && "resolve" in pipe) {
-    const importedPipe = await import(pipe.resolve);
-    if (pipe.module) return { pipe: importedPipe[pipe.module], name: `${pipe.resolve}.${pipe.module}` };
-    return { pipe: importedPipe, name: pipe.resolve };
+    if (typeof pipe === "object" && "resolve" in pipe) {
+      const importedPipe = await import(pipe.resolve);
+      if (pipe.module) return { pipe: importedPipe[pipe.module], name: `${pipe.resolve}.${pipe.module}` };
+      return { pipe: importedPipe, name: pipe.resolve };
+    }
+
+    if (typeof pipe === "function") return { pipe, name: "[Function]" };
+
+    throw "No resolution scheme for: ";
+  } catch (err) {
+    throw new PipelineException(
+      `Could not resolve pipe: ${
+        typeof pipe === "object" ? `${pipe.resolve}${pipe.module ? `.${pipe.module}` : ""}` : pipe
+      }`
+    );
   }
-
-  return { pipe, name: pipe?.name || "NO_PIPE" };
 }
 
 async function processPipe(

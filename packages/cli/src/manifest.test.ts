@@ -1,10 +1,12 @@
 import { randomBytes } from "crypto";
-import { mkdir, readFile, rmdir } from "fs/promises";
+import { promises } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
 import { Config } from "./config";
 import { saveManifest } from "./manifest";
+
+const { mkdir, readFile, rmdir } = promises;
 
 test("should save the manifest the preparation", async () => {
   const tmpDir = join(tmpdir(), "ipp-" + randomBytes(4).toString("hex"));

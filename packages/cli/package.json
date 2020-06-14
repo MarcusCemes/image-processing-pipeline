@@ -1,6 +1,6 @@
 {
   "name": "@ipp/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A modern parallel image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -37,8 +37,8 @@
     "image"
   ],
   "dependencies": {
-    "@ipp/broker": "^1.0.0",
-    "@ipp/common": "^1.0.0",
+    "@ipp/broker": "^1.0.1",
+    "@ipp/common": "^1.0.1",
     "ajv": "^6.12.2",
     "chalk": "^4.0.0",
     "cosmiconfig": "^6.0.0",
@@ -54,7 +54,7 @@
     "yargs": "^15.3.1"
   },
   "devDependencies": {
-    "@ipp/testing": "^1.0.0",
+    "@ipp/testing": "^1.0.1",
     "@types/ink-spinner": "^3.0.0",
     "@types/jest": "^25.2.3",
     "@types/node": "^14.0.11",

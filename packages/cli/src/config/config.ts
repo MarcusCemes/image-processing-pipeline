@@ -4,9 +4,8 @@ import { cosmiconfig } from "cosmiconfig";
 import deepmerge from "deepmerge";
 import { cpus } from "os";
 
+import { DeepPartial } from "../utils";
 import schema from "./schema.json";
-
-export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> };
 
 /** The name to use when searching for configs in well-known locations */
 const MODULE_NAME = "ipp";
@@ -36,7 +35,6 @@ const DEFAULT_CONFIG: Partial<Config> = {
     source: {},
     format: {},
   },
-  pipeline: [],
 };
 
 export class ConfigException extends Exception {
@@ -56,7 +54,7 @@ export class ConfigLoadException extends Exception {
 }
 
 /** Attempts to load a config from a path, or by looking in well known locations */
-export async function loadConfig(path?: string): Promise<Partial<Config>> {
+export async function loadConfig(path?: string): Promise<DeepPartial<Config>> {
   try {
     const configExplorer = cosmiconfig(MODULE_NAME);
     const explorerResult = await (path ? configExplorer.load(path) : configExplorer.search());

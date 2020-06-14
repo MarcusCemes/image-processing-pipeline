@@ -6,7 +6,7 @@ import { BehaviorSubject } from "rxjs";
 import { options } from "yargs";
 
 import { JobResult } from "./common";
-import { ConfigException, ConfigLoadException, loadConfig } from "./config";
+import { ConfigException, ConfigLoadException, loadConfig, Config } from "./config";
 import { findImages } from "./findImages";
 import { createInterrupt, InterruptException } from "./interrupt";
 import { saveManifest } from "./manifest";
@@ -14,6 +14,7 @@ import { runPreparation } from "./preparation";
 import { runTerminal } from "./terminal";
 import { Task, UiState } from "./terminal/state";
 import { formatError, getVersion, printPadded } from "./utils";
+import { Pipeline } from "../../common/src";
 
 /** Used to update the UI state using the *ìmmer* library */
 type UiStateUpdater = (state: UiState) => void;
@@ -30,12 +31,13 @@ export async function startCLI(): Promise<void> {
     output: { type: "string", alias: "o", description: "The folder to output images to" },
     config: { type: "string", alias: "c", description: "The path to the IPP config file" },
     silent: { type: "boolean", alias: "s", description: "Suppress program output" },
+    default: { type: "boolean", description: "Use a default config" },
   }).version(version || "[Unknown version]");
 
   const configPath = argv.config ? resolve(argv.config) : void 0;
 
   try {
-    await run(version, configPath, argv.input, argv.output, argv.silent);
+    await run(version, configPath, argv.input, argv.output, argv.silent, argv.default);
   } catch (err) {
     if (err instanceof ConfigLoadException) {
       return printConfigLoadException(err);
@@ -46,8 +48,8 @@ export async function startCLI(): Promise<void> {
     }
 
     // Otherwise bubble the error
-    if (!argv.silent) throw err;
     process.exitCode = 1;
+    if (!argv.silent) throw err;
   }
 }
 
@@ -57,7 +59,8 @@ async function run(
   path?: string,
   input?: string,
   output?: string,
-  silent?: boolean
+  silent?: boolean,
+  defaultPipeline?: boolean
 ): Promise<void> {
   // Cleanup functions to execute in case of error or completion
   const cleanup: Cleanup[] = [];
@@ -86,6 +89,17 @@ async function run(
 
         if (input) loadedConfig.input = input;
         if (output) loadedConfig.output = output;
+        if (defaultPipeline) {
+          if (loadedConfig.options) {
+            loadedConfig.options.manifest = true;
+          } else {
+            loadedConfig.options = {
+              manifest: true,
+            };
+          }
+          if (!loadedConfig.manifest) loadedConfig.manifest = generateDefaultManifest();
+          if (!loadedConfig.pipeline) loadedConfig.pipeline = generateDefaultPipeline();
+        }
 
         // Run path checks, returns a validated config
         return runPreparation(loadedConfig);
@@ -242,6 +256,55 @@ function createUi() {
     updateState,
     updateTask,
     taskWrapper,
+  };
+}
+
+function generateDefaultPipeline(): Pipeline[] {
+  return [
+    {
+      pipe: "convert",
+      options: {
+        format: "raw",
+      },
+      then: [
+        {
+          pipe: "resize",
+          options: {
+            breakpoints: [
+              { name: "sm", resizeOptions: { width: 640 } },
+              { name: "md", resizeOptions: { width: 1280 } },
+              { name: "lg", resizeOptions: { width: 1920 } },
+              { name: "xl", resizeOptions: { width: 3840 } },
+            ],
+          },
+          then: [
+            {
+              pipe: "convert",
+              options: { format: "original" },
+              save: "{{originalName}}-{{breakpoint}}-{{hash:8}}{{ext}}",
+            },
+            {
+              pipe: "convert",
+              options: { format: "webp" },
+              save: "{{originalName}}-{{breakpoint}}-{{hash:8}}{{ext}}",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+}
+
+function generateDefaultManifest(): Config["manifest"] {
+  return {
+    source: {
+      h: "hash:8",
+    },
+    format: {
+      w: "width",
+      h: "height",
+      f: "format",
+    },
   };
 }
 

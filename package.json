@@ -9,11 +9,12 @@
     "build": "tsc -b",
     "build-vendor": "yarn workspaces foreach run build-vendor",
     "clean": "rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\"",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,json}\"",
-    "lint": "eslint . --ext .ts,.tsx",
+    "fix:format": "prettier --write \"packages/*/src/**/*.{ts,tsx,json}\"",
+    "fix:lint": "eslint . --fix --ext .ts,.tsx",
     "start": "yarn workspace @ipp/cli run start",
     "test": "jest",
-    "test:format": "prettier --check \"packages/*/src/**/*.{ts,tsx,json}\""
+    "test:format": "prettier --check \"packages/*/src/**/*.{ts,tsx,json}\"",
+    "test:lint": "eslint . --ext .ts,.tsx"
   },
   "devDependencies": {
     "@types/jest": "^25.2.3",

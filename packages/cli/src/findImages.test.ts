@@ -1,23 +1,27 @@
-import { createTempDir } from "@ipp/testing";
-import { mkdir, rmdir, writeFile } from "fs/promises";
+import { createTempDir, TemporaryDir } from "@ipp/testing";
+import { promises } from "fs";
 import { join, normalize, relative } from "path";
 
 import { findImages } from "./findImages";
 
+const { mkdir, writeFile } = promises;
+
 describe("function findImages()", () => {
-  let tmpDir: string;
+  let tmpDir: TemporaryDir;
+
   let inputDir: string;
   let outputDir: string;
 
   beforeEach(async () => {
     tmpDir = await createTempDir();
-    inputDir = join(tmpDir, "input");
-    outputDir = join(tmpDir, "output");
+
+    inputDir = join(tmpDir.path, "input");
+    outputDir = join(tmpDir.path, "output");
     await Promise.all([mkdir(inputDir), mkdir(outputDir)]);
   });
 
   afterEach(async () => {
-    rmdir(tmpDir, { recursive: true });
+    await tmpDir.destroy();
   });
 
   it("runs correctly", async () => {

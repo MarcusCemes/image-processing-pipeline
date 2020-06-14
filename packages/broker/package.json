@@ -1,6 +1,6 @@
 {
   "name": "@ipp/broker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A modern parallel image processing pipeline",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -31,8 +31,8 @@
     "image"
   ],
   "dependencies": {
-    "@ipp/common": "^1.0.0",
-    "@ipp/core": "^1.0.0",
+    "@ipp/common": "^1.0.1",
+    "@ipp/core": "^1.0.1",
     "nanoid": "^3.1.9",
     "serialize-error": "^7.0.1"
   },

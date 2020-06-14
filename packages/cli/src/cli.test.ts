@@ -1,8 +1,10 @@
 import { withTempDir } from "@ipp/testing";
-import { writeFile } from "fs/promises";
+import { promises } from "fs";
 import { join } from "path";
 
 import { startCLI } from "./cli";
+
+const { writeFile } = promises;
 
 describe("function startCLI()", () => {
   const stdout = process.stdout.write;

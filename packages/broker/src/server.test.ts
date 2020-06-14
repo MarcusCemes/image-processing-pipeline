@@ -1,9 +1,11 @@
 import { randomBytes } from "crypto";
-import { mkdir, readFile, rmdir, writeFile } from "fs/promises";
+import { promises } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
 import { Broker, createBroker } from "./server";
+
+const { mkdir, readFile, rmdir, writeFile } = promises;
 
 const pngPixel = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGP6DwABBQECz6AuzQAAAABJRU5ErkJggg==",
