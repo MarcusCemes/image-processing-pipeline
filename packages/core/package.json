@@ -32,12 +32,12 @@
   ],
   "dependencies": {
     "@ipp/common": "^1.0.1",
-    "sharp": "^0.25.3"
+    "sharp": "^0.25.4"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.11",
+    "@types/jest": "^26.0.3",
+    "@types/node": "^14.0.14",
     "@types/sharp": "^0.25.0",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.6"
   }
 }

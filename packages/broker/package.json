@@ -33,12 +33,12 @@
   "dependencies": {
     "@ipp/common": "^1.0.1",
     "@ipp/core": "^1.0.1",
-    "nanoid": "^3.1.9",
+    "nanoid": "^3.1.10",
     "serialize-error": "^7.0.1"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.11",
-    "typescript": "^3.9.5"
+    "@types/jest": "^26.0.3",
+    "@types/node": "^14.0.14",
+    "typescript": "^3.9.6"
   }
 }

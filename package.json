@@ -6,29 +6,31 @@
   "author": "Marcus Cemes",
   "license": "MIT",
   "scripts": {
+    "bootstrap": "lerna bootstrap",
     "build": "tsc -b",
-    "build-vendor": "yarn workspaces foreach run build-vendor",
-    "clean": "rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\"",
+    "build-vendor": "lerna run build-vendor",
+    "clean": "npx rimraf \"./packages/*/tsconfig.tsbuildinfo\" \"./packages/*/dist\" \"./**/node_modules/\"",
     "fix:format": "prettier --write \"packages/*/src/**/*.{ts,tsx,json}\"",
     "fix:lint": "eslint . --fix --ext .ts,.tsx",
-    "start": "yarn workspace @ipp/cli run start",
+    "start": "cd packages/cli && ts-node -r tsconfig-paths/register src",
     "test": "jest",
     "test:format": "prettier --check \"packages/*/src/**/*.{ts,tsx,json}\"",
     "test:lint": "eslint . --ext .ts,.tsx"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.11",
-    "@typescript-eslint/eslint-plugin": "^3.1.0",
-    "@typescript-eslint/parser": "^3.1.0",
-    "@yarnpkg/pnpify": "^2.0.0-rc.22",
-    "eslint": "^7.2.0",
-    "jest": "^26.0.1",
+    "@types/jest": "^26.0.3",
+    "@types/node": "^14.0.14",
+    "@typescript-eslint/eslint-plugin": "^3.5.0",
+    "@typescript-eslint/parser": "^3.5.0",
+    "eslint": "^7.4.0",
+    "jest": "^26.1.0",
+    "lerna": "^3.22.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.1.0",
+    "ts-jest": "^26.1.1",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.5"
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.9.6"
   },
   "workspaces": [
     "packages/*"
@@ -88,7 +90,6 @@
     ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
-      "/.yarn/",
       "/index.ts"
     ],
     "globals": {
@@ -96,6 +97,9 @@
         "tsConfig": "tsconfig.test.json",
         "packageJson": "package.json"
       }
+    },
+    "moduleNameMapper": {
+      "^@ipp/(.*)$": "<rootDir>/packages/$1/src"
     }
   }
 }

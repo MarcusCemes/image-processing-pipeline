@@ -117,7 +117,6 @@ dist/
 !.yarn/releases
 !.yarn/plugins
 .pnp.*
-package-lock.json
 
 # Experimental
 .untracked

@@ -5,9 +5,9 @@ import { cpus } from "os";
 import { deserializeError } from "serialize-error";
 
 import { BrokerException, ClientAction, ClientResponse } from "./common";
+import { join } from "path";
 
-/** Compatible with Jest */
-const CLIENT_SCRIPT = `${__dirname}/../dist/client`;
+const CLIENT_SCRIPT = join(__dirname, "client");
 
 const DEFAULT_CONCURRENCY = cpus().length;
 const START_TIMEOUT = 5000;
@@ -42,8 +42,13 @@ export async function createBroker(options: BrokerOptions = {}): Promise<Broker>
   let activeJobs = 0;
   const concurrency = options.concurrency || DEFAULT_CONCURRENCY;
 
-  const brokerService = fork(CLIENT_SCRIPT, void 0, {
-    env: { UV_THREADPOOL_SIZE: concurrency.toString(), NODE_OPTIONS: process.env.NODE_OPTIONS },
+  const brokerService = fork(CLIENT_SCRIPT, [], {
+    env: {
+      UV_THREADPOOL_SIZE: concurrency.toString(),
+      NODE_OPTIONS: process.env.NODE_OPTIONS,
+      TS_NODE_PROJECT: process.env.NODE_ENV === "test" ? "tsconfig.test.json" : void 0,
+    },
+    execArgv: process.env.NODE_ENV === "test" ? ["-r", "ts-node/register", "-r", "tsconfig-paths/register"] : void 0,
   });
 
   let globalQueue: ServerJob[] = [];

@@ -10,13 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache multiple paths
-        uses: actions/cache@v2
-        with:
-          path: |
-            .yarn/cache
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-
       - name: Install Node.js
         uses: actions/setup-node@v1
         with:
@@ -25,20 +18,20 @@ jobs:
       - name: Install Golang
         uses: actions/setup-go@v2
 
-      - name: Install yarn
-        run: npm i -g yarn
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1.1.0
 
-      - name: Link dependencies
-        run: yarn
-
-      - name: Build project
-        run: yarn build
+      - name: Bootstrap repository
+        run: npm run bootstrap
 
       - name: Build vendor libraries
-        run: yarn build-vendor
+        run: npm run build-vendor
 
-      - name: Run tests
-        run: yarn test --coverage
+      - name: Test project
+        run: npm test -- --coverage
+
+      - name: Build project
+        run: npm run build
 
       - name: Upload coverage
         uses: codecov/codecov-action@v1

@@ -8,7 +8,6 @@
       "type": "node",
       "request": "launch",
       "name": "Launch via NPM",
-      "runtimeExecutable": "yarn",
       "runtimeArgs": ["debug"],
       "port": 9229,
       "skipFiles": ["<node_internals>/**"],

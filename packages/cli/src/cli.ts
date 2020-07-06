@@ -195,7 +195,7 @@ async function run(
     );
   }
 
-  printSuccess();
+  if (!silent) printSuccess();
 }
 
 /** Creates the UI state data structure and helper functions */
