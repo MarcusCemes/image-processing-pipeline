@@ -1,70 +1,98 @@
 import { PipeResult } from "@ipp/common";
-
+import sharp from "sharp";
 import { ResizePipe } from "./resize";
+import { randomBytes } from "crypto";
 
-const pngPixel = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGP6DwABBQECz6AuzQAAAABJRU5ErkJggg==",
-  "base64"
-);
+jest.mock("sharp");
 
-const pngMetadata = {
-  width: 1,
-  height: 1,
-  format: "png",
-  channels: 3,
-  testValue: Math.random().toString(),
-};
+describe("built-in resize pipe", () => {
+  const data = randomBytes(8);
 
-const rawImage = Buffer.from("ffffff", "hex");
+  const mockedSharp = (sharp as unknown) as jest.Mock<typeof sharp>;
 
-const rawMetadata = {
-  width: 1,
-  height: 1,
-  format: "raw",
-  channels: 3,
-  testValue: Math.random().toString(),
-};
+  const metadata = { width: 256, height: 256, format: "jpeg", channels: 3 };
+  const resizeOptions = { width: 128 };
 
-test("resizes a png image", async () => {
-  const result = (await ResizePipe(pngPixel, pngMetadata, { resizeOptions: { width: 2, height: 2 } })) as PipeResult[];
+  const mockToBuffer = jest.fn(() => ({
+    data,
+    info: metadata,
+  }));
 
-  expect(Array.isArray(result)).toBeTruthy();
-  expect(result).toHaveLength(1);
+  const mockResize = jest.fn(() => ({ toBuffer: mockToBuffer }));
 
-  const [format] = result;
+  beforeAll(() => {
+    mockedSharp.mockImplementation(() => (({ resize: mockResize } as unknown) as typeof sharp));
+  });
 
-  expect(Buffer.isBuffer(format.output)).toBeTruthy();
-  expect(format.metadata).toEqual({ ...pngMetadata, width: 2, height: 2 });
-});
+  afterAll(() => {
+    mockedSharp.mockRestore();
+  });
 
-test("resizes a raw image", async () => {
-  const result = (await ResizePipe(rawImage, rawMetadata, { resizeOptions: { width: 2, height: 2 } })) as PipeResult[];
+  afterEach(() => {
+    [mockResize, mockToBuffer, mockedSharp].forEach((x) => x.mockClear());
+  });
 
-  expect(Array.isArray(result)).toBeTruthy();
-  expect(result).toHaveLength(1);
+  test("resize a single image", async () => {
+    const result = ResizePipe(data, metadata, { resizeOptions });
 
-  const [format] = result;
+    expect(mockResize).toHaveBeenCalledWith(resizeOptions);
 
-  expect(Buffer.isBuffer(format.output)).toBeTruthy();
-  expect(format.metadata).toEqual({ ...rawMetadata, width: 2, height: 2 });
-});
+    await expect(result).resolves.toMatchObject<PipeResult>({
+      output: data,
+      metadata,
+    });
+  });
 
-test("resize image breakpoints", async () => {
-  const result = (await ResizePipe(pngPixel, pngMetadata, {
-    breakpoints: [
-      { name: "sm", resizeOptions: { width: 2, height: 2 } },
-      { name: "lg", resizeOptions: { width: 4, height: 4 } },
-    ],
-  })) as PipeResult[];
+  /** Should support multiple breakpoint sizes (not checking for duplicates) */
+  test("resizes breakpoints", async () => {
+    const names = ["sm", "md", "lg"];
+    const breakpoints = names.map((name) => ({ name, resizeOptions }));
+    const result = ResizePipe(data, metadata, { allowDuplicates: true, breakpoints });
 
-  expect(Array.isArray(result)).toBeTruthy();
-  expect(result).toHaveLength(2);
+    expect(mockedSharp).toHaveBeenCalledTimes(3);
+    expect(mockResize).toHaveBeenCalledWith(resizeOptions);
 
-  const [small, large] = result;
+    await expect(result).resolves.toMatchObject<PipeResult[]>(
+      names.map((breakpoint) => ({
+        output: data,
+        metadata: { ...metadata, breakpoint },
+      }))
+    );
+  });
 
-  expect(Buffer.isBuffer(small.output)).toBeTruthy();
-  expect(small.metadata).toEqual({ ...pngMetadata, width: 2, height: 2, breakpoint: "sm" });
+  /** Should be able to remove duplicate image sizes when using breakpoints */
+  test("removes duplicates", async () => {
+    const names = ["sm", "md", "lg"];
+    const breakpoints = names.map((name) => ({ name, resizeOptions }));
+    const result = ResizePipe(data, metadata, { breakpoints });
 
-  expect(Buffer.isBuffer(large.output)).toBeTruthy();
-  expect(large.metadata).toEqual({ ...pngMetadata, width: 4, height: 4, breakpoint: "lg" });
+    expect(mockedSharp).toHaveBeenCalledTimes(1);
+    expect(mockResize).toHaveBeenCalledWith(resizeOptions);
+
+    await expect(result).resolves.toMatchObject<PipeResult[]>([
+      {
+        output: data,
+        metadata: { ...metadata, breakpoint: "sm" },
+      },
+    ]);
+  });
+
+  /**
+   * The resize pipe should be able to detect the raw format, passing extra
+   * contextual metadata to the sharp instance and retaining the raw format afterwards.
+   */
+  test("handles raw image data", async () => {
+    const rawMeta = { ...metadata, format: "raw" };
+    mockToBuffer.mockImplementationOnce(() => ({ data, info: rawMeta }));
+
+    const result = ResizePipe(data, rawMeta, { resizeOptions });
+
+    expect(sharp).toHaveBeenCalledWith(data, { raw: { ...rawMeta, format: void 0 } });
+    expect(mockResize).toHaveBeenCalledWith({ width: 128 });
+
+    await expect(result).resolves.toMatchObject<PipeResult>({
+      output: data,
+      metadata: rawMeta,
+    });
+  });
 });
