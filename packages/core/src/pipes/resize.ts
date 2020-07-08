@@ -26,9 +26,10 @@ export const ResizePipe: Pipe<ResizeOptions> = async (input, metadata, options =
   if (options.allowDuplicates)
     return Promise.all(options.breakpoints.map((brk) => executeBreakpoint(brk, input, metadata)));
 
-  // Estimate the resulting size and remove any would-be-duplicates
+  // Disable upscaling, estimate the resulting size and remove any would-be-duplicates
   return Promise.all(
     options.breakpoints
+      .map((brk) => ({ ...brk, resizeOptions: { withoutEnlargement: true, ...brk.resizeOptions } }))
       .filter(duplicateFilter(metadata.width, metadata.height, options.resizeOptions?.withoutEnlargement))
       .map((brk) => executeBreakpoint(brk, input, metadata))
   );

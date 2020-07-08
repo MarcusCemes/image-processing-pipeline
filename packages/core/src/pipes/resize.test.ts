@@ -67,7 +67,7 @@ describe("built-in resize pipe", () => {
     const result = ResizePipe(data, metadata, { breakpoints });
 
     expect(mockedSharp).toHaveBeenCalledTimes(1);
-    expect(mockResize).toHaveBeenCalledWith(resizeOptions);
+    expect(mockResize).toHaveBeenCalledWith({ ...resizeOptions, withoutEnlargement: true });
 
     await expect(result).resolves.toMatchObject<PipeResult[]>([
       {
