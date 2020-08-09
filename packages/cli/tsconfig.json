@@ -1,12 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.json"],
-  "exclude": ["./src/**/*.test.ts", "./src/**/*.test.tsx"],
   "compilerOptions": {
     "rootDir": "./src/",
     "outDir": "./dist/",
     "jsx": "react",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": "./src",
+    "paths": {
+      "~/*": ["./*"],
+      "@ipp/*": ["../../*/src/"]
+    }
   },
-  "references": [{ "path": "../broker" }, { "path": "../common" }, { "path": "../testing" }]
+  "references": [{ "path": "../common" }, { "path": "../core" }, { "path": "../testing" }]
 }

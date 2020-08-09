@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.json"],
+  "exclude": ["./src/**/*.test.ts", "./src/**/*.test.tsx"],
+  "compilerOptions": {
+    "rootDir": "./src/",
+    "outDir": "./dist/",
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "baseUrl": "./src",
+    "paths": {
+      "~/*": ["./*"],
+      "@ipp/*": ["../../*/src/"]
+    }
+  },
+  "references": [
+    { "path": "../common/tsconfig.build.json" },
+    { "path": "../core/tsconfig.build.json" },
+    { "path": "../testing/tsconfig.build.json" }
+  ]
+}

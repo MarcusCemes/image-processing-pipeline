@@ -1,3 +1,10 @@
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import { randomBytes } from "crypto";
 import { promises } from "fs";
 import { tmpdir } from "os";
@@ -14,7 +21,9 @@ export interface TemporaryDir {
 
 /** Creates a temporary file */
 export async function withTempFile<T>(fn: (file: string) => T): Promise<T> {
-  return withTempDir((dir) => fn(join(dir, `tmp-${randomBytes(RANDOM_BYTES_LENGTH).toString("hex")}`)));
+  return withTempDir((dir) =>
+    fn(join(dir, `tmp-${randomBytes(RANDOM_BYTES_LENGTH).toString("hex")}`))
+  );
 }
 
 /** https://advancedweb.hu/secure-tempfiles-in-nodejs-without-dependencies/ */

@@ -1,7 +1,7 @@
 {
   "name": "@ipp/core",
-  "version": "1.0.3",
-  "description": "A modern parallel image processing pipeline",
+  "version": "1.1.0",
+  "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
   "main": "dist/index.js",
@@ -9,6 +9,14 @@
   "files": [
     "dist"
   ],
+  "dependencies": {
+    "@ipp/common": "^1.1.0",
+    "immer": "^7.0.7",
+    "sharp": "^0.25.4"
+  },
+  "devDependencies": {
+    "@types/sharp": "^0.25.1"
+  },
   "engines": {
     "node": ">=10.18"
   },
@@ -28,16 +36,7 @@
     "modern",
     "frontend",
     "cli",
-    "image"
-  ],
-  "dependencies": {
-    "@ipp/common": "^1.0.1",
-    "sharp": "^0.25.4"
-  },
-  "devDependencies": {
-    "@types/jest": "^26.0.3",
-    "@types/node": "^14.0.14",
-    "@types/sharp": "^0.25.0",
-    "typescript": "^3.9.6"
-  }
+    "image",
+    "processing"
+  ]
 }

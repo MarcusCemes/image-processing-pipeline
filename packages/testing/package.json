@@ -2,7 +2,7 @@
   "name": "@ipp/testing",
   "private": true,
   "version": "1.0.1",
-  "description": "A modern parallel image processing pipeline",
+  "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
   "main": "dist/index.js",
@@ -29,10 +29,7 @@
     "modern",
     "frontend",
     "cli",
-    "image"
-  ],
-  "devDependencies": {
-    "@types/jest": "^26.0.3",
-    "@types/node": "^14.0.14"
-  }
+    "image",
+    "processing"
+  ]
 }

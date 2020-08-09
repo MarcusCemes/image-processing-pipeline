@@ -5,13 +5,33 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug CLI",
+      "cwd": "${workspaceFolder}/packages/cli",
+      "program": "src/bin",
+      "runtimeArgs": ["-r", "ts-node/register", "-r", "tsconfig-paths/register"],
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node",
+      "env": {
+        "DEBUG": "1"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug tests",
       "type": "node",
       "request": "launch",
-      "name": "Launch via NPM",
-      "runtimeArgs": ["debug"],
+      "runtimeArgs": ["--inspect-brk", "${workspaceRoot}/node_modules/jest/bin/jest.js", "--runInBand"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "port": 9229
+    },
+    {
+      "name": "Attach",
       "port": 9229,
+      "request": "attach",
       "skipFiles": ["<node_internals>/**"],
-      "console": "integratedTerminal"
+      "type": "pwa-node"
     }
   ]
 }

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/cli/src/schema/config.json",
+  "title": "IPP Config",
+
+  "type": "object",
+  "required": ["input", "output", "pipeline"],
+  "properties": {
+    "input": {
+      "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }],
+      "type": "string"
+    },
+    "output": {
+      "type": "string"
+    },
+    "pipeline": {
+      "$ref": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/common/src/schema/pipeline.json"
+    },
+
+    "concurrency": {
+      "type": "number"
+    },
+    "flat": {
+      "type": "boolean"
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "patternProperties": {
+            "^.*$": {
+              "type": "string"
+            }
+          }
+        },
+        "format": {
+          "patternProperties": {
+            "^.*$": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

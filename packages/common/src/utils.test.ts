@@ -1,16 +1,30 @@
-import { slash } from "./utils";
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
-describe("function slash()", () => {
-  test("converts a backslash to forward slash", () => {
-    expect(slash("\\")).toBe("/");
-  });
+import { Metadata } from "./metadata";
+import { sampleMetadata } from "./utils";
 
-  test("slashes Unix paths", () => {
-    expect(slash("/some/path/to/something")).toBe("/some/path/to/something");
-    expect(slash("\\some\\path\\to\\something")).toBe("/some/path/to/something");
-  });
-
-  test("slashes a Windows path", () => {
-    expect(slash("C:\\Windows\\")).toBe("C:/Windows/");
+describe("function sampleMetadata()", () => {
+  test("generates some sample metadata", () => {
+    expect(sampleMetadata(256, "jpeg")).toMatchObject<Metadata>({
+      current: {
+        width: 256,
+        height: 256,
+        channels: 3,
+        format: "jpeg",
+        hash: expect.any(String),
+      },
+      source: {
+        height: 256,
+        width: 256,
+        channels: 3,
+        format: "jpeg",
+        hash: expect.any(String),
+      },
+    });
   });
 });

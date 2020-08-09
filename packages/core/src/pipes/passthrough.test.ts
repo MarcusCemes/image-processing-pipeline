@@ -1,22 +1,22 @@
-import { PipeResult } from "@ipp/common";
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
+import { DataObject, sampleMetadata } from "@ipp/common";
+import { randomBytes } from "crypto";
 import { PassthroughPipe } from "./passthrough";
 
-const randomData = Buffer.of(Math.random());
+describe("built-in PassthroughPipe", () => {
+  const data: DataObject = {
+    buffer: randomBytes(8),
+    metadata: sampleMetadata(256, "jpeg"),
+  };
 
-const metadata = {
-  width: 1,
-  height: 1,
-  format: "random",
-  channels: 4,
-  testValue: Math.random().toString(),
-};
-
-test("resizes an image", async () => {
-  const result = (await PassthroughPipe(randomData, metadata, {})) as PipeResult;
-
-  expect(Array.isArray(result)).toBeFalsy();
-
-  expect(result.output).toBe(randomData);
-  expect(result.metadata).toEqual(metadata);
+  test("passes through data untouched", async () => {
+    const result = PassthroughPipe(data);
+    await expect(result).resolves.toMatchObject(data);
+  });
 });

@@ -1,84 +1,249 @@
-import { Pipe, PipeException, PipelineException } from "@ipp/common";
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
-import { processPipeline } from "./core";
+import { DataObject, Metadata, PipelineBranch, PipelineFormat, PipelineResult } from "@ipp/common";
+import { randomBytes } from "crypto";
+import produce from "immer";
+import sharp from "sharp";
+import { executePipeline } from "./core";
+import { hash } from "./hash";
 
-const pngPixel = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGP6DwABBQECz6AuzQAAAABJRU5ErkJggg==",
-  "base64"
+jest.mock("sharp");
+
+jest.mock(
+  "./pipes/cjs_pipe_mock",
+  () => {
+    const PassThrough = async (x: any) => x;
+    PassThrough["__esModule"] = true; // a jest "hack" that creates a non-ES module export
+    return PassThrough;
+  },
+  { virtual: true }
 );
 
-describe("function processPipeline()", () => {
-  test("processes a png image", async () => {
-    // Does a fairly complete test on the pipeline processing capabilities
-    const passthroughSingle = jest
-      .fn<ReturnType<Pipe>, Parameters<Pipe>>()
-      .mockImplementation(async (i, m) => ({ output: i, metadata: m, then: null }));
+describe("function executePipeline()", () => {
+  /* -- Reused utility data -- */
+  const buffer = randomBytes(8);
+  const sharpMetadata = { width: 256, height: 256, channels: 3, format: "jpeg" };
+  const metadata: Metadata = {
+    source: {
+      ...sharpMetadata,
+      hash: hash(buffer),
+    },
+    current: {
+      ...sharpMetadata,
+      hash: hash(buffer),
+    },
+  };
 
-    const passthroughMultiple = jest
-      .fn<ReturnType<Pipe>, Parameters<Pipe>>()
-      .mockImplementation(async (i, m) => ({ output: i, metadata: m, then: [] }));
+  const data: DataObject = { buffer, metadata };
 
-    const pipeline = [
-      {
-        pipe: "passthrough", // built-in passthrough
-        save: "parent",
-        then: [
-          // array of then
+  /* -- Mocks -- */
+
+  const metadataMock = jest.fn(async () => sharpMetadata);
+  const sharpMock = (sharp as unknown) as jest.Mock<{ metadata: typeof metadataMock }>;
+  const mocks = [metadataMock, sharpMock];
+
+  /* -- Lifecycle -- */
+
+  beforeAll(() => sharpMock.mockImplementation(() => ({ metadata: metadataMock })));
+  afterAll(() => sharpMock.mockRestore());
+  afterEach(() => mocks.forEach((m) => m.mockClear()));
+
+  /* -- Tests -- */
+
+  describe("execution", () => {
+    test("accepts an empty pipeline", async () => {
+      const result = executePipeline([], buffer);
+      await expect(result).resolves.toMatchObject<PipelineResult>({
+        source: data,
+        formats: [],
+      });
+    });
+
+    test("executes a single branch", async () => {
+      const result = executePipeline([{ pipe: "passthrough" }], buffer);
+      await expect(result).resolves.toMatchObject<PipelineResult>({
+        source: data,
+        formats: [],
+      });
+    });
+
+    test("saves a format", async () => {
+      const result = executePipeline([{ pipe: "passthrough", save: "name" }], buffer);
+      await expect(result).resolves.toMatchObject<PipelineResult>({
+        source: data,
+        formats: [{ data, saveKey: "name" }],
+      });
+    });
+
+    test("saves multiple formats", async () => {
+      const result = executePipeline(
+        [
+          { pipe: "passthrough", save: "file1" },
+          { pipe: "passthrough", save: "file2" },
+        ],
+        buffer
+      );
+
+      await expect(result).resolves.toMatchObject<PipelineResult>({
+        source: data,
+        formats: ["file1", "file2"].map((f) => ({ data, saveKey: f })),
+      });
+    });
+
+    test("handles nested pipelines", async () => {
+      const result = executePipeline(
+        [{ pipe: "passthrough", save: "file1", then: [{ pipe: "passthrough", save: "file2" }] }],
+        buffer
+      );
+
+      await expect(result).resolves.toMatchObject<PipelineResult>({
+        source: data,
+        formats: ["file1", "file2"].map((f) => ({ data, saveKey: f })),
+      });
+    });
+
+    test("handles pipe rejections", async () => {
+      const result = executePipeline(
+        [
           {
-            pipe: passthroughSingle, // custom passthrough
-            save: "child1",
-            then: [{ pipe: "passthrough" }],
-          },
-          {
-            pipe: passthroughMultiple,
-            save: "child2",
-            then: [{ pipe: "passthrough" }],
+            pipe: async function RejectionPipe() {
+              throw new Error("I failed!");
+            },
           },
         ],
-      },
-    ];
+        buffer
+      );
 
-    const result = await processPipeline(pngPixel, pipeline, { preserveValue: "preserve_me" });
+      await expect(result).rejects.toThrow("[RejectionPipe] I failed!");
+    });
 
-    expect(result).toHaveLength(3);
-    expect(passthroughSingle).toHaveBeenCalledTimes(1);
-    expect(passthroughMultiple).toHaveBeenCalledTimes(1);
+    test("generates file hashes", async () => {
+      const newData = randomBytes(8);
+      const result = executePipeline(
+        [{ pipe: async (data) => ({ ...data, buffer: newData }), save: true }],
+        buffer
+      );
 
-    const [parent, child1, child2] = result;
-
-    for (const item of result) {
-      expect(item).toMatchObject<Partial<typeof item>>({
-        data: pngPixel,
-        metadata: { ...item.metadata, preserveValue: "preserve_me" },
+      await expect(result).resolves.toMatchObject<PipelineResult>({
+        source: data,
+        formats: [
+          {
+            saveKey: true,
+            data: {
+              buffer: newData,
+              metadata: produce(metadata, (draft) => {
+                draft.current.hash = hash(newData);
+                draft.source.hash = hash(buffer);
+              }),
+            },
+          },
+        ],
       });
-    }
-
-    expect(parent.save).toBe("parent");
-    expect(child1.save).toBe("child1");
-    expect(child2.save).toBe("child2");
-
-    expect.assertions(9);
+    });
   });
 
-  test("throws on invalid built=in pipe", async () => {
-    await expect(processPipeline(pngPixel, [{ pipe: "NULL" }])).rejects.toBeInstanceOf(PipelineException);
+  describe("pipe resolution", () => {
+    test("correct resolution", async () => {
+      const pipes: PipelineBranch["pipe"][] = [
+        "passthrough",
+        { resolve: "./pipes/cjs_pipe_mock" },
+        { resolve: "./pipes/passthrough", module: "PassthroughPipe" },
+        async (x) => x,
+      ];
 
-    expect.assertions(1);
+      for (const pipe of pipes) {
+        const result = executePipeline([{ pipe }], buffer);
+        await expect(result).resolves.toMatchObject<PipelineResult>({
+          source: data,
+          formats: [],
+        });
+      }
+    });
+
+    test("resolution failure", async () => {
+      const pipes = [
+        "non_existent_pipe",
+        { resolve: "./pipes/non_existent_pipe" },
+        { resolve: "./pipes/passthrough", module: "default" },
+        { resolve: "./pipes/non_existent_pipe", module: "default" },
+        { resolve: "./pipes/non_existent_pipe", module: "default" },
+        { resolve: "fs" },
+      ];
+
+      for (const pipe of pipes) {
+        const result = executePipeline([{ pipe }], buffer);
+        await expect(result).rejects.toBeTruthy();
+      }
+    });
+
+    test("handles malformed pipe syntax", async () => {
+      const pipes = [null, true, 42];
+
+      for (const pipe of pipes) {
+        const result = executePipeline([{ pipe: pipe as any }], buffer);
+        await expect(result).rejects.toThrow("Unknown pipe resolution scheme");
+      }
+    });
   });
 
-  test("throws on invalid external pipe", async () => {
-    await expect(
-      processPipeline(pngPixel, [{ pipe: { resolve: "NULL_MODULE", module: "default" } }])
-    ).rejects.toBeInstanceOf(PipelineException);
+  test("handles metadata errors", async () => {
+    metadataMock.mockImplementationOnce(() => Promise.reject("I rejected!"));
+    const result = executePipeline([{ pipe: () => Promise.reject() }], buffer);
 
-    expect.assertions(1);
+    await expect(result).rejects.toThrow("Metadata error: I rejected!");
   });
 
-  test("handles pipe exceptions", async () => {
-    const pipeline = [{ pipe: () => Promise.reject(new PipeException("msg_error")) }];
-    const result = processPipeline(pngPixel, pipeline);
+  test("handles missing metadata values", async () => {
+    metadataMock.mockImplementationOnce(async () => ({} as any));
+    const result = executePipeline([{ pipe: () => Promise.reject() }], buffer);
 
-    await expect(result).rejects.toBeInstanceOf(PipelineException);
-    expect.assertions(1);
+    await expect(result).rejects.toThrow("Metadata error: missing properties");
+  });
+
+  test("handles no pipe output", async () => {
+    const result = executePipeline(
+      [
+        {
+          pipe: (async () => {
+            /* */
+          }) as any,
+        },
+      ],
+      buffer
+    );
+    await expect(result).resolves.toMatchObject<PipelineResult>({
+      source: data,
+      formats: [],
+    });
+  });
+
+  test("handles multiple pipe outputs", async () => {
+    const result = executePipeline(
+      [
+        {
+          pipe: async () => [
+            { buffer, metadata },
+            { buffer, metadata },
+          ],
+          save: true,
+        },
+      ],
+      buffer
+    );
+    await expect(result).resolves.toMatchObject<PipelineResult>({
+      source: data,
+      formats: new Array<PipelineFormat>(2).fill({
+        data: {
+          buffer,
+          metadata,
+        },
+        saveKey: true,
+      }),
+    });
   });
 });

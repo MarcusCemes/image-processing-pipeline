@@ -1,14 +1,22 @@
-import { Metadata, Pipe, PipeResult } from "@ipp/common";
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { DataObject, Pipe, PipeException } from "@ipp/common";
+import produce from "immer";
 import sharp, { Raw, ResizeOptions as SharpOptions } from "sharp";
 
 sharp.concurrency(1);
 
-interface Breakpoint {
+export interface Breakpoint {
   name?: string;
-  resizeOptions?: SharpOptions;
+  resizeOptions: SharpOptions;
 }
 
-interface ResizeOptions {
+export interface ResizeOptions {
   breakpoints?: Breakpoint[];
   resizeOptions?: SharpOptions;
   allowDuplicates?: boolean;
@@ -18,21 +26,28 @@ interface ResizeOptions {
  * A built-in pipe that lets you resize an image into a single size, or into multiple
  * different breakpoints. When creating breakpoints, duplicate sizes will be skipped.
  */
-export const ResizePipe: Pipe<ResizeOptions> = async (input, metadata, options = {}) => {
+export const ResizePipe: Pipe<ResizeOptions> = async (data, options = {}) => {
+  if (options.breakpoints) {
+    if (options.allowDuplicates) {
+      // Execute a blind breakpoint resize with no dimension checking
+      return Promise.all(options.breakpoints.map((brk) => executeBreakpoint(brk, data)));
+    }
+
+    // Estimate the resulting size and remove any would-be-duplicates
+    const { width, height } = data.metadata.current;
+    return Promise.all(
+      options.breakpoints
+        .filter(duplicateFilter(width, height))
+        .map((brk) => executeBreakpoint(brk, data))
+    );
+  }
+
   // Execute a single resize
-  if (!options.breakpoints) return executeBreakpoint({ resizeOptions: options.resizeOptions }, input, metadata);
+  if (options.resizeOptions) {
+    return executeBreakpoint({ resizeOptions: options.resizeOptions }, data);
+  }
 
-  // Execute a blind breakpoint resize
-  if (options.allowDuplicates)
-    return Promise.all(options.breakpoints.map((brk) => executeBreakpoint(brk, input, metadata)));
-
-  // Disable upscaling, estimate the resulting size and remove any would-be-duplicates
-  return Promise.all(
-    options.breakpoints
-      .map((brk) => ({ ...brk, resizeOptions: { withoutEnlargement: true, ...brk.resizeOptions } }))
-      .filter(duplicateFilter(metadata.width, metadata.height, options.resizeOptions?.withoutEnlargement))
-      .map((brk) => executeBreakpoint(brk, input, metadata))
-  );
+  throw new PipeException("No resize options were given");
 };
 
 /**
@@ -43,12 +58,22 @@ export const ResizePipe: Pipe<ResizeOptions> = async (input, metadata, options =
  * During calculation, the size of the image diagonal is rounded to the nearest integer
  * to compensate for floating-point error;
  */
-function duplicateFilter(width: number, height: number, withoutEnlargement = true): (brk: Breakpoint) => boolean {
+function duplicateFilter(width: number, height: number): (brk: Breakpoint) => boolean {
   const previous: number[] = [];
   const diagonal = width * height;
 
   return (brk) => {
-    const scaledDiagonal = calculateDiagonal(width, height, brk.resizeOptions?.width, brk.resizeOptions?.height);
+    const scaledDiagonal = calculateDiagonal(
+      width,
+      height,
+      brk.resizeOptions?.width,
+      brk.resizeOptions?.height
+    );
+
+    const withoutEnlargement =
+      typeof brk.resizeOptions.withoutEnlargement !== "undefined"
+        ? brk.resizeOptions.withoutEnlargement
+        : true;
 
     const newDiagonal = withoutEnlargement ? Math.min(diagonal, scaledDiagonal) : scaledDiagonal;
 
@@ -66,7 +91,12 @@ function duplicateFilter(width: number, height: number, withoutEnlargement = tru
  *
  * If neither target options are specified, the original diagonal is returned.
  */
-function calculateDiagonal(width: number, height: number, targetWidth?: number, targetHeight?: number): number {
+function calculateDiagonal(
+  width: number,
+  height: number,
+  targetWidth?: number,
+  targetHeight?: number
+): number {
   const widthFactor = targetWidth ? targetWidth / width : Infinity;
   const heightFactor = targetHeight ? targetHeight / height : Infinity;
 
@@ -75,33 +105,39 @@ function calculateDiagonal(width: number, height: number, targetWidth?: number, 
 }
 
 /** Converts the breakpoint into a Sharp execution instance */
-async function executeBreakpoint(breakpoint: Breakpoint, input: Buffer, metadata: Metadata): Promise<PipeResult> {
+async function executeBreakpoint(breakpoint: Breakpoint, data: DataObject): Promise<DataObject> {
+  const { current } = data.metadata;
+
   const {
-    data,
+    data: newBuffer,
     info: { width, height, format, channels },
-  } = await sharp(input, {
+  } = await sharp(data.buffer as Buffer, {
     raw:
-      metadata.format === "raw"
+      current.format === "raw"
         ? {
-            width: metadata.width,
-            height: metadata.height,
-            channels: metadata.channels as Raw["channels"],
+            width: current.width,
+            height: current.height,
+            channels: current.channels as Raw["channels"],
           }
         : void 0,
   })
-    .resize(extractSharpOptions(breakpoint.resizeOptions))
+    .resize(extractSharpOptions({ withoutEnlargement: true, ...breakpoint.resizeOptions }))
     .toBuffer({ resolveWithObject: true });
 
+  const newMetadata = produce(data.metadata, (draft) => {
+    draft.current.width = width;
+    draft.current.height = height;
+    draft.current.channels = channels;
+    draft.current.format = format;
+
+    if (breakpoint.name) {
+      draft.current.breakpoint = breakpoint.name;
+    }
+  });
+
   return {
-    output: data,
-    metadata: {
-      ...metadata,
-      width,
-      height,
-      format,
-      channels,
-      breakpoint: breakpoint.name,
-    },
+    buffer: newBuffer,
+    metadata: newMetadata,
   };
 }
 

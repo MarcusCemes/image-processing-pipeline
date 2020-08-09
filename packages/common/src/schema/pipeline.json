@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/common/src/schema/pipeline.json",
+  "title": "Pipeline",
+  "description": "The Pipeline object used by the Image Processing Pipeline",
+
+  "type": "array",
+  "items": {
+    "title": "Pipeline Branch",
+    "description": "A single parallel processing branch of a Pipeline object",
+    "type": "object",
+    "required": ["pipe"],
+    "additionalProperties": false,
+    "properties": {
+      "pipe": {
+        "oneOf": [
+          {
+            "type": "string",
+            "examples": ["resize", "convert"]
+          },
+          {
+            "type": "object",
+            "required": ["resolve"],
+            "properties": {
+              "resolve": {
+                "type": "string",
+                "examples": ["@ipp/primitive"]
+              },
+              "module": {
+                "type": "string",
+                "examples": ["default"]
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "save": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          { "type": "boolean" }
+        ]
+      },
+      "then": {
+        "$ref": "#"
+      }
+    }
+  }
+}

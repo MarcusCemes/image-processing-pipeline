@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/cli/tsconfig.build.json" },
+    { "path": "packages/common/tsconfig.build.json" },
+    { "path": "packages/compress/tsconfig.build.json" },
+    { "path": "packages/core/tsconfig.build.json" },
+    { "path": "packages/primitive/tsconfig.build.json" },
+    { "path": "packages/testing/tsconfig.build.json" }
+  ]
+}
