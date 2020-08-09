@@ -14,7 +14,7 @@ import { CliException } from "./lib/exception";
 import { processImages } from "./lib/image_process";
 import { saveImages } from "./lib/image_save";
 import { searchImages } from "./lib/image_search";
-import { createInterruptHandler, InterruptException, InterruptHandler } from "./lib/interrupt";
+import { createInterruptHandler, InterruptHandler } from "./lib/interrupt";
 import { saveManifest } from "./lib/manifest";
 import { createState, Stage, StateContext } from "./model/state";
 import { UI, UiInstance } from "./ui";
@@ -55,17 +55,12 @@ export async function startCli(config: Config, options: CliOptions = {}): Promis
       }
     });
   } catch (err) {
-    if (!(err instanceof InterruptException)) {
-      ctx.state.update((state) => {
-        state.stage = Stage.ERROR;
-        state.message = `Error: ${err.message || "<no message>"}`;
-      });
-      throw err;
-    }
-
     ctx.state.update((state) => {
-      if (!ctx.interrupt.rejected()) state.stage = Stage.DONE;
+      state.stage = Stage.ERROR;
+      state.message = `Error: ${err.message || "<no message>"}`;
     });
+
+    throw err;
   } finally {
     ctx.state.complete();
     await ctx.ui.stop();

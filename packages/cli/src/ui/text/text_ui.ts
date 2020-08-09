@@ -8,7 +8,7 @@
 import { stdout } from "process";
 import { Observable } from "rxjs";
 import { distinctUntilChanged, last, throttleTime } from "rxjs/operators";
-import { Stage, State } from "~/model/state";
+import { Stage, State } from "../../model/state";
 import { UI } from "../ui";
 
 const INTERVAL = 1000;

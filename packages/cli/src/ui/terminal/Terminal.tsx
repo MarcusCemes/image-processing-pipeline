@@ -9,7 +9,7 @@ import { cross, pointer, square, tick } from "figures";
 import { Box, Static, Text } from "ink";
 import Spinner from "ink-spinner";
 import React, { ReactNode } from "react";
-import { Stage, State, Status, Task } from "~/model/state";
+import { Stage, State, Status, Task } from "../../model/state";
 import { UiContext } from "../ui";
 import { ObservableStatus, useObservable } from "./useObservable";
 

@@ -8,7 +8,7 @@
 import Denque from "denque";
 import { promises } from "fs";
 import { parse, posix } from "path";
-import { Exception } from "~/../../common/src";
+import { Exception } from "@ipp/common";
 import { CliContext } from "../cli";
 import { Status } from "../model/state";
 import { CliException, CliExceptionCode } from "./exception";

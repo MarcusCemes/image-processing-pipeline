@@ -6,12 +6,7 @@
     "rootDir": "./src/",
     "outDir": "./dist/",
     "jsx": "react",
-    "resolveJsonModule": true,
-    "baseUrl": "./src",
-    "paths": {
-      "~/*": ["./*"],
-      "@ipp/*": ["../../*/src/"]
-    }
+    "resolveJsonModule": true
   },
   "references": [
     { "path": "../common/tsconfig.build.json" },
