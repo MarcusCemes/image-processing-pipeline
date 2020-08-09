@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/cli/src/schema/config.json",
+  "$id": "https://ipp.vercel.app/schema/config.json",
   "title": "IPP Config",
 
   "type": "object",
@@ -14,7 +14,7 @@
       "type": "string"
     },
     "pipeline": {
-      "$ref": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/common/src/schema/pipeline.json"
+      "$ref": "https://ipp.vercel.app/schema/pipeline.json"
     },
 
     "concurrency": {

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Exception, mapMetadata, Metadata } from "@ipp/common";
+import { Exception, mapMetadata, Metadata, PipelineFormats } from "@ipp/common";
 import { promises } from "fs";
 import produce from "immer";
 import { basename, dirname, normalize } from "path";
@@ -14,8 +14,8 @@ import { DEFAULT_LIBUV_THREADPOOL } from "../constants";
 import { Config } from "../init/config";
 import { Status, TaskContext } from "../model/state";
 import { unorderedParallelMap } from "./concurrency";
-import { ProcessResult } from "./image_process";
 import { CliException, CliExceptionCode } from "./exception";
+import { ProcessResult } from "./image_process";
 
 const TASK_ID = "save_images";
 
@@ -39,20 +39,25 @@ export function saveImages(
       started = true;
     }
 
-    if (!("name" in result)) {
+    if (isProcessResult(result)) {
+      const updatedFormats: PipelineFormats = [];
+
       for (const format of result.result.formats) {
+        const relativeDir = config.flat ? "" : dirname(result.file) + "/";
+        const cleanRelativeDir = relativeDir[0] === "." ? relativeDir.substr(2) : relativeDir;
+
+        // Generate the filename from the save key
         const name =
           typeof format.saveKey === "string"
             ? interpolateName(
-                produce(format.data.metadata, (draft) => {
-                  draft.current.ext = formatToExt(format.data.metadata.current.format);
+                produce(format.data.metadata, ({ current }) => {
+                  current.ext = formatToExt(format.data.metadata.current.format);
+                  current.dir = cleanRelativeDir;
                 }),
                 format.saveKey
               )
             : basename(result.file);
 
-        const relativeDir = config.flat ? "" : dirname(result.file) + "/";
-        const cleanRelativeDir = relativeDir[0] === "." ? relativeDir.substr(2) : relativeDir;
         const relativePath = cleanRelativeDir + name;
         const writePath = output + relativePath;
         await promises.mkdir(dirname(writePath), { recursive: true });
@@ -72,7 +77,26 @@ export function saveImages(
         }
 
         await promises.writeFile(writePath, format.data.buffer);
+
+        // Update the metadata of formats for the manifest
+        updatedFormats.push(
+          produce(
+            format,
+            ({
+              data: {
+                metadata: { current },
+              },
+            }) => {
+              current.path = relativePath;
+            }
+          )
+        );
       }
+
+      // Return the process result with updated path metadata
+      return produce(result, (draft) => {
+        draft.result.formats = updatedFormats;
+      });
     }
 
     return result;
@@ -121,4 +145,14 @@ const EXTENSION_MAP: Record<string, string> = {
 
 function formatToExt(format: string): string {
   return EXTENSION_MAP[format] || "";
+}
+
+function isProcessResult(x: unknown): x is ProcessResult {
+  for (const prop of ["file", "root", "result"]) {
+    if (!(prop in (x as ProcessResult))) {
+      return false;
+    }
+  }
+
+  return true;
 }

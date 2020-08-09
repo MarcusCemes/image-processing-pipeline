@@ -70,14 +70,14 @@ export function processImages(
 
       try {
         const buffer = await promises.readFile(item.root + item.file);
-        const { name, ext } = parse(item.file);
+        const { base, ext, dir, name } = parse(item.file);
 
         const result = await executePipeline(pipeline, buffer, {
+          base,
           ext,
-          path: item.file,
+          dir,
           name,
-          sourceExt: ext,
-          sourcePath: item.file,
+          path: item.file,
         });
 
         ++completed;

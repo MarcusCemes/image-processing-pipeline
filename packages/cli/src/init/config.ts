@@ -11,6 +11,7 @@ import { bold, white } from "chalk";
 import { cosmiconfig } from "cosmiconfig";
 import { CliException, CliExceptionCode } from "../lib/exception";
 import configSchema from "../schema/config.json";
+import defaultConfig from "./default_config.json";
 
 const MODULE_NAME = "ipp";
 
@@ -24,15 +25,6 @@ export interface Config {
   manifest?: ManifestMappings;
 }
 
-// TODO
-// const defaultConfig: Partial<Config> = {
-// pipeline: [{
-//   pipe: "convert",
-
-// }]
-
-// }
-
 export async function getConfig(initial: Partial<Config>, path?: string): Promise<Config> {
   const config = await loadConfig(path);
   return validateConfig({ ...config, ...initial });
@@ -44,7 +36,11 @@ async function loadConfig(path?: string): Promise<Partial<Config>> {
     const configExplorer = cosmiconfig(MODULE_NAME);
     const explorerResult = await (path ? configExplorer.load(path) : configExplorer.search());
 
-    return explorerResult?.config || {};
+    if (!explorerResult?.config) {
+      return defaultConfig;
+    }
+
+    return explorerResult.config;
   } catch (err) {
     throw new CliException(
       "Configuration load failure",

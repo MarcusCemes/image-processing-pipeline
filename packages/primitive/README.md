@@ -102,16 +102,14 @@ output: folder/with/images
 # Remove this part to disable manifest generation
 manifest:
   source:
-    x: "hash:8"
-    n: name
     p: path
+    x: "hash:8"
   format:
     w: width
     h: height
-    x: "hash:8"
-    n: name
-    p: path
     f: format
+    p: path
+    x: "hash:8"
 
 # Here is where you customise the pipeline
 # This is what the default pipeline looks like

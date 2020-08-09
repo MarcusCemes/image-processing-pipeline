@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/common/src/schema/pipeline.json",
+  "$id": "https://ipp.vercel.app/schema/pipeline.json",
   "title": "Pipeline",
   "description": "The Pipeline object used by the Image Processing Pipeline",
 
