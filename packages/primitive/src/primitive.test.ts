@@ -36,6 +36,8 @@ describe("PrimitivePipe", () => {
   afterAll(() => execaMock.mockRestore());
   afterEach(() => execaMock.mockClear());
 
+  /* -- Tests -- */
+
   test("correctly attempts to call the executable", async () => {
     const result = PrimitivePipe(data);
 
@@ -58,8 +60,6 @@ describe("PrimitivePipe", () => {
     expect(parameters[1]).toContain("-");
     expect(data.buffer.compare(parameters[2].input)).toBe(0); // equal
   });
-
-  /* -- Tests -- */
 
   test("checks for supported formats", async () => {
     const formats: [string, boolean][] = [

@@ -40,6 +40,9 @@ export async function startCli(config: Config, options: CliOptions = {}): Promis
 
     ctx.interrupt.rejecter.catch(() => {
       ctx.state.update((state) => (state.stage = Stage.INTERRUPT));
+
+      // Unregister handler to allow force quitting
+      ctx.interrupt.destroy();
     });
 
     const paths = config.input instanceof Array ? config.input : [config.input];

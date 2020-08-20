@@ -14,7 +14,7 @@ module.exports = {
 
   collectCoverageFrom: ["packages/*/src/**/*.ts"],
 
-  testPathIgnorePatterns: ["node_modules", "packages/broker"],
+  testPathIgnorePatterns: ["node_modules"],
   coveragePathIgnorePatterns: ["node_modules", "index.ts"],
 
   globals: {

@@ -80,6 +80,7 @@ export function processImages(
           path: item.file,
         });
 
+        // TODO move completed / failed counters into the exception handler
         ++completed;
         return { ...item, result };
       } catch (err) {

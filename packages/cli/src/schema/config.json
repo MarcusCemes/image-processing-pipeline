@@ -16,7 +16,6 @@
     "pipeline": {
       "$ref": "https://ipp.vercel.app/schema/pipeline.json"
     },
-
     "concurrency": {
       "type": "number"
     },

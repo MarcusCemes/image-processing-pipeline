@@ -31,6 +31,7 @@ export function searchImages(
   const task = ctx.state.tasks.add(TASK_ID, Status.PENDING, "Searching for images");
 
   let count = 0;
+  let active = true;
 
   const interval = setInterval(() => {
     ctx.state.update((state) => {
@@ -43,21 +44,26 @@ export function searchImages(
     });
   }, INTERVAL);
 
+  const stop = () => {
+    if (active) {
+      active = false;
+      clearInterval(interval);
+      task.update(Status.COMPLETE, `Found ${count} images`);
+    }
+  };
+
+  ctx.interrupt.rejecter.catch(() => stop());
+
   const source = (async function* () {
     const increment = () => ++count;
 
-    try {
-      for (const path of paths) {
-        const pathResults = searchPath(path, increment);
-        for await (const result of pathResults) {
-          yield result;
-        }
+    for (const path of paths) {
+      const pathResults = searchPath(path, increment);
+      for await (const result of pathResults) {
+        yield result;
+
+        if (ctx.interrupt.rejected()) return;
       }
-      task.update(Status.COMPLETE, `Found ${count} images`);
-    } catch {
-      task.update(Status.ERROR, "Search interrupted");
-    } finally {
-      clearInterval(interval);
     }
   })();
 
@@ -65,6 +71,8 @@ export function searchImages(
     for await (const result of source) {
       yield result;
     }
+
+    stop();
   })();
 }
 

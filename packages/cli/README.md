@@ -50,7 +50,7 @@ Pipes are **simple asynchronous** functions that take a **source** image and out
 
 #### 🔖 Metadata
 
-Every image is accompanied by a **metadata** object, which is a collection of key-value pairs that describe the image. Pipes may modify an image#s metadata object, which can later be used to customise the output filename or to create an image **manifest** file.
+Every image is accompanied by a **metadata** object, which is a collection of key-value pairs that describe the image. Pipes may modify an image's metadata object, which can later be used to customise the output filename or to create an image **manifest** file.
 
 ### Features
 

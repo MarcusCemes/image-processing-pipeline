@@ -26,7 +26,7 @@ export enum PrimitiveMode {
   POLYGON = 8,
 }
 
-interface PrimitivePipeOptions {
+export interface PrimitivePipeOptions {
   number: number;
   mode: PrimitiveMode;
   alpha: number;
