@@ -19,9 +19,9 @@ jobs:
         uses: actions/setup-go@v2
 
       - name: Install dependencies
-        uses: bahmutov/npm-install@v1.1.0
+        run: npm ci
 
-      - name: Bootstrap repository
+      - name: Bootstrap packages
         run: npm run bootstrap
 
       - name: Build vendor libraries
