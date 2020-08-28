@@ -50,7 +50,7 @@ export async function startCli(config: Config, options: CliOptions = {}): Promis
     const results = processImages(ctx, config.pipeline, config.concurrency, images);
     const saves = saveImages(ctx, config, results);
     const exceptions = saveManifest(ctx, config, saves);
-    await writeExceptions(config, exceptions);
+    await writeExceptions(ctx, config, exceptions);
 
     ctx.state.update((state) => {
       if (state.stage === Stage.PROCESSING) {
@@ -80,6 +80,7 @@ function createContext(concurrency: number, version: string, uiOverride?: UI): C
 }
 
 async function writeExceptions(
+  ctx: CliContext,
   config: Config,
   exceptions: AsyncIterable<Exception>
 ): Promise<boolean> {
@@ -109,6 +110,10 @@ async function writeExceptions(
       (writeStream as NodeJS.WritableStream).write((firstResult ? "" : ",") + stringified, (err) =>
         err ? rej(err) : res()
       );
+    });
+
+    ctx.state.update((state) => {
+      ++state.stats.images.failed;
     });
   }
 

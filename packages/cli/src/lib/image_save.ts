@@ -78,6 +78,10 @@ export function saveImages(
 
         await promises.writeFile(writePath, format.data.buffer);
 
+        ctx.state.update((state) => {
+          ++state.stats.images.completed;
+        });
+
         // Update the metadata of formats for the manifest
         updatedFormats.push(
           produce(

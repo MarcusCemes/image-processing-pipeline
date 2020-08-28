@@ -17,7 +17,6 @@ import { SearchResult } from "./image_search";
 type Source = { root: string; file: string };
 export type ProcessResult = Source & { result: PipelineResult };
 
-const INTERVAL = 200;
 const TASK_ID = "image_process";
 
 export function processImages(
@@ -52,10 +51,7 @@ export function processImages(
     task.update(Status.COMPLETE, "Processed images");
   })();
 
-  let completed = 0;
-  let failed = 0;
-
-  const processResults = unorderedParallelMap<ProcessResult | Exception, Source | Exception>(
+  return unorderedParallelMap<ProcessResult | Exception, Source | Exception>(
     source,
     concurrency,
     async (item) => {
@@ -80,36 +76,13 @@ export function processImages(
           path: item.file,
         });
 
-        // TODO move completed / failed counters into the exception handler
-        ++completed;
         return { ...item, result };
       } catch (err) {
-        ++failed;
-
         if (isExceptionType<PipelineException>(err, PipelineException)) return err;
         throw err;
       }
     }
   );
-
-  const interval = setInterval(() => {
-    ctx.state.update((state) => {
-      state.stats.images.completed = completed;
-      state.stats.images.failed = failed;
-    });
-  }, INTERVAL);
-
-  return (async function* () {
-    for await (const result of processResults) {
-      yield result;
-    }
-
-    clearInterval(interval);
-    ctx.state.update((state) => {
-      state.stats.images.completed = completed;
-      state.stats.images.failed = failed;
-    });
-  })();
 }
 
 /** A fuzzy instanceof that uses the unique exception name, survives serialisation */

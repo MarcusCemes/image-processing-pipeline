@@ -6,7 +6,7 @@
  */
 
 import { ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
-import Ajv, { ErrorObject, AdditionalPropertiesParams, RequiredParams } from "ajv";
+import Ajv, { AdditionalPropertiesParams, ErrorObject, RequiredParams } from "ajv";
 import { bold, white } from "chalk";
 import { cosmiconfig } from "cosmiconfig";
 import { CliException, CliExceptionCode } from "../lib/exception";

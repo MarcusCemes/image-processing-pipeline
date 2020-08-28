@@ -41,5 +41,7 @@ builds.forEach((build) => {
     return;
   }
   console.log(`Building primitive executable for ${os} (${arch})`);
-  execSync(`env GOOS=${os} GOARCH=${arch} go build -o ${path} github.com/fogleman/primitive`);
+  execSync(`go build -o ${path} github.com/fogleman/primitive`, {
+    env: { ...process.env, GOOS: os, GOARCH: arch },
+  });
 });
