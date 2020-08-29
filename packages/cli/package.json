@@ -37,7 +37,7 @@
   "engines": {
     "node": ">=10.18"
   },
-  "homepage": "https://marcus-cemes.gitbook.io/image-processing-pipeline/",
+  "homepage": "https://ipp.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/MarcusCemes/image-processing-pipeline"

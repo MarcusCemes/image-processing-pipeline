@@ -35,7 +35,7 @@ enum File {
   README = "README.md",
 }
 
-describe("packages have the correct metadat", () => {
+describe("packages have the correct metadata", () => {
   const cwd = process.cwd();
 
   // Must be sync due to Jest limitation: https://github.com/facebook/jest/issues/2235
