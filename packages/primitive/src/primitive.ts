@@ -1,3 +1,10 @@
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import { Pipe, PipeException } from "@ipp/common";
 import execa from "execa";
 import { arch, platform } from "os";
@@ -19,11 +26,11 @@ export enum PrimitiveMode {
   POLYGON = 8,
 }
 
-interface PrimitivePipeOptions {
-  number?: number;
-  mode?: PrimitiveMode;
-  alpha?: number;
-  concurrency?: number;
+export interface PrimitivePipeOptions {
+  number: number;
+  mode: PrimitiveMode;
+  alpha: number;
+  concurrency: number;
 }
 
 const DEFAULT_OPTIONS: PrimitivePipeOptions = {
@@ -33,31 +40,41 @@ const DEFAULT_OPTIONS: PrimitivePipeOptions = {
   concurrency: 1,
 };
 
-export const PrimitivePipe: Pipe<PrimitivePipeOptions> = async (input, metadata, options?) => {
+/**
+ * A wrapper pipe around the primitive algorithm by Michael Fogleman. Generates
+ * an SVG vector image using geometric primitives. Not a deterministic algorithm.
+ *
+ * @author https://github.com/fogleman/primitive
+ */
+export const PrimitivePipe: Pipe<Partial<PrimitivePipeOptions>> = async (data, options) => {
   const parsedOptions: PrimitivePipeOptions = {
     ...DEFAULT_OPTIONS,
     ...(options || {}),
   };
 
-  if (SUPPORTED_FORMATS.indexOf(metadata.format) === -1)
-    throw new PipeException("Unsupported image format: " + metadata.format);
+  const format = data.metadata.current.format;
+  if (!SUPPORTED_FORMATS.includes(format))
+    throw new PipeException(`Unsupported image format: "${format}"`);
 
-  const flags = [];
+  const flags: string[] = [];
   flags.push("-i", "-");
   flags.push("-o", "-");
-  flags.push("-n", parsedOptions.number!.toString());
-  flags.push("-m", parsedOptions.mode!.toString());
-  flags.push("-a", parsedOptions.alpha!.toString());
-  flags.push("-j", parsedOptions.concurrency!.toString());
+  flags.push("-n", parsedOptions.number.toString());
+  flags.push("-m", parsedOptions.mode.toString());
+  flags.push("-a", parsedOptions.alpha.toString());
+  flags.push("-j", parsedOptions.concurrency.toString());
 
   const executable = getExecutable();
-  const { stdout } = await execa(executable, flags, { input });
+  const { stdout } = await execa(executable, flags, { input: data.buffer as Buffer });
 
   return {
-    output: Buffer.from(stdout),
+    buffer: Buffer.from(stdout),
     metadata: {
-      ...metadata,
-      format: "svg",
+      ...data.metadata,
+      current: {
+        ...data.metadata.current,
+        format: "svg",
+      },
     },
   };
 };

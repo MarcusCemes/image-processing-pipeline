@@ -1,44 +1,41 @@
-import { withTempDir } from "@ipp/testing";
-import { promises } from "fs";
-import { join } from "path";
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
-import { startCLI } from "./cli";
+import { PassThrough } from "stream";
+import { startCli } from "./cli";
+import { Config } from "./init/config";
+import { UI } from "./ui";
 
-const { writeFile } = promises;
+jest.mock("fs", () => ({
+  createReadStream: jest.fn(() => {
+    const stream = new PassThrough();
+    stream.end();
+    return stream;
+  }),
+  createWriteStream: jest.fn(() => new PassThrough()),
+  promises: {
+    readdir: jest.fn(async () => []),
+    stat: jest.fn(async () => ({ isFile: jest.fn(() => false), isDirectory: jest.fn(() => true) })),
+  },
+}));
+
+const mockUI: UI = jest.fn(() => ({ stop: jest.fn() }));
 
 describe("function startCLI()", () => {
-  const stdout = process.stdout.write;
-  const stderr = process.stdout.write;
-  const mock = jest.fn().mockImplementation(() => true);
+  const config: Config = {
+    input: "",
+    output: "",
+    concurrency: 4,
+    pipeline: [],
+  };
 
-  jest.setTimeout(30000);
+  afterEach(() => jest.clearAllMocks());
 
-  beforeAll(() => {
-    process.stdout.write = mock;
-    process.stderr.write = mock;
+  test("runs", async () => {
+    await expect(startCli(config, { ui: mockUI })).resolves.toBeUndefined();
   });
-
-  afterEach(() => {
-    mock.mockClear();
-  });
-
-  afterAll(() => {
-    process.stdout.write = stdout;
-    process.stderr.write = stderr;
-  });
-
-  test("should not throw", () =>
-    withTempDir(async (dir) => {
-      const configPath = join(dir, "config.json");
-      await writeFile(configPath, "{}");
-
-      const oldArgv = process.argv;
-      process.argv = oldArgv.slice();
-      process.argv.push("-c", `${configPath}`);
-
-      await expect(startCLI()).resolves.toBeUndefined();
-      expect(mock).toHaveBeenCalled();
-
-      process.argv = oldArgv;
-    }));
 });

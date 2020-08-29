@@ -1,31 +1,31 @@
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import { Exception, PipeException, PipelineException } from "./exception";
 
-it("exports an exception class", () => {
-  const randomMessage = Math.random().toString();
-  const exception = new Exception(randomMessage);
+describe.each(
+  [Exception, PipelineException, PipeException].map<[string, typeof Exception]>((e) => [e.name, e])
+)("class %s", (name, constructor) => {
+  test("creates a new instance", () => {
+    const exception = new constructor("msg");
 
-  expect(Exception).toBeDefined();
-  expect(exception).toBeInstanceOf(Error);
-  expect(exception.name).toBe(Exception.name);
-  expect(exception.message).toBe(randomMessage);
-});
+    expect(exception).toBeInstanceOf(constructor);
+    expect(exception).toBeInstanceOf(Error);
 
-it("exports a PipelineException class", () => {
-  const randomMessage = Math.random().toString();
-  const exception = new PipelineException(randomMessage);
+    expect(exception.name).toBe(name);
+    expect(exception.message).toBe("msg");
+  });
 
-  expect(PipelineException).toBeDefined();
-  expect(exception).toBeInstanceOf(Error);
-  expect(exception.name).toBe(PipelineException.name);
-  expect(exception.message).toBe(randomMessage);
-});
+  test("Extends a stack", () => {
+    const err = new Error();
 
-it("exports a PipeException class", () => {
-  const randomMessage = Math.random().toString();
-  const exception = new PipeException(randomMessage);
-
-  expect(PipeException).toBeDefined();
-  expect(exception).toBeInstanceOf(Error);
-  expect(exception.name).toBe(PipeException.name);
-  expect(exception.message).toBe(randomMessage);
+    [err, err.stack].forEach((stack) => {
+      const exception = new constructor("").extend(stack as Error | string);
+      expect(exception.stack).toBe(err.stack);
+    });
+  });
 });

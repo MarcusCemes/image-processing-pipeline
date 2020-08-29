@@ -1,3 +1,9 @@
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 type MockedChain<T extends Record<string, unknown>> = T & { [index: string]: () => MockedChain<T> };
 
 /**
@@ -16,4 +22,12 @@ export function chainMock<T extends Record<string, unknown>>(obj: T): MockedChai
       typeof target[prop] !== "undefined" ? target[prop] : () => proxy,
   });
   return proxy as MockedChain<T>;
+}
+
+/**
+ * Returns the first parameter T, but correctly typed to represent a generic Jest mock of
+ * a function of type T
+ */
+export function getMock<T extends () => any>(fn: T): jest.Mock<ReturnType<T>, Parameters<T>> {
+  return (fn as unknown) as jest.Mock<ReturnType<T>, Parameters<T>>;
 }

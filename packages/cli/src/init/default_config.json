@@ -1,0 +1,59 @@
+{
+  "$schema": "https://ipp.vercel.app/schema/config.json",
+  "manifest": {
+    "source": {
+      "p": "path",
+      "x": "hash:8"
+    },
+    "format": {
+      "w": "width",
+      "h": "height",
+      "f": "format",
+      "p": "path",
+      "x": "hash:8"
+    }
+  },
+  "pipeline": [
+    {
+      "pipe": "resize",
+      "options": {
+        "breakpoints": [
+          {
+            "name": "sm",
+            "resizeOptions": {
+              "width": 480
+            }
+          },
+          {
+            "name": "md",
+            "resizeOptions": {
+              "width": 720
+            }
+          },
+          {
+            "name": "lg",
+            "resizeOptions": {
+              "width": 1920
+            }
+          },
+          {
+            "name": "xl",
+            "resizeOptions": {
+              "width": 3840
+            }
+          }
+        ]
+      },
+      "save": "[name]-[breakpoint][ext]",
+      "then": [
+        {
+          "pipe": "convert",
+          "options": {
+            "format": "webp"
+          },
+          "save": "[name]-[breakpoint][ext]"
+        }
+      ]
+    }
+  ]
+}

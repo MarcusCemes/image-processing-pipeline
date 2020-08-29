@@ -1,14 +1,9 @@
-#!/usr/bin/env node
-import PrettyError from "pretty-error";
-
-import { startCLI } from "./cli";
-
-(async (): Promise<void> => {
-  try {
-    await startCLI();
-  } catch (err) {
-    process.stdout.write("  The program encountered an error:\n\n");
-    process.stdout.write(new PrettyError().setMaxItems(3).render(err));
-    process.exitCode = 1;
-  }
-})();
+/**
+ * Image Processing Pipeline - Copyright (c) Marcus Cemes
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+export { startCli } from "./cli";
+export { version } from "./constants";
+export { init } from "./init";
