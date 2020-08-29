@@ -28,7 +28,7 @@
 
 </div>
 
-> **Image Processing Pipeline** is a platform-agnostic  modular collection of packages that aims to glue together various image libraries into and configurable automated pipeline.
+> **Image Processing Pipeline** is a platform-agnostic modular collection of packages that aims to glue together various image libraries into and configurable automated pipeline.
 
 ### Philosophy
 
@@ -143,10 +143,10 @@ Check out the [website][link-website] for complete documentation on how to use I
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feat/AmazingFeatur`e)
+2. Create your Feature Branch (`git checkout -b feat/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feat/AmazingFeature`)
 5. Open a Pull Request
@@ -159,7 +159,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <br />
 <sub>Built with ❤︎ by Marcus Cemes</sub>
 </div>
-
 
 <!-- BADGES -->
 
@@ -175,5 +174,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 [link-node]: https://nodejs.org
 [link-typescript]: https://www.typescriptlang.org
 [link-coverage]: https://codecov.io/gh/MarcusCemes/image-processing-pipeline
-
 [link-website]: https://ipp.vercel.app
