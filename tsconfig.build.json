@@ -6,6 +6,7 @@
     { "path": "packages/compress/tsconfig.build.json" },
     { "path": "packages/core/tsconfig.build.json" },
     { "path": "packages/primitive/tsconfig.build.json" },
-    { "path": "packages/testing/tsconfig.build.json" }
+    { "path": "packages/testing/tsconfig.build.json" },
+    { "path": "packages/trace/tsconfig.build.json" }
   ]
 }

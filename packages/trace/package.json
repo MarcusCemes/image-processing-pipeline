@@ -1,0 +1,40 @@
+{
+  "name": "@ipp/trace",
+  "version": "1.0.0",
+  "description": "An image build orchestrator for the modern web",
+  "author": "Marcus Cemes",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "potrace": "^2.1.8"
+  },
+  "devDependencies": {
+    "@ipp/common": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=10.18"
+  },
+  "homepage": "https://ipp.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline"
+  },
+  "bugs": {
+    "url": "https://github.com/MarcusCemes/image-processing-pipeline/issues"
+  },
+  "keywords": [
+    "pipeline",
+    "responsive",
+    "libvips",
+    "webp",
+    "modern",
+    "frontend",
+    "cli",
+    "image",
+    "processing"
+  ]
+}
