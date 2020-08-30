@@ -1,6 +1,6 @@
 {
   "name": "@ipp/webpack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",

@@ -15,7 +15,7 @@ import { interpolateName } from "loader-utils";
 jest.mock("@ipp/core");
 jest.mock("loader-utils");
 
-describe.only("function runtime()", () => {
+describe("function runtime()", () => {
   const ctx = ({
     emitFile: jest.fn(),
     mode: "production",
@@ -23,7 +23,7 @@ describe.only("function runtime()", () => {
   } as unknown) as loader.LoaderContext;
 
   const buffer = randomBytes(8);
-  const initialMetadata = { originalPath: ctx.resourcePath };
+  const initialMetadata = { path: ctx.resourcePath };
   const sampleMeta = sampleMetadata(256, "jpeg");
   const metadata: Metadata = {
     ...sampleMeta,
@@ -170,6 +170,23 @@ describe.only("function runtime()", () => {
 
     await expect(result).resolves.toMatchObject<ManifestExport>({
       f: [{ f: "jpeg" }],
+    });
+  });
+
+  test("supports 'save' and 'path' manifest keys", async () => {
+    executePipelineMock.mockImplementation(async () => ({
+      ...coreResult,
+      formats: [{ ...format, saveKey: "abc" }],
+    }));
+
+    const result = runtime(
+      ctx,
+      { ...options, manifest: { format: { s: "save", p: "path" } } },
+      buffer
+    );
+
+    await expect(result).resolves.toMatchObject<ManifestExport>({
+      f: [{ s: "abc", p: expect.any(String) }],
     });
   });
 

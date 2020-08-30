@@ -39,15 +39,15 @@ export async function runtime(
   options: Options,
   source: Buffer
 ): Promise<SimpleExport | ManifestExport> {
-  const fullBuild = ctx.mode === "production" || options.devBuild;
+  const production = ctx.mode === "production" || options.devBuild;
 
   const result = await executePipeline(
-    fullBuild ? options.pipeline : ([{ pipe: "passthrough", save: true }] as Pipeline),
+    production ? options.pipeline : ([{ pipe: "passthrough", save: true }] as Pipeline),
     source,
-    { originalPath: ctx.resourcePath }
+    { path: ctx.resourcePath }
   );
 
-  const formats = result.formats.map((format) => {
+  const formats: FileFormat[] = result.formats.map((format) => {
     // Run the generate file through the webpack interpolateName() utility
     const filename = generateFilename(ctx, options, format.data.buffer);
 
@@ -55,13 +55,23 @@ export async function runtime(
     ctx.emitFile(join(options.outputPath || "./", filename), format.data.buffer, null);
     return {
       ...format,
-      metadata: { ...format.data.metadata, path: filename },
+      data: {
+        ...format.data,
+        metadata: {
+          ...format.data.metadata,
+          current: {
+            ...format.data.metadata.current,
+            path: filename,
+            save: format.saveKey,
+          },
+        },
+      },
       file: filename,
     };
   });
 
   return typeof options.manifest !== "undefined"
-    ? createManifestItem(result, options.manifest)
+    ? createManifestItem({ ...result, formats }, options.manifest)
     : {
         src: determineSrc(formats),
         srcset: generateMimeMap(formats),

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2020-08-30
+
+### Fixed
+
+- Metadata handling, adding of `path` and `save` keys, added failing test
+
 ## [1.0.0] - 2020-08-30
 
 First release of the @rib/webpack package
