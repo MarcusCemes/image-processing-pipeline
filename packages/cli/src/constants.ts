@@ -6,7 +6,7 @@
  */
 
 /** Keep synced with package.json */
-export const version = "1.1.0";
+export const version = "1.1.1";
 
 /** Keep synced with package.json */
 export const repository = "https://github.com/MarcusCemes/image-processing-pipeline";

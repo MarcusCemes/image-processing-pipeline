@@ -1,6 +1,6 @@
 {
   "name": "@ipp/cli",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -12,6 +12,9 @@
   "files": [
     "dist"
   ],
+  "scripts": {
+    "prepublishOnly": "crlf --set=LF dist/bin.js"
+  },
   "dependencies": {
     "@ipp/common": "^1.1.0",
     "@ipp/core": "^1.1.0",
@@ -32,7 +35,8 @@
   "devDependencies": {
     "@types/ink-spinner": "^3.0.0",
     "@types/react": "^16.9.48",
-    "@types/yargs": "^15.0.5"
+    "@types/yargs": "^15.0.5",
+    "crlf": "^1.1.1"
   },
   "engines": {
     "node": ">=10.18"
