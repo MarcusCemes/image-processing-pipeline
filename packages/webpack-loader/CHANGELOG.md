@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2020-09-03
+
+### Added
+
+- More available metadata, such as the path, extension, source directory, ...
+- Interpolates the save key and adds to metadata
+- ES module output support
+
+### Changed
+
+- Cleaned up webpack options
+- Updated tests
+
+### Fixed
+
+- Options JSON Schema
+
 ## [1.0.1] - 2020-08-30
 
 ### Fixed
