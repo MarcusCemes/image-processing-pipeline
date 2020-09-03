@@ -84,6 +84,19 @@ describe("function ippLoader()", () => {
     expect(() => ippLoader.bind(ctx)(source.toString(), void 0)).toThrowError(/buffer/);
   });
 
+  test("supports ES module exports", async () => {
+    getOptionsSpy.mockReturnValue({ esModule: true });
+
+    ippLoader.bind(ctx)(source, void 0);
+    await callbackCalled;
+
+    expect(callback).toHaveBeenCalledWith(
+      null,
+      `export default {"__runtimeExport":true};\n`,
+      void 0
+    );
+  });
+
   test("catches runtime errors", async () => {
     const error = new Error("__testError");
     runtimeSpy.mockRejectedValueOnce(error);

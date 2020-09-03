@@ -5,14 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { createManifestItem, ManifestItem, Metadata, Pipeline, PipelineFormat } from "@ipp/common";
+import {
+  createManifestItem,
+  ManifestItem,
+  mapMetadata,
+  Metadata,
+  Pipeline,
+  PipelineFormat,
+} from "@ipp/common";
 import { executePipeline } from "@ipp/core";
-import { interpolateName } from "loader-utils";
-import { join } from "path";
+import { parse } from "path";
 import { loader } from "webpack";
 import { Options } from "./options";
 
 const PREFERRED_SIZE = 1920;
+const EXPRESSION_BRACES = "[]";
+const EXPRESSION_MATCHER = /\[([a-zA-Z0-9:._-]+)\]/g;
 
 export interface SimpleExport {
   width?: number;
@@ -48,25 +56,37 @@ export async function runtime(
   );
 
   const formats: FileFormat[] = result.formats.map((format) => {
-    // Run the generate file through the webpack interpolateName() utility
-    const filename = generateFilename(ctx, options, format.data.buffer);
+    const ext = formatToExt(format.data.metadata.current.format);
 
-    // Register the generated file with webpack
-    ctx.emitFile(join(options.outputPath || "./", filename), format.data.buffer, null);
+    const parsedResourcePath = parse(ctx.resourcePath);
+    const extendedMeta: Metadata = {
+      ...format.data.metadata,
+      source: {
+        ...format.data.metadata.source,
+        name: parsedResourcePath.name,
+        base: parsedResourcePath.base,
+        dir: parsedResourcePath.dir,
+        ext: parsedResourcePath.ext,
+      },
+      current: {
+        ...format.data.metadata.current,
+        ext,
+      },
+    };
+
+    const path = interpolateName(extendedMeta, options.outputPath);
+
+    extendedMeta.current.save = interpolateName(extendedMeta, String(format.saveKey));
+    extendedMeta.current.path = path;
+
+    ctx.emitFile(path, format.data.buffer, null);
     return {
       ...format,
       data: {
         ...format.data,
-        metadata: {
-          ...format.data.metadata,
-          current: {
-            ...format.data.metadata.current,
-            path: filename,
-            save: format.saveKey,
-          },
-        },
+        metadata: extendedMeta,
       },
-      file: filename,
+      file: path,
     };
   });
 
@@ -143,15 +163,6 @@ function betterMetadata(reference: Metadata, candidate: Metadata): boolean {
   return Math.abs(PREFERRED_SIZE - candidateWidth) <= Math.abs(PREFERRED_SIZE - referenceWidth);
 }
 
-/** Generates the resulting filename using webpack's loader utilities */
-function generateFilename(ctx: loader.LoaderContext, options: Options, source: Buffer) {
-  return interpolateName(ctx, options.name, {
-    context: options.context || ctx.rootContext,
-    content: source,
-    regExp: options.regExp,
-  });
-}
-
 const MIME_MAP: { [index: string]: string } = {
   jpeg: "image/jpeg",
   png: "image/png",
@@ -163,4 +174,39 @@ const MIME_MAP: { [index: string]: string } = {
 /** A simple extension to MIME converter */
 function formatToMime(format: string): string {
   return MIME_MAP[format] || "application/octet-stream";
+}
+
+/** Generates the interpolated name for the save key */
+function interpolateName(metadata: Metadata, name: string): string {
+  const expressions: Record<string, string> = {};
+
+  // Extract all template expressions into a object
+  let match: RegExpExecArray | null;
+  while ((match = EXPRESSION_MATCHER.exec(name)) !== null) {
+    expressions[match[1]] = match[1];
+  }
+
+  const mappedExpressions = mapMetadata(metadata, expressions);
+
+  // Replace each expression with its mapped value
+  let newName = name;
+  const [l, r] = EXPRESSION_BRACES;
+  for (const [key, value] of Object.entries(mappedExpressions)) {
+    newName = newName.replace(new RegExp(`\\${l}${key}\\${r}`, "g"), String(value));
+  }
+
+  return newName;
+}
+
+const EXTENSION_MAP: Record<string, string> = {
+  jpeg: ".jpg",
+  png: ".png",
+  webp: ".webp",
+  svg: ".svg",
+  tiff: ".tiff",
+  gif: ".gif",
+};
+
+function formatToExt(format: string): string {
+  return EXTENSION_MAP[format] || "";
 }

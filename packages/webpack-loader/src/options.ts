@@ -11,15 +11,14 @@ import { Schema } from "schema-utils/declarations/validate";
 import { IppError } from "./error";
 
 interface BasicWebpackOptions {
-  context?: string;
-  name: string;
-  outputPath?: string;
-  regExp?: RegExp;
+  outputPath: string;
 }
 
 export interface Options extends BasicWebpackOptions {
   devBuild: boolean;
   manifest?: ManifestMappings;
+  esModule: boolean;
+  outputPath: string;
   pipeline: Pipeline;
 }
 
@@ -28,15 +27,11 @@ const SCHEMA: Schema = {
   type: "object",
   required: ["pipeline"],
   properties: {
-    context: {
-      type: "string",
-    },
     devBuild: {
       type: "boolean",
     },
     manifest: {
       type: "object",
-      required: ["source", "format"],
       properties: {
         source: {
           type: "object",
@@ -56,26 +51,22 @@ const SCHEMA: Schema = {
         },
       },
     },
-    name: {
-      type: "string",
+    module: {
+      type: "boolean",
     },
     outputPath: {
       type: "string",
     },
     pipeline: {
-      $schema:
-        "https://raw.githubusercontent.com/MarcusCemes/image-processing-pipeline/master/packages/common/src/schema/pipeline.json",
-    },
-    regExp: {
-      type: "object",
+      $ref: "https://ipp.vercel.app/schema/pipeline.json",
     },
   },
 };
 
 const DEFAULT_OPTIONS: Partial<Options> = {
   devBuild: false,
-  name: "[contenthash].[ext]",
-  outputPath: "./",
+  esModule: false,
+  outputPath: "[hash:16][ext]",
 };
 
 export function checkOptions(options: Partial<Options>): Options {

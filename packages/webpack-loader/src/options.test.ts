@@ -14,12 +14,10 @@ describe("function checkOptions()", () => {
 
   test("accepts more complex options", () => {
     const options: Options = {
-      name: "test",
       outputPath: "path",
       devBuild: true,
-      regExp: /regex/,
-      context: "some_context",
       pipeline: [],
+      esModule: false,
       manifest: { source: {}, format: {} },
     };
     expect(checkOptions(options)).toMatchObject(options);

@@ -33,8 +33,9 @@ describe("function runtime()", () => {
   const source: DataObject = { buffer, metadata };
 
   const options = {
+    esModule: false,
     devBuild: false,
-    name: "ipp_test",
+    outputPath: "[hash:16][ext]",
     pipeline: [],
     manifest: { source: { w: "width" }, format: { w: "width" } },
   };
@@ -110,11 +111,15 @@ describe("function runtime()", () => {
   });
 
   test("supports simple mode", async () => {
-    const result = runtime(ctx, { ...options, manifest: void 0 }, buffer);
+    const result = runtime(
+      ctx,
+      { ...options, manifest: void 0, outputPath: "[width][ext]" },
+      buffer
+    );
 
     await expect(result).resolves.toMatchObject<SimpleExport>({
       srcset: {
-        "image/jpeg": "image-1 128w",
+        "image/jpeg": "128.jpg 128w",
       },
       width: metadata.current.width,
       height: metadata.current.height,
@@ -139,7 +144,7 @@ describe("function runtime()", () => {
     }));
 
     // construct srcset properties
-    const expectedSrcset = targets.map(([size, format], i) => [`image-${i + 1} ${size}w`, format]);
+    const expectedSrcset = targets.map(([size, format]) => [`${format}-${size} ${size}w`, format]);
     const getSrcset = (format: string) =>
       expectedSrcset
         .filter((x) => x[1] === format)
@@ -147,10 +152,14 @@ describe("function runtime()", () => {
         .join(", ");
 
     executePipelineMock.mockImplementationOnce(async () => ({ ...coreResult, source, formats }));
-    const result = runtime(ctx, { ...options, manifest: void 0 }, buffer);
+    const result = runtime(
+      ctx,
+      { ...options, outputPath: "[format]-[width]", manifest: void 0 },
+      buffer
+    );
 
     await expect(result).resolves.toMatchObject<SimpleExport>({
-      src: "image-5",
+      src: "jpeg-512",
       srcset: {
         "image/jpeg": getSrcset("jpeg"),
         "image/webp": getSrcset("webp"),
