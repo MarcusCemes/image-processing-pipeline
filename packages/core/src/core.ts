@@ -18,10 +18,16 @@ import {
   PipelineResult,
   PrimitiveValue,
 } from "@ipp/common";
+import { Mutex } from "async-mutex";
 import { produce } from "immer";
 import sharp from "sharp";
 import { hash } from "./hash";
 import { PIPES } from "./pipes";
+
+interface CoreOptions {
+  /** Parallelise pipe operations, otherwise limited to one pipe operation at a time (default: false) */
+  parallel?: boolean;
+}
 
 /**
  * Takes an input buffer and pipeline schema, and runs the buffer recursively
@@ -34,8 +40,11 @@ import { PIPES } from "./pipes";
 export async function executePipeline(
   pipeline: Pipeline,
   source: Buffer,
-  sourceMetadata: MetadataFragment = {}
+  sourceMetadata: MetadataFragment = {},
+  options: CoreOptions = {}
 ): Promise<PipelineResult> {
+  const { parallel = false } = options;
+
   const generatedMetadata = await generateMetadata(source);
   const fragment = {
     ...generatedMetadata,
@@ -47,9 +56,10 @@ export async function executePipeline(
     source: fragment,
   };
 
+  const mutex = parallel ? void 0 : new Mutex();
   const dataObject: DataObject = { buffer: source, metadata };
 
-  const formats = await processPipeline(pipeline, dataObject);
+  const formats = await processPipeline(pipeline, dataObject, mutex);
 
   return {
     source: dataObject,
@@ -61,13 +71,14 @@ export async function executePipeline(
  * Runs the data object through a pipeline, yielding a collection of pipeline results */
 async function processPipeline(
   pipeline: Pipeline,
-  formats: DataObject | DataObject[]
+  formats: DataObject | DataObject[],
+  mutex?: Mutex
 ): Promise<PipelineFormats> {
   const groupedFormats: Promise<PipelineFormats>[] = [];
 
   for (const format of wrapInArray(formats)) {
     for (const branch of pipeline) {
-      groupedFormats.push(processBranch(branch, format));
+      groupedFormats.push(processBranch(branch, format, mutex));
     }
   }
 
@@ -76,12 +87,16 @@ async function processPipeline(
 }
 
 /** Runs the data object through a pipeline branch, processing any remaining pipelines */
-async function processBranch(branch: PipelineBranch, data: DataObject): Promise<PipelineFormats> {
+async function processBranch(
+  branch: PipelineBranch,
+  data: DataObject,
+  mutex?: Mutex
+): Promise<PipelineFormats> {
   const groupedFormats: PipelineFormats = [];
 
   // Generate the pipe result for the head of the branch
   const { pipe, name } = await resolvePipe(branch.pipe);
-  const pipeResults = await processPipe(pipe, data, name, branch.options);
+  const pipeResults = await processPipe(pipe, data, name, branch.options, mutex);
 
   if (branch.save) {
     const pipeFormats = wrapInArray(pipeResults).map((data) => ({
@@ -93,7 +108,7 @@ async function processBranch(branch: PipelineBranch, data: DataObject): Promise<
 
   // Pass it to a subsequent pipeline
   if (branch.then) {
-    groupedFormats.push(...(await processPipeline(branch.then, pipeResults)));
+    groupedFormats.push(...(await processPipeline(branch.then, pipeResults, mutex)));
   }
 
   return groupedFormats;
@@ -104,8 +119,10 @@ async function processPipe(
   pipe: Pipe,
   data: DataObject,
   name: string,
-  options?: any
+  options?: any,
+  mutex?: Mutex
 ): Promise<DataObject | DataObject[]> {
+  const release = mutex && (await mutex.acquire());
   try {
     const result = await pipe(data, options);
 
@@ -118,6 +135,8 @@ async function processPipe(
     return updateHash(result);
   } catch (err) {
     throw new PipelineException(`[${name}] ${err.message}`);
+  } finally {
+    if (release) release();
   }
 }
 

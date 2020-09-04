@@ -1,6 +1,6 @@
 {
   "name": "@ipp/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -11,6 +11,7 @@
   ],
   "dependencies": {
     "@ipp/common": "^1.1.0",
+    "async-mutex": "^0.2.4",
     "immer": "^7.0.8",
     "sharp": "^0.26.0"
   },
