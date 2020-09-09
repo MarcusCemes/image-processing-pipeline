@@ -1,17 +1,17 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: "[BUG]"
-labels: ''
-assignees: MarcusCemes
-
+name: 🐛 Bug report
+about: Found something that isn't right?
+labels: "bug"
 ---
+
+<!-- Replace and complete the sections below -->
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**Steps to reproduce**
 Steps to reproduce the behaviour:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -21,11 +21,13 @@ Steps to reproduce the behaviour:
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If it helps, include a screenshot or some output to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Linux]
- - Version [e.g. 3.0.0]
+**System information:**
+
+- OS: [e.g. Windows/macOS/Linux]
+- Node version: [e.g. v14.0.0]
+- IPP version: (CLI/core/...)
 
 **Additional context**
-Add any other context about the problem here.
+Anything else that you think could be useful.
