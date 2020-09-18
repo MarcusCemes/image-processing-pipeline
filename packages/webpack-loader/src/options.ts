@@ -10,11 +10,7 @@ import Ajv from "ajv";
 import { Schema } from "schema-utils/declarations/validate";
 import { IppError } from "./error";
 
-interface BasicWebpackOptions {
-  outputPath: string;
-}
-
-export interface Options extends BasicWebpackOptions {
+export interface Options {
   devBuild: boolean;
   manifest?: ManifestMappings;
   esModule: boolean;

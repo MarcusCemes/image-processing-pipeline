@@ -1,6 +1,6 @@
 {
   "name": "@ipp/webpack",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -11,15 +11,15 @@
   ],
   "dependencies": {
     "@ipp/common": "^1.1.0",
-    "@ipp/core": "^1.1.0",
-    "ajv": "^6.12.4",
+    "@ipp/core": "^1.1.1",
+    "ajv": "^6.12.5",
     "loader-utils": "^2.0.0",
-    "schema-utils": "^2.7.0"
+    "schema-utils": "^2.7.1"
   },
   "devDependencies": {
     "@ipp/testing": "^1.0.1",
     "@types/loader-utils": "^2.0.1",
-    "@types/webpack": "^4.41.21"
+    "@types/webpack": "^4.41.22"
   },
   "engines": {
     "node": ">=10.18"
