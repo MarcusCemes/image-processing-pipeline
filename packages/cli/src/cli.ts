@@ -6,7 +6,8 @@
  */
 
 import { Exception } from "@ipp/common";
-import { createWriteStream } from "fs";
+import { W_OK } from "constants";
+import { createWriteStream, promises } from "fs";
 import { join } from "path";
 import { version } from "./constants";
 import { Config } from "./init/config";
@@ -44,6 +45,8 @@ export async function startCli(config: Config, options: CliOptions = {}): Promis
       // Unregister handler to allow force quitting
       ctx.interrupt.destroy();
     });
+
+    await ensureOutputPath(config.output);
 
     const paths = config.input instanceof Array ? config.input : [config.input];
     const images = searchImages(ctx, paths);
@@ -124,4 +127,12 @@ async function writeExceptions(
   }
 
   return false;
+}
+
+async function ensureOutputPath(path: string): Promise<void> {
+  try {
+    await promises.access(path, W_OK);
+  } catch (err) {
+    await promises.mkdir(path);
+  }
 }

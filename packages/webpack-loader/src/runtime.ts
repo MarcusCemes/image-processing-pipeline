@@ -75,9 +75,12 @@ export async function runtime(
     };
 
     const path = interpolateName(extendedMeta, options.outputPath);
-
-    extendedMeta.current.save = interpolateName(extendedMeta, String(format.saveKey));
     extendedMeta.current.path = path;
+
+    extendedMeta.current.save =
+      typeof format.saveKey === "string"
+        ? interpolateName(extendedMeta, String(format.saveKey))
+        : format.saveKey;
 
     ctx.emitFile(path, format.data.buffer, null);
     return {
