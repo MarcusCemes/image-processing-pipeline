@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 /**
  * Image Processing Pipeline - Copyright (c) Marcus Cemes
  *
@@ -9,23 +8,25 @@
 
 import { fork } from "child_process";
 import { cpus, platform } from "os";
-import { argv, env, on } from "process";
+import { argv, env, on, stdout } from "process";
 import { DEFAULT_LIBUV_THREADPOOL } from "./constants";
 
 /** Environmental variable entry that signifies that process has already been forked */
 const FORKED_VARIABLE = "IPP_FORKED";
-
-const BYPASS_VARIABLE = "NO_FORK";
-
+const BYPASS_VARIABLE = "IPP_NO_FORK";
 const CONCURRENCY_FLAGS = ["-c", "--concurrency"];
+
+const RETURN = "\r";
+const CLEAR = "\u001b[K";
 
 export async function main(): Promise<void> {
   // Prevent the script from running during testing
   if (typeof env.ALLOW_BIN === "undefined" && env.NODE_ENV === "test") return;
 
   const concurrency = elevateUvThreads();
-  if (concurrency) {
-    (await import("./init")).init(concurrency);
+
+  if (concurrency !== false) {
+    await start(concurrency);
   }
 }
 
@@ -72,6 +73,16 @@ function elevateUvThreads(): number | false {
   }
 
   return uvThreads;
+}
+
+async function start(concurrency: number): Promise<void> {
+  stdout.write("Just a moment...");
+
+  const { init } = await import("./init");
+
+  stdout.write(RETURN + CLEAR);
+
+  await init(concurrency);
 }
 
 function parseConcurrency(): number | null {

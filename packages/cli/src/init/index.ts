@@ -8,25 +8,24 @@
 import { grey, red } from "chalk";
 import { Config } from "cosmiconfig/dist/types";
 import { stdout } from "process";
-import { CliOptions, startCli } from "../cli";
-import { repositoryShort } from "../constants";
+import { startCli } from "../cli";
+import { REPOSITORY_SHORT } from "../constants";
 import { CliException } from "../lib/exception";
 import { BULLET, pad, prettifyError } from "../lib/utils";
-import { TextUi } from "../ui/text";
+import { TextUi } from "../ui";
 import { Args, parseArgs, validateArgs } from "./args";
 import { getConfig } from "./config";
 
 export async function init(concurrency: number): Promise<void> {
   try {
     const { args, config } = await load(concurrency);
-    const options: CliOptions = {};
 
-    if (args.text) options.ui = TextUi;
+    const ui = args.text ? TextUi : void 0;
 
-    await startCli(config, options);
+    await startCli(config, ui);
   } catch (err) {
     stdout.write(err instanceof Array ? err.map(formatError).join("") : formatError(err));
-    stdout.write("\n" + pad(grey("Learn more at " + repositoryShort)) + "\n\n");
+    stdout.write("\n" + pad(grey("Learn more at " + REPOSITORY_SHORT)) + "\n\n");
     process.exitCode = 1;
   }
 }

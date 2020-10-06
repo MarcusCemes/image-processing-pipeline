@@ -5,128 +5,91 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Exception } from "@ipp/common";
 import { W_OK } from "constants";
-import { createWriteStream, promises } from "fs";
-import { join } from "path";
-import { version } from "./constants";
+import { promises } from "fs";
+import { resolve } from "path";
+import { VERSION } from "./constants";
 import { Config } from "./init/config";
-import { CliException } from "./lib/exception";
-import { processImages } from "./lib/image_process";
-import { saveImages } from "./lib/image_save";
-import { searchImages } from "./lib/image_search";
-import { createInterruptHandler, InterruptHandler } from "./lib/interrupt";
-import { saveManifest } from "./lib/manifest";
-import { createState, Stage, StateContext } from "./model/state";
-import { UI, UiInstance } from "./ui";
-import { TerminalUi } from "./ui/";
+import { createContext } from "./lib/context";
+import { InterruptHandler } from "./lib/interrupt";
+import { StateContext, Status } from "./lib/state";
+import { passthrough } from "./lib/stream/operators/passthrough";
+import { toPromise } from "./lib/stream/operators/to_promise";
+import { completedCounter, exceptionCounter, sourceCounter } from "./operators/counters";
+import { saveExceptions } from "./operators/exceptions";
+import { saveManifest } from "./operators/manifest";
+import { processImages } from "./operators/process";
+import { saveImages } from "./operators/save";
+import { searchForImages } from "./operators/search";
+import { DynamicUI, UI, UiInstance as UIInstance } from "./ui";
 
-const DEFAULT_UI = TerminalUi;
-
-export interface CliOptions {
-  ui?: UI;
-}
+const ERROR_FILE = "errors.json";
+const MANIFEST_FILE = "manifest.json";
 
 export interface CliContext {
   interrupt: InterruptHandler;
-  ui: UiInstance;
+  ui: UIInstance;
   state: StateContext;
 }
 
-export async function startCli(config: Config, options: CliOptions = {}): Promise<void> {
-  const ctx = createContext(config.concurrency, version, options.ui);
+export async function startCli(config: Config, ui: UI = DynamicUI): Promise<void> {
+  return withCliContext(config.concurrency, !!config.manifest, VERSION, ui, async (ctx) => {
+    try {
+      // Unregister handler to allow force quitting
+      ctx.interrupt.rejecter.catch(() => {
+        ctx.interrupt.destroy();
+        setStatus(ctx, Status.INTERRUPT);
+      });
+
+      await ensureOutputPath(config.output);
+      setStatus(ctx, Status.PROCESSING);
+
+      await createPipeline(ctx, config, MANIFEST_FILE, ERROR_FILE).pipe(toPromise());
+
+      setStatus(ctx, Status.COMPLETE);
+    } catch (err) {
+      setStatus(ctx, Status.ERROR);
+      throw err;
+    }
+  });
+}
+
+async function withCliContext(
+  concurrency: number,
+  manifest: boolean,
+  version: string,
+  ui: UI,
+  fn: (ctx: CliContext) => void | Promise<void>
+) {
+  const ctx = createContext(concurrency, manifest, version, ui);
 
   try {
-    ctx.state.update((state) => (state.stage = Stage.PROCESSING));
-
-    ctx.interrupt.rejecter.catch(() => {
-      ctx.state.update((state) => (state.stage = Stage.INTERRUPT));
-
-      // Unregister handler to allow force quitting
-      ctx.interrupt.destroy();
-    });
-
-    await ensureOutputPath(config.output);
-
-    const paths = config.input instanceof Array ? config.input : [config.input];
-    const images = searchImages(ctx, paths);
-    const results = processImages(ctx, config.pipeline, config.concurrency, images);
-    const saves = saveImages(ctx, config, results);
-    const exceptions = saveManifest(ctx, config, saves);
-    await writeExceptions(ctx, config, exceptions);
-
-    ctx.state.update((state) => {
-      if (state.stage === Stage.PROCESSING) {
-        state.stage = Stage.DONE;
-      }
-    });
-  } catch (err) {
-    ctx.state.update((state) => {
-      state.stage = Stage.ERROR;
-      state.message = `Error: ${err.message || "<no message>"}`;
-    });
-
-    throw err;
+    await fn(ctx);
   } finally {
-    ctx.state.complete();
-    await ctx.ui.stop();
+    await ctx.ui.stop(ctx.state.complete());
     ctx.interrupt.destroy();
   }
 }
 
-function createContext(concurrency: number, version: string, uiOverride?: UI): CliContext {
-  const interrupt = createInterruptHandler();
-  const state = createState(concurrency);
-  const uiContext = (uiOverride || DEFAULT_UI)({ concurrency, version, state: state.observable });
+function createPipeline(ctx: CliContext, config: Config, manifestFile: string, errorFile: string) {
+  const paths = typeof config.input === "string" ? [config.input] : config.input;
 
-  return { interrupt, ui: uiContext, state };
+  return searchForImages(paths)
+    .pipe(sourceCounter(ctx))
+    .pipe(processImages(config.pipeline, config.concurrency))
+    .pipe(completedCounter(ctx))
+    .pipe(saveImages(config.output))
+    .pipe(
+      config.manifest
+        ? saveManifest(resolve(config.output, manifestFile), config.manifest)
+        : passthrough()
+    )
+    .pipe(exceptionCounter(ctx))
+    .pipe(saveExceptions(resolve(config.output, errorFile)));
 }
 
-async function writeExceptions(
-  ctx: CliContext,
-  config: Config,
-  exceptions: AsyncIterable<Exception>
-): Promise<boolean> {
-  let writeStream: NodeJS.WritableStream | null = null;
-
-  for await (const exception of exceptions) {
-    const firstResult = writeStream === null;
-
-    if (firstResult) {
-      writeStream = createWriteStream(join(config.output, "errors.json"));
-      writeStream.write("[");
-    }
-
-    const stringified = JSON.stringify({
-      name: exception.name,
-      message: exception.message,
-      ...(exception instanceof CliException
-        ? {
-            code: exception.code,
-            title: exception.title,
-            comment: exception.comment,
-          }
-        : {}),
-    });
-
-    await new Promise<undefined>((res, rej) => {
-      (writeStream as NodeJS.WritableStream).write((firstResult ? "" : ",") + stringified, (err) =>
-        err ? rej(err) : res()
-      );
-    });
-
-    ctx.state.update((state) => {
-      ++state.stats.images.failed;
-    });
-  }
-
-  if (writeStream !== null) {
-    writeStream.write("]");
-    writeStream.end();
-    return true;
-  }
-
-  return false;
+function setStatus(ctx: CliContext, status: Status) {
+  ctx.state.update((state) => (state.status = status));
 }
 
 async function ensureOutputPath(path: string): Promise<void> {

@@ -24,18 +24,19 @@
     "denque": "^1.4.1",
     "figures": "^3.2.0",
     "immer": "^7.0.9",
-    "ink": "^3.0.5",
+    "ink": "^3.0.7",
     "ink-spinner": "^4.0.1",
     "leven": "^3.1.0",
     "pretty-error": "^2.1.1",
     "react": "^16.13.1",
     "rxjs": "^6.6.3",
+    "rxjs-hooks": "^0.6.2",
     "yargs": "^16.0.3"
   },
   "devDependencies": {
     "@types/ink-spinner": "^3.0.0",
-    "@types/react": "^16.9.49",
-    "@types/yargs": "^15.0.5",
+    "@types/react": "^16.9.51",
+    "@types/yargs": "^15.0.7",
     "crlf": "^1.1.1"
   },
   "engines": {

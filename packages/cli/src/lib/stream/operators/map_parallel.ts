@@ -11,7 +11,8 @@ import { createObjectStream, Operator } from "../object_stream";
 
 export function mapParallel<I, O>(
   concurrency: number,
-  fn: (item: I) => null | O | Promise<null | O | O[]>
+  fn: (item: I) => null | O | Promise<null | O | O[]>,
+  complete?: () => void | Promise<void>
 ): Operator<I, O> {
   return (source) =>
     createObjectStream(
@@ -59,6 +60,8 @@ export function mapParallel<I, O>(
             yield output.shift() as O;
           }
         }
+
+        if (complete) await complete();
       })()
     );
 }

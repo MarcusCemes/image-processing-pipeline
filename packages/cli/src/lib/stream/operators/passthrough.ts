@@ -5,4 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export * from "./state";
+import { createObjectStream, Operator } from "../object_stream";
+
+export function passthrough<T>(): Operator<T, T> {
+  return (source) => createObjectStream(source);
+}

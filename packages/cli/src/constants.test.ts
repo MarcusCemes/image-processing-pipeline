@@ -6,8 +6,8 @@
  */
 
 import { promises } from "fs";
-import { repository, version } from "./constants";
 import { join } from "path";
+import { REPOSITORY, VERSION } from "./constants";
 
 describe("constants", () => {
   let packageJson: any;
@@ -19,10 +19,10 @@ describe("constants", () => {
   });
 
   test("version matches package.json", () => {
-    expect(version).toBe(packageJson.version);
+    expect(VERSION).toBe(packageJson.version);
   });
 
   test("repository matches package.json", () => {
-    expect(repository).toBe(packageJson.repository?.url || packageJson.repository);
+    expect(REPOSITORY).toBe(packageJson.repository?.url || packageJson.repository);
   });
 });

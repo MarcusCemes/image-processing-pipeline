@@ -7,7 +7,10 @@
 
 import { createObjectStream, Operator } from "../object_stream";
 
-export function map<I, O>(fn: (item: I) => O | null | Promise<O | null | O[]>): Operator<I, O> {
+export function map<I, O>(
+  fn: (item: I) => O | null | Promise<O | null | O[]>,
+  complete?: () => void | Promise<void>
+): Operator<I, O> {
   return (source) =>
     createObjectStream(
       (async function* () {
@@ -22,6 +25,8 @@ export function map<I, O>(fn: (item: I) => O | null | Promise<O | null | O[]>): 
             yield results;
           }
         }
+
+        if (complete) await complete();
       })()
     );
 }
