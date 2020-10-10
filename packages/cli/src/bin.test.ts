@@ -9,10 +9,8 @@ import { fork } from "child_process";
 import { platform } from "os";
 import { env, on } from "process";
 import { main } from "./bin";
+import { BYPASS_VARIABLE, FORKED_VARIABLE } from "./constants";
 import { init } from "./init";
-
-const FORKED_VARIABLE = "IPP_FORKED";
-const BYPASS_VARIABLE = "NO_FORK";
 
 jest.mock("./init", () => ({ init: jest.fn() }));
 
@@ -25,6 +23,9 @@ jest.mock("process", () => ({
   env: { NODE_ENV: "test" },
   argv: ["ipp"],
   on: jest.fn(),
+  stdout: {
+    write: jest.fn(),
+  },
 }));
 
 jest.mock("child_process", () => ({ fork: jest.fn() }));
@@ -59,26 +60,7 @@ describe("bin entry script", () => {
     });
   });
 
-  describe("respects the IPP_FORKED env variable", () => {
-    afterEach(() => jest.clearAllMocks());
-
-    test.each([void 0, "1"])("when it is %s", async (value) => {
-      (platform as jest.MockedFunction<typeof platform>).mockReturnValue("win32");
-      env[FORKED_VARIABLE] = value;
-
-      await expect(main()).resolves.toBeUndefined();
-
-      if (value) {
-        expect(fork).not.toHaveBeenCalled();
-      } else {
-        expect(fork).toHaveBeenCalled();
-      }
-
-      delete env[FORKED_VARIABLE];
-    });
-  });
-
-  describe("respects the ", () => {
+  describe(`respects the`, () => {
     afterEach(() => jest.clearAllMocks());
 
     describe.each([FORKED_VARIABLE, BYPASS_VARIABLE])("%s env variable", (variable) => {

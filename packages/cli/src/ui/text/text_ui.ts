@@ -5,101 +5,94 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { cyan, greenBright, redBright, whiteBright } from "chalk";
 import { stdout } from "process";
-import { Observable } from "rxjs";
-import { distinctUntilChanged, last, throttleTime } from "rxjs/operators";
-import { Stage, State } from "../../model/state";
+import { Subscription } from "rxjs";
+import { debounceTime, distinctUntilChanged, map } from "rxjs/operators";
+import { REPOSITORY_SHORT, VERSION } from "../../constants";
+import { State, StateObservable, Status } from "../../lib/state";
 import { UI } from "../ui";
+
+type StateFunction = (observable: StateObservable) => Subscription;
 
 const INTERVAL = 1000;
 
-function write(text: string) {
-  stdout.write(text);
-}
+const concurrency: StateFunction = (obs) =>
+  obs
+    .pipe(
+      map(({ concurrency }) => concurrency),
+      distinctUntilChanged()
+    )
+    .subscribe((value) => {
+      line(`> Concurrency change: ${value}`, cyan);
+    });
 
-function progressUpdate(total: number, completed: number, failed: number): void {
-  const text = [
-    total.toString().padStart(4),
-    completed.toString().padStart(4),
-    failed.toString().padStart(4),
-  ].join(" | ");
+const status: StateFunction = (obs) =>
+  obs
+    .pipe(
+      map(({ status }) => status),
+      distinctUntilChanged()
+    )
+    .subscribe((value) => {
+      line(`> Status change: ${parseStatus(value)}`, cyan);
+    });
 
-  write(`| ${text} |\n`);
-}
+const stats: StateFunction = (obs) =>
+  obs
+    .pipe(
+      map(({ images }) => [images.found, images.completed, images.failed]),
+      debounceTime(INTERVAL),
+      distinctUntilChanged((p, c) => c.every((v, i) => v === p[i]))
+    )
+    .subscribe((stats) => {
+      line(`| ${stats.map((x) => pad(x)).join(" | ")} |`);
+    });
+
+const STATE_FUNCTIONS: StateFunction[] = [concurrency, status, stats];
 
 export const TextUi: UI = (ctx) => {
-  write(`Image Processing Pipeline\nVersion ${ctx.version}\nConcurrency: ${ctx.concurrency}\n\n`);
+  line("Image Processing Pipeline", whiteBright);
+  line(`${REPOSITORY_SHORT} - v${VERSION}\n`, whiteBright);
+  line("| Total | Completed | Failed |");
 
-  const unsubscribe = textUpdates(ctx.state);
+  const subscriptions = STATE_FUNCTIONS.map((sub) => sub(ctx.state));
 
   return {
-    stop: unsubscribe,
+    stop: (state) => {
+      for (const sub of subscriptions) sub.unsubscribe();
+      printSummary(state);
+    },
   };
 };
 
-function textUpdates(observable: Observable<State>): () => void {
-  write("| Total | Completed | Failed |\n");
+function printSummary(state: State): void {
+  [
+    "\n -- Summary --\n",
+    `Total:     ${whiteBright(pad(state.images.found))}`,
+    `Completed: ${greenBright(pad(state.images.completed))}`,
+    `Failed:    ${redBright(pad(state.images.failed))}`,
+  ].forEach((l) => line(l, whiteBright));
+}
 
-  const progress = observable.pipe(throttleTime(INTERVAL)).subscribe((update) => {
-    if (update.stage === Stage.PROCESSING) {
-      const { completed, failed, total } = update.stats.images;
+function parseStatus(status: Status): string {
+  switch (status) {
+    case Status.READY:
+      return "READY";
+    case Status.PROCESSING:
+      return "PROCESSING";
+    case Status.COMPLETE:
+      return "COMPLETE";
+    case Status.ERROR:
+      return "ERROR";
+    case Status.INTERRUPT:
+      return "INTERRUPT";
+  }
+}
 
-      progressUpdate(total, completed, failed);
-    }
-  });
+function pad(n: number, padding = 3) {
+  return n.toString().padStart(padding);
+}
 
-  const stage = observable
-    .pipe(distinctUntilChanged((a, b) => a.stage === b.stage))
-    .subscribe((state) => {
-      const { stage } = state;
-
-      let statusText = `Execution stage updated to ${stage}`;
-
-      switch (stage) {
-        case Stage.INIT:
-          statusText = "";
-          break;
-
-        case Stage.PROCESSING:
-          statusText = "Processing";
-          break;
-
-        case Stage.DONE:
-          statusText = "Complete";
-          break;
-
-        case Stage.ERROR:
-          statusText = "Error";
-          if (state.message) {
-            statusText += "\n" + state.message;
-          }
-          break;
-
-        case Stage.INTERRUPT:
-          statusText = "Interrupt";
-          break;
-      }
-
-      if (statusText) {
-        write(` -- ${statusText} --\n`);
-      }
-    });
-
-  const summary = observable.pipe(last()).subscribe((state) => {
-    progress.unsubscribe();
-
-    const { failed, completed } = state.stats.images;
-
-    write(`Processed ${completed} images\n`);
-
-    if (failed > 0) {
-      write(`${failed} images failed to process, see errors.json\n`);
-    }
-  });
-
-  return () => {
-    progress.unsubscribe();
-    stage.unsubscribe();
-    summary.unsubscribe();
-  };
+function line(text: string, modifier?: (x: string) => string) {
+  stdout.write((modifier ? modifier(text) : text) + "\n");
 }

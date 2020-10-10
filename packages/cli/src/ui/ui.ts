@@ -6,16 +6,15 @@
  */
 
 import { Observable } from "rxjs";
-import { State } from "../model/state";
+import { State } from "../lib/state";
 
 export interface UiContext {
-  concurrency: number;
   state: Observable<State>;
   version: string;
 }
 
 export interface UiInstance {
-  stop: () => void | Promise<void>;
+  stop: (state: State) => void | Promise<void>;
 }
 
 export type UI = (context: UiContext) => UiInstance;

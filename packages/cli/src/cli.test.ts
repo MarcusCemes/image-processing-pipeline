@@ -37,6 +37,6 @@ describe("function startCLI()", () => {
   afterEach(() => jest.clearAllMocks());
 
   test("runs", async () => {
-    await expect(startCli(config, { ui: mockUI })).resolves.toBeUndefined();
+    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
   });
 });

@@ -9,6 +9,9 @@ import { PipelineResult, PrimitiveValue } from "./pipeline";
 
 const DEFAULT_SELECTOR = "current";
 
+const EXPRESSION_BRACES = "[]";
+const EXPRESSION_MATCHER = /\[([a-zA-Z0-9:._-]+)\]/g;
+
 /* -- Types -- */
 
 /**
@@ -95,6 +98,29 @@ export function createManifestItem(
   }
 
   return manifestItem;
+}
+
+/** Replaces all template interpolations with it's corresponding metadata value. */
+export function interpolateTemplates(metadata: Metadata, templateString: string): string {
+  const [l, r] = EXPRESSION_BRACES;
+  const expressions: Record<string, string> = {};
+
+  let newString = templateString;
+
+  // Extract all template expressions into a object
+  let match: RegExpExecArray | null;
+  while ((match = EXPRESSION_MATCHER.exec(templateString)) !== null) {
+    expressions[match[1]] = match[1];
+  }
+
+  const mappedExpressions = mapMetadata(metadata, expressions);
+
+  // Replace each expression with its mapped value
+  for (const [key, value] of Object.entries(mappedExpressions)) {
+    newString = newString.replace(new RegExp(`\\${l}${key}\\${r}`, "g"), String(value));
+  }
+
+  return newString;
 }
 
 /**

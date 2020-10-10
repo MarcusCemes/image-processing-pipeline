@@ -47,9 +47,7 @@ export function createInterruptHandler(): InterruptHandler {
 
   // Avoid unhandled rejections.
   // Promise.race() will register a permanent catch() function anyway.
-  rejecter.catch(() => {
-    /* */
-  });
+  rejecter.catch(() => void 0);
 
   const rejected = () => rejectedBool;
 
