@@ -2,7 +2,10 @@
 
 const { execSync } = require("child_process");
 const { existsSync } = require("fs");
+const { platform } = require("os");
 const { resolve } = require("path");
+
+const PLATFORM = platform();
 
 const builds = [
   {
@@ -36,12 +39,18 @@ try {
 builds.forEach((build) => {
   const { os, arch, filename } = build;
   const path = resolve(__dirname, "..", "vendor", filename);
+
   if (existsSync(path)) {
     console.log(`Primitive executable for ${os} (${arch}) already exists`);
     return;
   }
+
   console.log(`Building primitive executable for ${os} (${arch})`);
   execSync(`go build -o ${path} github.com/fogleman/primitive`, {
     env: { ...process.env, GOOS: os, GOARCH: arch },
   });
+
+  if (["linux", "darwin"].includes(PLATFORM)) {
+    execSync(`chmod +x ${path}`);
+  }
 });
