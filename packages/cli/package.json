@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/ink-spinner": "^3.0.0",
     "@types/react": "^16.9.51",
-    "@types/yargs": "^15.0.7",
+    "@types/yargs": "^15.0.8",
     "crlf": "^1.1.1"
   },
   "engines": {

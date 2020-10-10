@@ -10,9 +10,10 @@ import { createStateContext, State } from "./state";
 describe("function createStateContext()", () => {
   const concurrency = 42;
   const manifest = true;
+  const clean = false;
 
   test("creates a state context", () => {
-    const ctx = createStateContext(concurrency, manifest);
+    const ctx = createStateContext(concurrency, manifest, clean);
 
     expect(ctx.getValue()).toMatchObject<Partial<State>>({
       concurrency,
@@ -21,7 +22,7 @@ describe("function createStateContext()", () => {
   });
 
   test("propagates immutable state updates", () => {
-    const ctx = createStateContext(concurrency, manifest);
+    const ctx = createStateContext(concurrency, manifest, clean);
 
     // state subscription
     let value = ctx.getValue();

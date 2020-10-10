@@ -13,6 +13,7 @@ import { useAppStateValue } from "./hooks";
 const Config: React.FC = () => {
   const concurrency = useAppStateValue((state) => state.concurrency);
   const manifest = useAppStateValue((state) => !!state.manifest);
+  const clean = useAppStateValue((state) => !!state.clean);
   if (concurrency === null) return null;
 
   return (
@@ -24,7 +25,10 @@ const Config: React.FC = () => {
         Concurrency: <Text bold>{concurrency}</Text>
       </Text>
       <Text color={manifest ? void 0 : "grey"}>
-        Manifest <Text bold>{manifest ? "enabled" : "disabled"}</Text>
+        Manifest: <Text bold>{manifest ? "enabled" : "disabled"}</Text>
+      </Text>
+      <Text color={clean ? void 0 : "grey"}>
+        Clean: <Text bold>{clean ? "enabled" : "disabled"}</Text>
       </Text>
     </Box>
   );

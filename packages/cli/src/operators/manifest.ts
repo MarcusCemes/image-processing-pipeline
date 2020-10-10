@@ -16,6 +16,7 @@ export function saveManifest<T>(
   mappings: ManifestMappings
 ): Operator<T | SavedResult, T | Exception> {
   let manifestStream: WriteStream | null = null;
+  let first = true;
 
   return map<T | SavedResult, T | Exception>(
     (item) => {
@@ -24,6 +25,13 @@ export function saveManifest<T>(
       if (!manifestStream) manifestStream = createManifestStream(path);
 
       const manifest = createManifestItem(item.savedResult, mappings);
+
+      if (first) {
+        first = false;
+      } else {
+        manifestStream.write(",");
+      }
+
       manifestStream.write(JSON.stringify(manifest));
 
       return null;

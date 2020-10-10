@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Exception, interpolateTemplates } from "@ipp/common";
+import { Exception, interpolateTemplates, PipelineFormat, PipelineFormats } from "@ipp/common";
+import { F_OK } from "constants";
 import { promises } from "fs";
-import { parse, resolve } from "path";
+import { parse, relative, resolve } from "path";
+import { pathMetadata } from "../lib/metadata";
 import { Operator } from "../lib/stream/object_stream";
 import { mapParallel } from "../lib/stream/operators/map_parallel";
 import { CompletedTask, isCompletedTask, SavedResult } from "./types";
@@ -16,8 +18,11 @@ const SAVE_CONCURRENCY = 4;
 const DEFAULT_TEMPLATE = "[name]-[hash:8][ext]";
 
 export function saveImages<T>(
-  path: string
+  path: string,
+  flat: boolean
 ): Operator<T | CompletedTask, T | SavedResult | Exception> {
+  const startTime = Date.now();
+
   return mapParallel<T | CompletedTask, T | SavedResult | Exception>(
     SAVE_CONCURRENCY,
     async (item) => {
@@ -26,6 +31,8 @@ export function saveImages<T>(
       const errors: Exception[] = [];
 
       const { dir } = parse(item.file);
+
+      const savedFormats: PipelineFormats = [];
 
       for (const format of item.result.formats) {
         const finalMetadata = {
@@ -38,144 +45,79 @@ export function saveImages<T>(
 
         const template = typeof format.saveKey === "string" ? format.saveKey : DEFAULT_TEMPLATE;
         const interpolatedTemplate = interpolateTemplates(finalMetadata, template);
-        const outputPath = resolve(path, dir, interpolatedTemplate);
+        const outputDir = flat ? path : resolve(path, dir);
+        const outputPath = resolve(outputDir, interpolatedTemplate);
 
         try {
+          await ensureDirectory(outputDir);
+
+          const modified = await getLastModifiedTime(outputPath);
+          if (modified !== null && modified > startTime) {
+            throw new Exception(
+              `Filename conflict! The following filename has already been used: "${outputPath}"`
+            );
+          }
+
           await promises.writeFile(outputPath, format.data.buffer);
+
+          savedFormats.push(formatWithNewPath(format, relative(path, outputPath)));
         } catch (err) {
           errors.push(
-            new Exception(
-              `Failed to save image, the manifest may be inconsistent:\n${err.message}`
-            ).extend(err)
+            err instanceof Exception
+              ? err
+              : new Exception(
+                  `Failed to save image, the manifest may be inconsistent:\n${err.message}`
+                ).extend(err)
           );
         }
       }
 
-      return errors.length === 0 ? { savedResult: item.result } : errors;
+      return errors.length === 0
+        ? {
+            savedResult: {
+              source: item.result.source,
+              formats: savedFormats,
+            },
+          }
+        : errors;
     }
   );
 }
 
-// const TASK_ID = "save_images";
+async function ensureDirectory(path: string): Promise<void> {
+  try {
+    await promises.access(path, F_OK);
+    const stat = await promises.stat(path);
 
-// const EXPRESSION_BRACES = "[]";
-// const EXPRESSION_MATCHER = /\[([a-zA-Z0-9:._-]+)\]/g;
+    if (!stat.isDirectory()) throw null;
+  } catch {
+    await promises.mkdir(path, { recursive: true });
+  }
+}
 
-// export function saveImages(
-//   ctx: CliContext,
-//   config: Config,
-//   images: AsyncIterable<ProcessResult | Exception>
-// ): AsyncIterable<ProcessResult | Exception> {
-//   let started = false;
-//   const task = ctx.state.tasks.add(TASK_ID, Status.WAITING, "Save images");
+async function getLastModifiedTime(path: string): Promise<number | null> {
+  try {
+    return (await promises.stat(path)).mtimeMs;
+  } catch {
+    return null;
+  }
+}
 
-//   const startTime = Date.now();
-
-//   const output = normalize(config.output + "/");
-//   const saved = unorderedParallelMap(images, DEFAULT_LIBUV_THREADPOOL, async (result) => {
-//     if (started !== true) {
-//       task.update(Status.PENDING, "Saving images");
-//       started = true;
-//     }
-
-//     if (isProcessResult(result)) {
-//       const updatedFormats: PipelineFormats = [];
-
-//       for (const format of result.result.formats) {
-//         const relativeDir = config.flat ? "" : dirname(result.file) + "/";
-//         const cleanRelativeDir = relativeDir[0] === "." ? relativeDir.substr(2) : relativeDir;
-
-//         // Generate the filename from the save key
-//         const name =
-//           typeof format.saveKey === "string"
-//             ? interpolateName(
-//                 produce(format.data.metadata, ({ current }) => {
-//                   current.ext = formatToExt(format.data.metadata.current.format);
-//                   current.dir = cleanRelativeDir;
-//                 }),
-//                 format.saveKey
-//               )
-//             : basename(result.file);
-
-//         const relativePath = cleanRelativeDir + name;
-//         const writePath = output + relativePath;
-//         await promises.mkdir(dirname(writePath), { recursive: true });
-
-//         try {
-//           const stat = await promises.stat(writePath);
-//           if (stat.mtimeMs > startTime) {
-//             return new CliException(
-//               "Filename collision",
-//               CliExceptionCode.SAVE,
-//               `Filename collision for "${relativePath}"`,
-//               "An image output filename was written to since the start of execution and probably indicates an filename collision."
-//             );
-//           }
-//         } catch {
-//           /* */
-//         }
-
-//         await promises.writeFile(writePath, format.data.buffer);
-
-//         ctx.state.update((state) => {
-//           ++state.stats.images.completed;
-//         });
-
-//         // Update the metadata of formats for the manifest
-//         updatedFormats.push(
-//           produce(
-//             format,
-//             ({
-//               data: {
-//                 metadata: { current },
-//               },
-//             }) => {
-//               current.path = relativePath;
-//             }
-//           )
-//         );
-//       }
-
-//       // Return the process result with updated path metadata
-//       return produce(result, (draft) => {
-//         draft.result.formats = updatedFormats;
-//       });
-//     }
-
-//     return result;
-//   });
-
-//   return completion(task, saved);
-// }
-
-// async function* completion(task: TaskContext, results: AsyncIterable<ProcessResult | Exception>) {
-//   for await (const item of results) {
-//     yield item;
-//   }
-
-//   task.update(Status.COMPLETE, "Images saved");
-// }
-
-// function interpolateName(metadata: Metadata, name: string): string {
-//   const expressions: Record<string, string> = {};
-
-//   // Extract all template expressions into a object
-//   let match: RegExpExecArray | null;
-//   while ((match = EXPRESSION_MATCHER.exec(name)) !== null) {
-//     expressions[match[1]] = match[1];
-//   }
-
-//   const mappedExpressions = mapMetadata(metadata, expressions);
-
-//   // Replace each expression with its mapped value
-//   let newName = name;
-//   const [l, r] = EXPRESSION_BRACES;
-//   for (const [key, value] of Object.entries(mappedExpressions)) {
-//     newName = newName.replace(new RegExp(`\\${l}${key}\\${r}`, "g"), String(value));
-//   }
-
-//   return newName;
-// }
+function formatWithNewPath(format: PipelineFormat, path: string): PipelineFormat {
+  return {
+    ...format,
+    data: {
+      ...format.data,
+      metadata: {
+        ...format.data.metadata,
+        current: {
+          ...format.data.metadata.current,
+          ...pathMetadata(path),
+        },
+      },
+    },
+  };
+}
 
 const EXTENSION_MAP: Record<string, string> = {
   jpeg: ".jpg",
@@ -189,13 +131,3 @@ const EXTENSION_MAP: Record<string, string> = {
 function formatToExt(format: string): string {
   return EXTENSION_MAP[format] || "";
 }
-
-// function isProcessResult(x: unknown): x is ProcessResult {
-//   for (const prop of ["file", "root", "result"]) {
-//     if (!(prop in (x as ProcessResult))) {
-//       return false;
-//     }
-//   }
-
-//   return true;
-// }

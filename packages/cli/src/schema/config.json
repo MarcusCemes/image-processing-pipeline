@@ -19,6 +19,9 @@
     "concurrency": {
       "type": "number"
     },
+    "clean": {
+      "type": "boolean"
+    },
     "flat": {
       "type": "boolean"
     },

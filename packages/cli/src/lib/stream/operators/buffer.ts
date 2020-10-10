@@ -18,21 +18,26 @@ export function buffer<T>(count: number): Operator<T, T> {
         const events = new EventEmitter();
         const queue = new Denque();
 
+        // Ready the source asynchronously and fill the buffer
         (async function () {
           for await (const item of source) {
-            while (buffer.length !== count) {
-              queue.push(item);
-              continue;
+            while (buffer.length === count) {
+              await once(events, "item");
             }
 
-            await once(events, "item");
+            queue.push(item);
+            events.emit("item");
           }
 
           ended = true;
+          events.emit("item");
         })();
 
+        // Yield items from the buffer
         while (!queue.isEmpty() || !ended) {
-          if (queue.isEmpty()) await once(events, "item");
+          if (queue.isEmpty()) {
+            await once(events, "item");
+          }
 
           while (!queue.isEmpty()) {
             yield queue.shift() as T;

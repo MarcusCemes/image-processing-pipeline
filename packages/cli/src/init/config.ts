@@ -21,6 +21,7 @@ export interface Config {
   pipeline: Pipeline;
 
   concurrency: number;
+  clean?: boolean;
   flat?: boolean;
   manifest?: ManifestMappings;
 }

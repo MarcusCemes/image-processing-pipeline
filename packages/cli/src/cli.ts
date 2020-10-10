@@ -11,8 +11,10 @@ import { resolve } from "path";
 import { VERSION } from "./constants";
 import { Config } from "./init/config";
 import { createContext } from "./lib/context";
+import { CliException, CliExceptionCode } from "./lib/exception";
 import { InterruptHandler } from "./lib/interrupt";
 import { StateContext, Status } from "./lib/state";
+import { buffer } from "./lib/stream/operators/buffer";
 import { passthrough } from "./lib/stream/operators/passthrough";
 import { toPromise } from "./lib/stream/operators/to_promise";
 import { completedCounter, exceptionCounter, sourceCounter } from "./operators/counters";
@@ -25,6 +27,7 @@ import { DynamicUI, UI, UiInstance as UIInstance } from "./ui";
 
 const ERROR_FILE = "errors.json";
 const MANIFEST_FILE = "manifest.json";
+const BUFFER_SIZE = 8;
 
 export interface CliContext {
   interrupt: InterruptHandler;
@@ -33,35 +36,45 @@ export interface CliContext {
 }
 
 export async function startCli(config: Config, ui: UI = DynamicUI): Promise<void> {
-  return withCliContext(config.concurrency, !!config.manifest, VERSION, ui, async (ctx) => {
-    try {
-      // Unregister handler to allow force quitting
-      ctx.interrupt.rejecter.catch(() => {
-        ctx.interrupt.destroy();
-        setStatus(ctx, Status.INTERRUPT);
-      });
+  return withCliContext(
+    config.concurrency,
+    !!config.manifest,
+    !!config.clean,
+    VERSION,
+    ui,
+    async (ctx) => {
+      try {
+        // Unregister handler to allow force quitting
+        ctx.interrupt.rejecter.catch(() => {
+          ctx.interrupt.destroy();
+          setStatus(ctx, Status.INTERRUPT);
+        });
 
-      await ensureOutputPath(config.output);
-      setStatus(ctx, Status.PROCESSING);
+        if (config.clean) await deleteDirectory(config.output);
+        await ensureOutputPath(config.output);
 
-      await createPipeline(ctx, config, MANIFEST_FILE, ERROR_FILE).pipe(toPromise());
+        setStatus(ctx, Status.PROCESSING);
 
-      setStatus(ctx, Status.COMPLETE);
-    } catch (err) {
-      setStatus(ctx, Status.ERROR);
-      throw err;
+        await createPipeline(ctx, config, MANIFEST_FILE, ERROR_FILE).pipe(toPromise());
+
+        setStatus(ctx, Status.COMPLETE);
+      } catch (err) {
+        setStatus(ctx, Status.ERROR);
+        throw err;
+      }
     }
-  });
+  );
 }
 
 async function withCliContext(
   concurrency: number,
   manifest: boolean,
+  clean: boolean,
   version: string,
   ui: UI,
   fn: (ctx: CliContext) => void | Promise<void>
 ) {
-  const ctx = createContext(concurrency, manifest, version, ui);
+  const ctx = createContext(concurrency, manifest, clean, version, ui);
 
   try {
     await fn(ctx);
@@ -76,9 +89,11 @@ function createPipeline(ctx: CliContext, config: Config, manifestFile: string, e
 
   return searchForImages(paths)
     .pipe(sourceCounter(ctx))
+    .pipe(buffer(BUFFER_SIZE))
     .pipe(processImages(config.pipeline, config.concurrency))
     .pipe(completedCounter(ctx))
-    .pipe(saveImages(config.output))
+    .pipe(buffer(BUFFER_SIZE))
+    .pipe(saveImages(config.output, !!config.flat))
     .pipe(
       config.manifest
         ? saveManifest(resolve(config.output, manifestFile), config.manifest)
@@ -97,5 +112,21 @@ async function ensureOutputPath(path: string): Promise<void> {
     await promises.access(path, W_OK);
   } catch (err) {
     await promises.mkdir(path);
+  }
+}
+
+async function deleteDirectory(path: string): Promise<void> {
+  try {
+    await promises.rmdir(path, { recursive: true });
+  } catch (err) {
+    throw new CliException(
+      "Output clean error:\n" + err.message,
+      CliExceptionCode.CLEAN,
+      "Output clean error",
+      "An error occurred while trying to clean the out directory.\n" +
+        "You may not have sufficient permissions to do so.\n" +
+        "You can disable output cleaning in the config file.\n\n" +
+        String(err)
+    );
   }
 }

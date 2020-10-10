@@ -8,7 +8,7 @@
 import figures, { bullet, main } from "figures";
 import { Box, Text, useApp } from "ink";
 import React, { useEffect } from "react";
-import { State } from "../../lib/state";
+import { State, Status } from "../../lib/state";
 import { TERMINAL_WIDTH } from "./constants";
 
 const emojiSupport = bullet === main.bullet;
@@ -81,6 +81,8 @@ export const Summary: React.FC<{ state: State }> = ({ state }) => {
   useEffect(() => {
     app.exit();
   }, []);
+
+  if (state.status === Status.ERROR) return null;
 
   return (
     <>

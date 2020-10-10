@@ -10,6 +10,7 @@ import { Exception } from "@ipp/common";
 export enum CliExceptionCode {
   CONFIG_LOAD = "CONFIG_LOAD",
   CONFIG_PARSE = "CONFIG_PARSE",
+  CLEAN = "CLEAN",
   ARG_VALIDATION = "ARG_VALIDATE",
   SEARCH = "SEARCH",
   MANIFEST = "MANIFEST",

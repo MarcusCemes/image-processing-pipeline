@@ -34,7 +34,9 @@ export function saveExceptions<T>(path: string): Operator<T | Exception, T> {
 }
 
 function createExceptionWriter(path: string): ExceptionWriter {
+  let first = true;
   const stream = createWriteStream(path);
+
   stream.write("[");
 
   return {
@@ -47,6 +49,12 @@ function createExceptionWriter(path: string): ExceptionWriter {
               comment: exception.comment,
             }
           : {};
+
+      if (first) {
+        first = false;
+      } else {
+        stream.write(",");
+      }
 
       stream.write(
         JSON.stringify({

@@ -57,7 +57,7 @@ async function* walkDirectory(path: string): AsyncGenerator<TaskSource | Excepti
   while (queue.length !== 0)
     try {
       const currentPath = queue.shift() as string;
-      const dir = await promises.opendir(path);
+      const dir = await promises.opendir(currentPath);
 
       for await (const item of dir)
         switch (getType(item)) {

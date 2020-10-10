@@ -13,11 +13,12 @@ import { createStateContext } from "./state";
 export function createContext(
   concurrency: number,
   manifest: boolean,
+  clean: boolean,
   version: string,
   ui: UI
 ): CliContext {
   const interrupt = createInterruptHandler();
-  const state = createStateContext(concurrency, manifest);
+  const state = createStateContext(concurrency, manifest, clean);
   const uiInstance = ui({ version, state: state.observable });
 
   return { interrupt, ui: uiInstance, state };

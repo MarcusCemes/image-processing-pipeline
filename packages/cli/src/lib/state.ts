@@ -20,6 +20,7 @@ export interface State {
   status: Status;
 
   concurrency: number;
+  clean: boolean;
   manifest: boolean;
 
   images: {
@@ -38,10 +39,15 @@ export interface StateContext {
   complete: () => State;
 }
 
-export function createStateContext(concurrency: number, manifest: boolean): StateContext {
+export function createStateContext(
+  concurrency: number,
+  manifest: boolean,
+  clean: boolean
+): StateContext {
   const subject = new BehaviorSubject<State>({
     status: Status.READY,
     concurrency,
+    clean,
     manifest,
     images: {
       found: 0,

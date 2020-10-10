@@ -14,12 +14,13 @@ describe("function createContext()", () => {
     const concurrency = 16;
     const manifest = true;
     const version = "1.0.0";
+    const clean = false;
 
     const interruptSpy = jest.spyOn(interrupt, "createInterruptHandler");
     const stateSpy = jest.spyOn(state, "createStateContext");
     const ui = jest.fn(() => ({ stop: () => void 0 }));
 
-    const ctx = createContext(concurrency, manifest, version, ui);
+    const ctx = createContext(concurrency, manifest, clean, version, ui);
 
     // Check the interrupt handler was created
     expect(interruptSpy).toHaveBeenCalled();
@@ -28,7 +29,8 @@ describe("function createContext()", () => {
     // Check the state was created
     expect(stateSpy).toHaveBeenCalledWith<Parameters<typeof state.createStateContext>>(
       concurrency,
-      manifest
+      manifest,
+      clean
     );
     expect(ctx.interrupt).toBe(interruptSpy.mock.results[0].value);
 

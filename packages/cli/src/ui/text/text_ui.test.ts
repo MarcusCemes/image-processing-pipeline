@@ -18,6 +18,7 @@ describe("TextUI", () => {
     const state: State = {
       concurrency: 16,
       manifest: true,
+      clean: false,
       images: {
         found: 0,
         completed: 0,

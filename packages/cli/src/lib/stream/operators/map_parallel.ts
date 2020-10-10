@@ -54,7 +54,9 @@ export function mapParallel<I, O>(
         })();
 
         while (active !== 0 || !ended) {
-          if (output.isEmpty()) await once(events, "complete");
+          if (output.isEmpty()) {
+            await once(events, "complete");
+          }
 
           while (!output.isEmpty()) {
             yield output.shift() as O;
