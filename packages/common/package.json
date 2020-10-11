@@ -1,6 +1,6 @@
 {
   "name": "@ipp/common",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
