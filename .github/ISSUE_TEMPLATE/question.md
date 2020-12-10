@@ -1,13 +1,9 @@
 ---
 name: ❓ Question / 🗣 Discussion
-about: A question or discussion relating the project
-labels: "question"
+about: A question or discussion relating to the project
 ---
 
-<!-- Replace and complete the sections below -->
-
-**Summary**
-A short description of the question or discussion.
-
-**Details**
-Anything else relating to the question.
+<!--
+Questions have been moved over to the Discussions tab.
+Posting non-bug related problems here will likely be closed without comment.
+-->
