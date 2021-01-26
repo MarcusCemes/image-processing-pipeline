@@ -7,7 +7,7 @@
 
 import { Pipe, PipeException } from "@ipp/common";
 import produce from "immer";
-import sharp, { Raw, Sharp } from "sharp";
+import sharp, { FormatEnum, Raw, Sharp } from "sharp";
 
 sharp.concurrency(1);
 
@@ -35,7 +35,7 @@ export const ConvertPipe: Pipe<ConvertOptions> = async (data, options) => {
           }
         : void 0,
   })
-    .toFormat(targetFormat, options.convertOptions)
+    .toFormat(targetFormat as keyof FormatEnum, options.convertOptions)
     .toBuffer({ resolveWithObject: true });
 
   return {

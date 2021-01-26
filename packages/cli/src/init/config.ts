@@ -6,7 +6,7 @@
  */
 
 import { ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
-import Ajv, { AdditionalPropertiesParams, ErrorObject, RequiredParams } from "ajv";
+import Ajv, { ErrorObject } from "ajv";
 import { bold, white } from "chalk";
 import { cosmiconfig } from "cosmiconfig";
 import { CliException, CliExceptionCode } from "../lib/exception";
@@ -103,14 +103,10 @@ function parseAjvError({ dataPath, keyword, message, params }: ErrorObject): str
 
   switch (keyword) {
     case "additionalProperties":
-      return `${property} has an unknown property "${bold(
-        (params as AdditionalPropertiesParams).additionalProperty
-      )}"`;
+      return `${property} has an unknown property "${bold(params.additionalProperty)}"`;
 
     case "required":
-      return `${property} is missing property "${bold(
-        (params as RequiredParams).missingProperty
-      )}"`;
+      return `${property} is missing property "${bold(params.missingProperty)}"`;
 
     default:
       return `${property} ${message}`;

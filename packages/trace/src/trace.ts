@@ -7,6 +7,7 @@
 
 import { Pipe, PipeException } from "@ipp/common";
 import { posterize, PosterizeOptions, trace, TraceOptions, TURNPOLICY_MAJORITY } from "potrace";
+import { promisify } from "util";
 
 const SUPPORTED_FORMATS = ["jpeg", "png", "bmp"];
 
@@ -35,6 +36,9 @@ const DEFAULT_OPTIONS: TracePipeOptions = {
   },
 };
 
+const posterizeAsync = promisify(posterize);
+const traceAsync = promisify(trace);
+
 /**
  * A wrapper pipe around the potrace algorithm, originally by Peter Selinger. Generates
  * an SVG vector image using path tracing.
@@ -48,19 +52,16 @@ export const TracePipe: Pipe<Partial<TracePipeOptions>> = async (data, options) 
   };
 
   const format = data.metadata.current.format;
-  if (!SUPPORTED_FORMATS.includes(format))
+  if (!SUPPORTED_FORMATS.includes(format)) {
     throw new PipeException(`Unsupported image format: "${format}"`);
+  }
 
-  const result = await new Promise<string>((res, rej) => {
-    const traceFunction = options?.mode === TraceMode.POSTERIZE ? posterize : trace;
-    traceFunction(data.buffer, parsedOptions.traceOptions, (err, svg) => {
-      if (err) {
-        rej(err);
-      } else {
-        res(svg);
-      }
-    });
-  });
+  const traceFunction = options?.mode === TraceMode.POSTERIZE ? posterizeAsync : traceAsync;
+  const result = await traceFunction(data.buffer, parsedOptions.traceOptions);
+
+  if (!result) {
+    throw new Error("An empty SVG string was returned");
+  }
 
   return {
     buffer: Buffer.from(result),

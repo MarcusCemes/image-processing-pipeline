@@ -1,6 +1,6 @@
 {
   "name": "@ipp/cli",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -17,26 +17,26 @@
   },
   "dependencies": {
     "@ipp/common": "^1.1.2",
-    "@ipp/core": "^1.1.3",
-    "ajv": "^6.12.5",
+    "@ipp/core": "^1.1.5",
+    "ajv": "^7.0.3",
     "chalk": "^4.1.0",
     "cosmiconfig": "^7.0.0",
-    "denque": "^1.4.1",
+    "denque": "^1.5.0",
     "figures": "^3.2.0",
-    "immer": "^7.0.9",
-    "ink": "^3.0.7",
+    "immer": "^8.0.1",
+    "ink": "^3.0.8",
     "ink-spinner": "^4.0.1",
     "leven": "^3.1.0",
-    "pretty-error": "^2.1.1",
-    "react": "^16.13.1",
+    "pretty-error": "^3.0.3",
+    "react": "^17.0.1",
     "rxjs": "^6.6.3",
     "rxjs-hooks": "^0.6.2",
-    "yargs": "^16.0.3"
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@types/ink-spinner": "^3.0.0",
-    "@types/react": "^16.9.51",
-    "@types/yargs": "^15.0.8",
+    "@types/react": "^17.0.0",
+    "@types/yargs": "^15.0.12",
     "crlf": "^1.1.1"
   },
   "engines": {

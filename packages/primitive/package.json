@@ -1,6 +1,6 @@
 {
   "name": "@ipp/primitive",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -15,8 +15,8 @@
     "prePublishOnly": "build-vendor"
   },
   "dependencies": {
-    "@ipp/common": "^1.1.1",
-    "execa": "^4.0.3"
+    "@ipp/common": "^1.1.2",
+    "execa": "^5.0.0"
   },
   "engines": {
     "node": ">=10.18"
