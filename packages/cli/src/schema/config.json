@@ -7,8 +7,7 @@
   "required": ["input", "output", "pipeline"],
   "properties": {
     "input": {
-      "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }],
-      "type": "string"
+      "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
     },
     "output": {
       "type": "string"
@@ -30,6 +29,7 @@
       "additionalProperties": false,
       "properties": {
         "source": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "type": "string"
@@ -37,6 +37,7 @@
           }
         },
         "format": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "type": "string"
