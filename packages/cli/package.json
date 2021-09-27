@@ -1,6 +1,6 @@
 {
   "name": "@ipp/cli",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -16,8 +16,8 @@
     "prepublishOnly": "crlf --set=LF dist/bin.js"
   },
   "dependencies": {
-    "@ipp/common": "^1.1.2",
-    "@ipp/core": "^1.1.5",
+    "@ipp/common": "workspace:*",
+    "@ipp/core": "workspace:*",
     "ajv": "^7.0.3",
     "chalk": "^4.1.0",
     "cosmiconfig": "^7.0.0",

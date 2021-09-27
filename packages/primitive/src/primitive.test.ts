@@ -15,7 +15,7 @@ import { PrimitivePipe } from "./primitive";
 
 jest.mock("execa");
 const actualExeca = jest.requireActual("execa");
-const execaMock = (execa as unknown) as jest.Mock<
+const execaMock = execa as unknown as jest.Mock<
   { stdout: string },
   [string, string[], { input: Buffer }]
 >;

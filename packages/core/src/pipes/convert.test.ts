@@ -55,7 +55,7 @@ describe("built-in ConvertPipe", () => {
 
   const toBufferMock = jest.fn();
   const toFormatMock = jest.fn(() => ({ toBuffer: toBufferMock }));
-  const sharpMock = (sharp as unknown) as jest.Mock<{ toFormat: typeof toFormatMock }>;
+  const sharpMock = sharp as unknown as jest.Mock<{ toFormat: typeof toFormatMock }>;
   const mocks = [toBufferMock, toFormatMock, sharpMock];
 
   beforeAll(() => sharpMock.mockImplementation(() => ({ toFormat: toFormatMock })));

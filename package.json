@@ -6,21 +6,19 @@
   "author": "Marcus Cemes",
   "license": "MIT",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
     "build": "tsc -b tsconfig.build.json",
-    "build-vendor": "lerna run build-vendor",
-    "clean": "npm run clean:build && npx rimraf \"./**/node_modules/\"",
-    "clean:build": "rimraf \"./packages/*/*.tsbuildinfo\" \"./packages/*/dist\"",
+    "build-vendor": "pnpm -r run build-vendor",
+    "clean": "pnpx rimraf \"./packages/*/*.tsbuildinfo\" \"./packages/*/dist\" \"./**/node_modules/\"",
     "fix:crlf": "crlf --set=LF ./packages/*/dist/**/*",
     "fix:format": "prettier --write \"packages/*/src/**/*.{ts,tsx,json}\"",
     "fix:lint": "eslint . --fix --ext .ts,.tsx",
+    "preinstall": "npx -y only-allow pnpm",
     "start": "cd packages/cli && node -r ts-node/register -r tsconfig-paths/register src/bin",
     "start:debug": "cd packages/cli && node --inspect-brk -r ts-node/register -r tsconfig-paths/register src/bin",
     "test": "jest",
     "test:debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand",
     "test:format": "prettier --check \"packages/*/src/**/*.{ts,tsx,json}\"",
-    "test:lint": "eslint . --ext .ts,.tsx",
-    "update": "lerna clean -y && lerna bootstrap --no-ci"
+    "test:lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,7 +31,6 @@
     "eslint-plugin-header": "^3.1.0",
     "eslint-plugin-react": "^7.22.0",
     "jest": "^26.6.3",
-    "lerna": "^3.22.1",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.4.4",

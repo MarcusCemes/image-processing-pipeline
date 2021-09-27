@@ -16,11 +16,11 @@ jest.mock("@ipp/core");
 jest.mock("loader-utils");
 
 describe("function runtime()", () => {
-  const ctx = ({
+  const ctx = {
     emitFile: jest.fn(),
     mode: "production",
     resourcePath: "/some_path/image",
-  } as unknown) as loader.LoaderContext;
+  } as unknown as loader.LoaderContext;
 
   const buffer = randomBytes(8);
   const initialMetadata = { path: ctx.resourcePath };

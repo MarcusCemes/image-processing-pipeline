@@ -44,7 +44,7 @@ describe("function executePipeline()", () => {
   /* -- Mocks -- */
 
   const metadataMock = jest.fn(async () => sharpMetadata);
-  const sharpMock = (sharp as unknown) as jest.Mock<{ metadata: typeof metadataMock }>;
+  const sharpMock = sharp as unknown as jest.Mock<{ metadata: typeof metadataMock }>;
   const mocks = [metadataMock, sharpMock];
 
   /* -- Lifecycle -- */

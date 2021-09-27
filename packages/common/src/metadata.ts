@@ -195,7 +195,7 @@ function parseTemplate(value: string): ParsedTemplate {
   const result = TEMPLATE_MATCHER.exec(value);
   if (result === null) return {};
 
-  const [, selector, key, limit] = (result as unknown) as [string, string, string, string?];
+  const [, selector, key, limit] = result as unknown as [string, string, string, string?];
 
   const parsed: ParsedTemplate = {
     key,

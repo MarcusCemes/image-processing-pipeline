@@ -18,5 +18,3 @@ export interface UiInstance {
 }
 
 export type UI = (context: UiContext) => UiInstance;
-
-export default {};

@@ -1,7 +1,7 @@
 {
   "name": "@ipp/testing",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",

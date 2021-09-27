@@ -134,7 +134,7 @@ async function processPipe(
 
     return updateHash(result);
   } catch (err) {
-    throw new PipelineException(`[${name}] ${err.message}`);
+    throw new PipelineException(`[${name}] ${(err as Error).message}`);
   } finally {
     if (release) release();
   }
@@ -156,7 +156,7 @@ async function generateMetadata(input: Buffer): Promise<BaseMetadata> {
     };
     return baseMeta;
   } catch (err) {
-    throw new PipelineException(`Metadata error: ${err.message || err}`);
+    throw new PipelineException(`Metadata error: ${(err as Error)?.message || err}`);
   }
 }
 
@@ -185,7 +185,7 @@ async function resolvePipe(pipe: PipelineBranch["pipe"]): Promise<{ pipe: Pipe; 
     throw new PipelineException("Unknown pipe resolution scheme");
   } catch (err) {
     if (err instanceof PipelineException) throw err;
-    throw new PipelineException(`Could not resolve pipe: ${serialisedPipe}`).extend(err);
+    throw new PipelineException(`Could not resolve pipe: ${serialisedPipe}`).extend(err as Error);
   }
 }
 
@@ -202,5 +202,5 @@ function updateHash(data: DataObject): DataObject {
  * wrapInArray(obj) === obj instanceof Array ? obj : [obj]
  */
 function wrapInArray<T>(obj: T): T extends any[] ? T : T[] {
-  return ((obj instanceof Array ? obj : [obj]) as unknown) as T extends any[] ? T : [T];
+  return (obj instanceof Array ? obj : [obj]) as unknown as T extends any[] ? T : [T];
 }

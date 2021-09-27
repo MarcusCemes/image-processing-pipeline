@@ -66,8 +66,10 @@ export function saveImages<T>(
             err instanceof Exception
               ? err
               : new Exception(
-                  `Failed to save image, the manifest may be inconsistent:\n${err.message}`
-                ).extend(err)
+                  `Failed to save image, the manifest may be inconsistent:\n${
+                    (err as Error).message
+                  }`
+                ).extend(err as Error)
           );
         }
       }

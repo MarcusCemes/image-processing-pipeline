@@ -1,6 +1,6 @@
 {
   "name": "@ipp/compress",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -10,13 +10,13 @@
     "dist"
   ],
   "dependencies": {
-    "@ipp/common": "^1.1.2",
+    "@ipp/common": "workspace:*",
     "imagemin-mozjpeg": "^9.0.0",
     "imagemin-pngquant": "^9.0.1",
     "imagemin-svgo": "^8.0.0"
   },
   "devDependencies": {
-    "@ipp/testing": "^1.0.1",
+    "@ipp/testing": "workspace:*",
     "@types/imagemin-mozjpeg": "^8.0.0",
     "@types/imagemin-svgo": "^8.0.0"
   },

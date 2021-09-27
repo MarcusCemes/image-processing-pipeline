@@ -31,7 +31,9 @@ export function processImages<T>(
       };
     } catch (err) {
       if (err instanceof Exception) return err;
-      return new Exception(`Unexpected processing error: ${err.message}`).extend(err);
+      return new Exception(`Unexpected processing error: ${(err as Error).message}`).extend(
+        err as Error
+      );
     }
   });
 }

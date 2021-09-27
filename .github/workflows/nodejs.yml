@@ -19,19 +19,16 @@ jobs:
         uses: actions/setup-go@v2
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Bootstrap packages
-        run: npm run bootstrap
+        run: pnpm install
 
       - name: Build vendor libraries
-        run: npm run build-vendor
+        run: pnpm build-vendor
 
       - name: Test project
-        run: npm test -- --coverage
+        run: pnpm test -- --coverage
 
       - name: Build project
-        run: npm run build
+        run: pnpm build
 
       - name: Upload coverage
         uses: codecov/codecov-action@v1
@@ -57,18 +54,15 @@ jobs:
         uses: actions/setup-go@v2
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Bootstrap packages
-        run: npm run bootstrap
+        run: pnpm install
 
       - name: Build vendor libraries
-        run: npm run build-vendor
+        run: pnpm build-vendor
 
       - name: Build project
-        run: npm run build
+        run: pnpm build
 
       - name: Publish to npm
-        run: npx lerna publish from-package --yes
+        run: pnpm -r publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -24,7 +24,7 @@ export async function init(concurrency: number): Promise<void> {
 
     await startCli(config, ui);
   } catch (err) {
-    stdout.write(err instanceof Array ? err.map(formatError).join("") : formatError(err));
+    stdout.write(err instanceof Array ? err.map(formatError).join("") : formatError(err as Error));
     stdout.write("\n" + pad(grey("Learn more at " + REPOSITORY_SHORT)) + "\n\n");
     process.exitCode = 1;
   }

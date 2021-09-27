@@ -51,7 +51,7 @@ describe("built-in resize pipe", () => {
 
   const toBufferMock = jest.fn(async () => toBufferResult);
   const resizeMock = jest.fn(() => ({ toBuffer: toBufferMock }));
-  const sharpMock = (sharp as unknown) as jest.Mock<{ resize: typeof resizeMock }>;
+  const sharpMock = sharp as unknown as jest.Mock<{ resize: typeof resizeMock }>;
   const mocks = [toBufferMock, resizeMock, sharpMock];
 
   beforeAll(() => sharpMock.mockImplementation(() => ({ resize: resizeMock })));

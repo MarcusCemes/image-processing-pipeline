@@ -46,9 +46,9 @@ async function loadConfig(path?: string): Promise<Partial<Config>> {
     throw new CliException(
       "Configuration load failure",
       CliExceptionCode.CONFIG_LOAD,
-      `Configuration load error -> ${err.name}`,
-      err.message
-    ).extend(err);
+      `Configuration load error -> ${(err as Error).name}`,
+      (err as Error).message
+    ).extend(err as Error);
   }
 }
 

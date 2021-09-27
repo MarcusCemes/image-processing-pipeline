@@ -1,3 +1,13 @@
+# ⚠ **Maintenance notice**
+
+This project is **inactively maintained**.
+
+It works, I use it for my personal projects, but the documentation is incomplete and I don't have the time to actively continue developing the project.
+
+I am around to answer any questions in the discussions tab. Use at your own risk!
+
+---
+
 <br />
 <div align="center">
 

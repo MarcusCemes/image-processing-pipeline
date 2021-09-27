@@ -29,5 +29,5 @@ export function chainMock<T extends Record<string, unknown>>(obj: T): MockedChai
  * a function of type T
  */
 export function getMock<T extends () => any>(fn: T): jest.Mock<ReturnType<T>, Parameters<T>> {
-  return (fn as unknown) as jest.Mock<ReturnType<T>, Parameters<T>>;
+  return fn as unknown as jest.Mock<ReturnType<T>, Parameters<T>>;
 }

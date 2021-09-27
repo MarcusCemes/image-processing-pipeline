@@ -120,7 +120,7 @@ async function deleteDirectory(path: string): Promise<void> {
     await promises.rmdir(path, { recursive: true });
   } catch (err) {
     throw new CliException(
-      "Output clean error:\n" + err.message,
+      "Output clean error:\n" + (err as Error).message,
       CliExceptionCode.CLEAN,
       "Output clean error",
       "An error occurred while trying to clean the out directory.\n" +
