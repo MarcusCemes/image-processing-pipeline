@@ -12,7 +12,6 @@
     "fix:crlf": "crlf --set=LF ./packages/*/dist/**/*",
     "fix:format": "prettier --write \"packages/*/src/**/*.{ts,tsx,json}\"",
     "fix:lint": "eslint . --fix --ext .ts,.tsx",
-    "preinstall": "npx -y only-allow pnpm",
     "start": "cd packages/cli && node -r ts-node/register -r tsconfig-paths/register src/bin",
     "start:debug": "cd packages/cli && node --inspect-brk -r ts-node/register -r tsconfig-paths/register src/bin",
     "test": "jest",
