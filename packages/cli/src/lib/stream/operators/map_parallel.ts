@@ -51,6 +51,7 @@ export function mapParallel<I, O>(
           }
 
           ended = true;
+          events.emit("complete");
         })();
 
         while (active !== 0 || !ended) {
