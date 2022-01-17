@@ -8,7 +8,7 @@
 
 import { fork } from "child_process";
 import { cpus, platform } from "os";
-import { argv, env, on, stdout } from "process";
+import process, { argv, env, stdout } from "process";
 import { DEFAULT_LIBUV_THREADPOOL } from "./constants";
 
 /** Environmental variable entry that signifies that process has already been forked */
@@ -56,8 +56,9 @@ function elevateUvThreads(): number | false {
   switch (platform()) {
     case "win32":
       // Ignore interrupts on the parent, there are no open handles apart from the
-      // forked child process which will handle its own interrupts and exit accordingly
-      on("SIGINT", () => null);
+      // forked child process which will handle its own interrupts and exit accordingly.
+      // The `on` method cannot be destructed during import
+      process.on("SIGINT", () => null);
 
       fork(__filename, argv.slice(2), {
         env: {
