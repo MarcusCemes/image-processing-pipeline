@@ -1,13 +1,16 @@
 /* eslint-disable */
 
 const { execSync } = require("child_process");
-const { existsSync } = require("fs");
-const { platform } = require("os");
-const { resolve } = require("path");
+const { mkdirSync, rmSync, statSync, mkdtempSync } = require("fs");
+const { tmpdir } = require("os");
+const { resolve, join } = require("path");
 
-const PLATFORM = platform();
+const ESC = "\x1B[";
+const RED = ESC + "31;49m";
+const RED_BG = ESC + "30;41m";
+const RESET = ESC + "0m";
 
-const builds = [
+const BUILD_MATRIX = [
   {
     os: "darwin",
     arch: "amd64",
@@ -25,32 +28,60 @@ const builds = [
   },
 ];
 
-try {
-  // Get primitive
-  execSync(`go get -u github.com/fogleman/primitive`);
-} catch (err) {
-  console.log(
-    "\n---\n\nUnable to download and build primitive from https://github.com/fogleman/primitive.\n\nIs go installed?\n\nSome users might just want to download it from here: https://golang.org/dl/\n\nBrew users: brew install go\n\n---\n\n"
-  );
-  process.exit(1);
-}
+function main() {
+  // Create a temporary directory for compilation
+  const vendorDir = resolve(__dirname, "..", "vendor");
+  const tmpDir = mkdtempSync(join(tmpdir(), "ipp-"));
 
-// Build executables
-builds.forEach((build) => {
-  const { os, arch, filename } = build;
-  const path = resolve(__dirname, "..", "vendor", filename);
-
-  if (existsSync(path)) {
-    console.log(`Primitive executable for ${os} (${arch}) already exists`);
-    return;
-  }
-
-  console.log(`Building primitive executable for ${os} (${arch})`);
-  execSync(`go build -o ${path} github.com/fogleman/primitive`, {
-    env: { ...process.env, GOOS: os, GOARCH: arch },
+  // Remove the directory on exit
+  process.on("beforeExit", () => {
+    console.log("🚀 Cleaning up...");
+    rmSync(tmpDir, { force: true, recursive: true });
   });
 
-  if (["linux", "darwin"].includes(PLATFORM)) {
-    execSync(`chmod +x ${path}`);
+  // Clone the repository
+  createIfNotExist(vendorDir);
+
+  console.log("📥 Cloning repository...");
+  execSync("git clone https://github.com/fogleman/primitive", { cwd: tmpDir });
+
+  // Newer Go versions make it more difficult to compile non-module executables...
+  console.log("🔨 Setting up Go module...");
+  const buildDir = join(tmpDir, "primitive");
+  execSync("go mod init github.com/fogleman/primitive", { cwd: buildDir });
+  execSync("go mod tidy", { cwd: buildDir });
+
+  // Cross-compile for each platform
+  for (const { os, arch, filename } of BUILD_MATRIX) {
+    console.log(`🏗️ Building primitive executable for ${os} (${arch})`);
+
+    const outputPath = resolve(vendorDir, filename);
+    execSync(`go build -o "${outputPath}"`, {
+      cwd: buildDir,
+      env: { ...process.env, GOOS: os, GOARCH: arch },
+    });
   }
-});
+}
+
+try {
+  main();
+} catch (err) {
+  process.exitCode = 1;
+  console.error(
+    RED_BG +
+      " IPP COMPILE ERROR " +
+      RED +
+      "\nThere was a problem compiling a required Go dependency.\nYou may not have the Go toolchain installed.\n\nIf you are a user of IPP and received this error, please open an issue on the GitHub repository describing the steps leading to this error:\n" +
+      RESET
+  );
+  console.error(err);
+  console.error("");
+}
+
+function createIfNotExist(dir) {
+  try {
+    statSync(dir);
+  } catch (err) {
+    if (err.code === "NOENT") mkdirSync(dir);
+  }
+}

@@ -4,6 +4,7 @@
     "jsx": "react",
     "resolveJsonModule": true,
     "noImplicitAny": false,
+    "sourceMap": true,
 
     "baseUrl": "./packages",
     "paths": {
