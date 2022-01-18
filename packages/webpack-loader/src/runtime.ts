@@ -79,7 +79,7 @@ export async function runtime(
 
     extendedMeta.current.save =
       typeof format.saveKey === "string"
-        ? interpolateName(extendedMeta, String(format.saveKey))
+        ? interpolateName(extendedMeta, format.saveKey)
         : format.saveKey;
 
     ctx.emitFile(path, format.data.buffer, null);

@@ -6,14 +6,13 @@
  */
 
 import { getOptions } from "loader-utils";
-import { isBuffer } from "util";
 import { loader } from "webpack";
 import { IppError } from "./error";
 import { checkOptions } from "./options";
 import { runtime } from "./runtime";
 
 export const ippLoader: loader.Loader = function ippLoader(source, map) {
-  if (!isBuffer(source)) {
+  if (!Buffer.isBuffer(source)) {
     throw new IppError("Source must be a buffer. This error is most likely caused by webpack");
   }
 
