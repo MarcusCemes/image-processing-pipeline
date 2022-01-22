@@ -7,6 +7,7 @@
 
 import {
   createManifestItem,
+  ManifestItem,
   ManifestMappings,
   mapMetadata,
   Metadata,
@@ -18,12 +19,35 @@ import { createFilter, dataToEsm } from "@rollup/pluginutils";
 import { createReadStream, promises as fsPromises } from "fs";
 import { posix } from "path";
 import { Plugin, ResolvedConfig } from "vite";
-import { IppPluginOptions, ManifestExport, SimpleExport } from "./types";
 
 const { join, parse, resolve } = posix;
 const { access, mkdir, readFile, writeFile } = fsPromises;
 
-export type { IppPluginOptions, SimpleExport, ManifestExport };
+export interface IppPluginOptions {
+  /** Which paths to include when processing images. */
+  include?: Array<string | RegExp> | string | RegExp;
+
+  /** What paths to exclude when processing images. */
+  exclude?: Array<string | RegExp> | string | RegExp;
+
+  /** The IPP pipeline to process images with. */
+  pipeline?: Pipeline;
+
+  /** Optional manifest mappings for the exported object. */
+  manifest?: ManifestMappings;
+
+  /** The generated output path of images (metadata interpolation can be used). */
+  outputPath: string;
+}
+
+export interface SimpleExport {
+  width?: number;
+  height?: number;
+  src?: string;
+  srcset: Record<string, string>;
+}
+
+export type ManifestExport = ManifestItem;
 
 type FileFormat = PipelineFormat & { file: string };
 
@@ -49,21 +73,38 @@ export function ippRollupVite(userOptions: Partial<IppPluginOptions> = {}): Plug
 
   let viteConfig: ResolvedConfig;
 
+  const cache: Map<string, SimpleExport | ManifestExport> = new Map();
+
   return {
-    name: "ipp",
+    name: "@ipp/vite-plugin",
+
+    // Run before Vite's default asset handler
     enforce: "pre",
 
     async configResolved(cfg) {
       viteConfig = cfg;
+
+      setTimeout(() => {
+        console.log("  > The IPP Vite plugin is experimental");
+      }, 0);
     },
 
     async load(id) {
       if (!filter(id)) return null;
 
+      const cachedObject = cache.get(id);
+      if (cachedObject) {
+        return dataToEsm(cachedObject, {
+          preferConst: true,
+          namedExports: viteConfig.json?.namedExports ?? true,
+          compact: !!viteConfig.build.minify ?? false,
+        });
+      }
+
       const sourcePath = resolve(viteConfig.base, id);
       const source = await readFile(sourcePath);
 
-      const generatedObject = await runtime(
+      const generatedObject = await processImage(
         pipeline,
         source,
         id,
@@ -84,8 +125,6 @@ export function ippRollupVite(userOptions: Partial<IppPluginOptions> = {}): Plug
             const cacheDir = resolve(viteConfig.cacheDir, "ipp-cache");
             const cachedFileName = join(cacheDir, fileName);
 
-            console.log(cacheDir);
-
             try {
               await access(cacheDir);
             } catch {
@@ -98,6 +137,8 @@ export function ippRollupVite(userOptions: Partial<IppPluginOptions> = {}): Plug
         },
         manifest
       );
+
+      cache.set(id, generatedObject);
 
       return dataToEsm(generatedObject, {
         preferConst: true,
@@ -138,16 +179,7 @@ export function ippRollupVite(userOptions: Partial<IppPluginOptions> = {}): Plug
   };
 }
 
-/**
- * The main processing function for the loader. Sends the source through `@ipp/core`
- * and emits the results to webpack. Returns a list of srcset entries or mapped metadata
- * depending on the options passed to the loader.
- *
- * @param ctx The `this` context of the webpack loader
- * @param options The loader options
- * @param source The `raw` image source for the loader to process
- */
-export async function runtime(
+export async function processImage(
   pipeline: Pipeline,
   source: Buffer,
   resourcePath: string,
