@@ -128,8 +128,9 @@ const EXTENSION_MAP: Record<string, string> = {
   svg: ".svg",
   tiff: ".tiff",
   gif: ".gif",
+  avif: ".avif",
 };
 
 function formatToExt(format: string): string {
-  return EXTENSION_MAP[format] || "";
+  return EXTENSION_MAP[format] || `.${format}`;
 }
