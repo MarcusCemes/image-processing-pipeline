@@ -11,14 +11,14 @@
   ],
   "dependencies": {
     "@ipp/common": "workspace:*",
-    "imagemin-mozjpeg": "^9.0.0",
-    "imagemin-pngquant": "^9.0.1",
-    "imagemin-svgo": "^8.0.0"
+    "imagemin-mozjpeg": "^9",
+    "imagemin-pngquant": "^9.0.2",
+    "imagemin-svgo": "^9"
   },
   "devDependencies": {
     "@ipp/testing": "workspace:*",
-    "@types/imagemin-mozjpeg": "^8.0.0",
-    "@types/imagemin-svgo": "^8.0.0"
+    "@types/imagemin-mozjpeg": "^8.0.1",
+    "@types/imagemin-svgo": "^9"
   },
   "engines": {
     "node": ">=10.18"

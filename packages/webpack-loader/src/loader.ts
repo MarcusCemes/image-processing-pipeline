@@ -5,13 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { getOptions } from "loader-utils";
-import { loader } from "webpack";
+import { LoaderDefinition } from "webpack";
 import { IppError } from "./error";
 import { checkOptions } from "./options";
 import { runtime } from "./runtime";
 
-export const ippLoader: loader.Loader = function ippLoader(source, map) {
+export const ippLoader: LoaderDefinition = function ippLoader(source, map) {
   if (!Buffer.isBuffer(source)) {
     throw new IppError("Source must be a buffer. This error is most likely caused by webpack");
   }
@@ -26,7 +25,7 @@ export const ippLoader: loader.Loader = function ippLoader(source, map) {
   this.cacheable(true);
 
   // Validate options
-  const options = getOptions(this);
+  const options = this.getOptions();
   const validatedOptions = checkOptions(options);
 
   // Generate the images

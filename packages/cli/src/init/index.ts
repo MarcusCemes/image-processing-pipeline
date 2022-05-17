@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { grey, red } from "chalk";
+import chalk from "chalk";
 import { Config } from "cosmiconfig/dist/types";
 import { stdout } from "process";
 import { startCli } from "../cli";
@@ -25,7 +25,7 @@ export async function init(concurrency: number): Promise<void> {
     await startCli(config, ui);
   } catch (err) {
     stdout.write(err instanceof Array ? err.map(formatError).join("") : formatError(err as Error));
-    stdout.write("\n" + pad(grey("Learn more at " + REPOSITORY_SHORT)) + "\n\n");
+    stdout.write("\n" + pad(chalk.grey("Learn more at " + REPOSITORY_SHORT)) + "\n\n");
     process.exitCode = 1;
   }
 }
@@ -51,14 +51,15 @@ function formatError(err: Error): string {
   if (err instanceof CliException) {
     const { title, comment } = err as CliException;
 
-    const heading = "\n" + red.bold(`${BULLET} ${title ? title : "CLI Exception"}`) + "\n\n";
-    const body = comment ? pad(red(comment)) + "\n\n" : "";
+    const heading = "\n" + chalk.red.bold(`${BULLET} ${title ? title : "CLI Exception"}`) + "\n\n";
+    const body = comment ? pad(chalk.red(comment)) + "\n\n" : "";
 
     return pad(heading + body);
   }
 
   const error =
-    red(err instanceof Error ? prettifyError(err) : "A non-Error like object was thrown") + "\n";
+    chalk.red(err instanceof Error ? prettifyError(err) : "A non-Error like object was thrown") +
+    "\n";
   const message =
     "This should not have happened.\nIf you feel that this was in error, consider opening a new issue\n";
 

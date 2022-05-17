@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@ipp/common": "workspace:*",
-    "execa": "^5.0.0"
+    "execa": "^5"
   },
   "engines": {
     "node": ">=10.18"

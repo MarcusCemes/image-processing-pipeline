@@ -16,6 +16,7 @@ jest.mock("fs", () => ({
     stream.end();
     return stream;
   }),
+  existsSync: () => true,
   createWriteStream: jest.fn(() => new PassThrough()),
   promises: {
     readdir: jest.fn(async () => []),

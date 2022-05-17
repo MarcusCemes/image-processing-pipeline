@@ -8,9 +8,9 @@
 import { DataObject, Metadata, PipelineFormat, sampleMetadata } from "@ipp/common";
 import { executePipeline } from "@ipp/core";
 import { randomBytes } from "crypto";
-import { loader } from "webpack";
-import { ManifestExport, runtime, SimpleExport } from "./runtime";
 import { interpolateName } from "loader-utils";
+import { LoaderContext } from "webpack";
+import { ManifestExport, runtime, SimpleExport } from "./runtime";
 
 jest.mock("@ipp/core");
 jest.mock("loader-utils");
@@ -20,7 +20,7 @@ describe("function runtime()", () => {
     emitFile: jest.fn(),
     mode: "production",
     resourcePath: "/some_path/image",
-  } as unknown as loader.LoaderContext;
+  } as unknown as LoaderContext<Record<string, never>>;
 
   const buffer = randomBytes(8);
   const initialMetadata = { path: ctx.resourcePath };
@@ -107,7 +107,7 @@ describe("function runtime()", () => {
     const result = runtime(ctx, options, buffer);
 
     await expect(result).resolves.toMatchObject<ManifestExport>(expected);
-    expect(ctx.emitFile).toHaveBeenCalledWith(expect.any(String), format.data.buffer, null);
+    expect(ctx.emitFile).toHaveBeenCalledWith(expect.any(String), format.data.buffer, undefined);
   });
 
   test("supports simple mode", async () => {

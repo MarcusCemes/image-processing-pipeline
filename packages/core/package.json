@@ -11,12 +11,12 @@
   ],
   "dependencies": {
     "@ipp/common": "workspace:*",
-    "async-mutex": "^0.2.6",
-    "immer": "^8.0.1",
-    "sharp": "^0.27.0"
+    "async-mutex": "^0.3.2",
+    "immer": "^9.0.14",
+    "sharp": "^0.30.4"
   },
   "devDependencies": {
-    "@types/sharp": "^0.27.1"
+    "@types/sharp": "^0.30.2"
   },
   "engines": {
     "node": ">=10.18"
