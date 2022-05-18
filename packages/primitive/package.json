@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build-vendor": "node ./scripts/build-vendor.js",
+    "postinstall": "node ./scripts/check-executable.js",
     "prePublishOnly": "build-vendor"
   },
   "dependencies": {
