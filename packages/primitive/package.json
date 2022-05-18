@@ -1,6 +1,6 @@
 {
   "name": "@ipp/primitive",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build-vendor": "node ./scripts/build-vendor.js",
+    "postinstall": "node ./scripts/check-executable.js",
     "prePublishOnly": "build-vendor"
   },
   "dependencies": {
