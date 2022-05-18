@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 const { arch, platform } = require("os");
-const { existsSync } = require("fs");
+const { chmodSync, existsSync } = require("fs");
 const { join, resolve } = require("path");
 
 const ESC = "\x1B[";
@@ -10,12 +10,18 @@ const RESET = ESC + "0m";
 
 const VENDOR_DIR = resolve(__dirname, "..", "vendor");
 
-if (!existsSync(join(__dirname, "../.no-postinstall")) && !existsSync(getExecutable())) {
-  console.log(
-    YELLOW +
-      "WARNING: @ipp/primitive could not find a pre-compiled executable for your target system.\nYou can either try compiling the executable yourself (see scripts/build-vendor.js), or open an issue on the repository." +
-      RESET
-  );
+if (!existsSync(join(__dirname, "../.no-postinstall"))) {
+  const exePath = getExecutable();
+
+  if (!existsSync(exePath)) {
+    console.log(
+      YELLOW +
+        "WARNING: @ipp/primitive could not find a pre-compiled executable for your target system.\nYou can either try compiling the executable yourself (see scripts/build-vendor.js), or open an issue on the repository." +
+        RESET
+    );
+  } else {
+    chmodSync(exePath, 0o755);
+  }
 }
 
 function getExecutable() {

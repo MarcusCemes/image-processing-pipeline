@@ -1,6 +1,6 @@
 {
   "name": "@ipp/primitive",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "An image build orchestrator for the modern web",
   "author": "Marcus Cemes",
   "license": "MIT",
