@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 const { execSync } = require("child_process");
-const { mkdirSync, rmSync, statSync, mkdtempSync } = require("fs");
+const { mkdirSync, rmSync, statSync, mkdtempSync, chmodSync } = require("fs");
 const { tmpdir } = require("os");
 const { resolve, join } = require("path");
 
@@ -65,6 +65,9 @@ function main() {
       cwd: buildDir,
       env: { ...process.env, GOOS: os, GOARCH: arch },
     });
+
+    // CI published packages no longer seem to have +x bit set
+    chmodSync(outputPath, 0o755);
   }
 }
 
