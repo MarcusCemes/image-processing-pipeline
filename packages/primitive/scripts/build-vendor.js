@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 const { execSync } = require("child_process");
-const { mkdirSync, rmSync, statSync, mkdtempSync } = require("fs");
+const { mkdirSync, rmSync, statSync, mkdtempSync, chmodSync } = require("fs");
 const { tmpdir } = require("os");
 const { resolve, join } = require("path");
 
@@ -14,17 +14,22 @@ const BUILD_MATRIX = [
   {
     os: "darwin",
     arch: "amd64",
-    filename: "primitive-darwin-x64",
+    filename: "primitive-darwin-amd64",
+  },
+  {
+    os: "darwin",
+    arch: "arm64",
+    filename: "primitive-darwin-arm64",
   },
   {
     os: "linux",
     arch: "amd64",
-    filename: "primitive-linux-x64",
+    filename: "primitive-linux-amd64",
   },
   {
     os: "windows",
     arch: "amd64",
-    filename: "primitive-win32-x64.exe",
+    filename: "primitive-win32-amd64.exe",
   },
 ];
 
@@ -53,13 +58,16 @@ function main() {
 
   // Cross-compile for each platform
   for (const { os, arch, filename } of BUILD_MATRIX) {
-    console.log(`🏗️ Building primitive executable for ${os} (${arch})`);
+    console.log(`🏗️  Building primitive executable for ${os} (${arch})`);
 
     const outputPath = resolve(vendorDir, filename);
     execSync(`go build -o "${outputPath}"`, {
       cwd: buildDir,
       env: { ...process.env, GOOS: os, GOARCH: arch },
     });
+
+    // CI published packages no longer seem to have +x bit set
+    chmodSync(outputPath, 0o755);
   }
 }
 

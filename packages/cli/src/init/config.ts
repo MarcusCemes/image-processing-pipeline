@@ -7,7 +7,7 @@
 
 import { ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
 import Ajv, { ErrorObject } from "ajv";
-import { bold, white } from "chalk";
+import chalk from "chalk";
 import { cosmiconfig } from "cosmiconfig";
 import { CliException, CliExceptionCode } from "../lib/exception";
 import configSchema from "../schema/config.json";
@@ -93,20 +93,20 @@ function friendlyParse(config: Partial<Config> = {}): void {
       "Invalid configuration",
       CliExceptionCode.CONFIG_PARSE,
       "Invalid configuration",
-      errors.join("\n") + `\n\n${white("Did you create a configuration file?")}`
+      errors.join("\n") + `\n\n${chalk.white("Did you create a configuration file?")}`
     );
 }
 
 /** Friendlier hints as to why the validation faled */
-function parseAjvError({ dataPath, keyword, message, params }: ErrorObject): string {
-  const property = bold(`Config${dataPath}`);
+function parseAjvError({ keyword, message, params, instancePath }: ErrorObject): string {
+  const property = chalk.bold(`Config${instancePath}`);
 
   switch (keyword) {
     case "additionalProperties":
-      return `${property} has an unknown property "${bold(params.additionalProperty)}"`;
+      return `${property} has an unknown property "${chalk.bold(params.additionalProperty)}"`;
 
     case "required":
-      return `${property} is missing property "${bold(params.missingProperty)}"`;
+      return `${property} is missing property "${chalk.bold(params.missingProperty)}"`;
 
     default:
       return `${property} ${message}`;

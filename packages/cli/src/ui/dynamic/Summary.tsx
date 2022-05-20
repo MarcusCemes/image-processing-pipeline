@@ -5,18 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import figures, { bullet, main } from "figures";
+import figures from "figures";
 import { Box, Text, useApp } from "ink";
 import React, { useEffect } from "react";
 import { State, Status } from "../../lib/state";
 import { TERMINAL_WIDTH } from "./constants";
 
-const emojiSupport = bullet === main.bullet;
-
 const Notice: React.FC = ({ children }) => (
   <Box marginTop={1}>
     <Box marginRight={1}>
-      <Text color="whiteBright">{bullet}</Text>
+      <Text color="whiteBright">{figures.bullet}</Text>
     </Box>
     {children}
   </Box>
@@ -29,7 +27,7 @@ const CompletionSummary: React.FC<{ completed: number; failed: number }> = ({
   <Box width={TERMINAL_WIDTH} justifyContent="center">
     <Box borderStyle="single" paddingX={2} flexDirection="column">
       <Box marginBottom={1} justifyContent="center">
-        <Text bold>{emojiSupport && "🎉 "}All done!</Text>
+        <Text bold>🎉 All done!</Text>
       </Box>
 
       <Box>
