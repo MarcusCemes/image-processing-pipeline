@@ -6,7 +6,6 @@
  */
 
 import { randomBytes } from "crypto";
-import loaderUtils from "loader-utils";
 import { ippLoader, raw } from "./loader";
 import * as optionsModule from "./options";
 import * as runtimeModule from "./runtime";
@@ -16,10 +15,11 @@ describe("function ippLoader()", () => {
 
   let callbackCalled = Promise.resolve();
   const callback = jest.fn();
-  const getOptionsSpy = jest.spyOn(loaderUtils, "getOptions");
+
   const checkOptionsSpy = jest
     .spyOn(optionsModule, "checkOptions")
     .mockImplementation((o) => o as any);
+
   const runtimeSpy = jest
     .spyOn(runtimeModule, "runtime")
     .mockImplementation(async () => ({ __runtimeExport: true } as any));
@@ -27,6 +27,7 @@ describe("function ippLoader()", () => {
   const ctx = {
     async: jest.fn(() => callback),
     cacheable: jest.fn(),
+    getOptions: jest.fn(() => ({})),
   };
 
   beforeEach(() => {
@@ -42,58 +43,58 @@ describe("function ippLoader()", () => {
   });
 
   test("requests async", async () => {
-    ippLoader.bind(ctx)(source, void 0);
+    ippLoader.bind(ctx as any)(source as any, undefined);
     await callbackCalled;
 
     expect(ctx.async).toHaveBeenCalled();
   });
 
   test("requests cacheable", async () => {
-    ippLoader.bind(ctx)(source, void 0);
+    ippLoader.bind(ctx as any)(source as any, undefined);
     await callbackCalled;
 
     expect(ctx.cacheable).toHaveBeenCalledWith(true);
   });
 
   test("gets and checks options", async () => {
-    ippLoader.bind(ctx)(source, void 0);
+    ippLoader.bind(ctx as any)(source as any, undefined);
     await callbackCalled;
 
-    expect(getOptionsSpy).toHaveBeenCalled();
+    expect(ctx.getOptions).toHaveBeenCalled();
     expect(checkOptionsSpy).toHaveBeenCalled();
   });
 
   test("fails if no callback", async () => {
-    ctx.async.mockImplementationOnce(() => void 0 as any);
-    expect(() => ippLoader.bind(ctx)(source, void 0)).toThrow("callback");
+    ctx.async.mockImplementationOnce(() => undefined as any);
+    expect(() => ippLoader.bind(ctx as any)(source as any, undefined)).toThrow("callback");
   });
 
   test("returns data with the callback", async () => {
-    ippLoader.bind(ctx)(source, void 0);
+    ippLoader.bind(ctx as any)(source as any, undefined);
     await callbackCalled;
 
     expect(callback).toHaveBeenCalledWith(
       null,
       `module.exports = {"__runtimeExport":true};\n`,
-      void 0
+      undefined
     );
   });
 
   // The loader throws synchronously
   test("expects a raw buffer output", () => {
-    expect(() => ippLoader.bind(ctx)(source.toString(), void 0)).toThrowError(/buffer/);
+    expect(() => ippLoader.bind(ctx as any)(source.toString(), void 0)).toThrowError(/buffer/);
   });
 
   test("supports ES module exports", async () => {
-    getOptionsSpy.mockReturnValue({ esModule: true });
+    ctx.getOptions.mockReturnValue({ esModule: true });
 
-    ippLoader.bind(ctx)(source, void 0);
+    ippLoader.bind(ctx as any)(source as any, undefined);
     await callbackCalled;
 
     expect(callback).toHaveBeenCalledWith(
       null,
       `export default {"__runtimeExport":true};\n`,
-      void 0
+      undefined
     );
   });
 
@@ -101,7 +102,7 @@ describe("function ippLoader()", () => {
     const error = new Error("__testError");
     runtimeSpy.mockRejectedValueOnce(error);
 
-    ippLoader.bind(ctx)(source, void 0);
+    ippLoader.bind(ctx as any)(source as any, undefined);
     await callbackCalled;
 
     expect(callback).toHaveBeenLastCalledWith(error);

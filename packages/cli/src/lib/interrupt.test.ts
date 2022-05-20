@@ -35,8 +35,6 @@ describe("function createInterruptHandler()", () => {
 
     const handler = createInterruptHandler();
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     process.emit("SIGINT");
 
     await expect(handler.rejecter).rejects.toBeInstanceOf(InterruptException);
@@ -55,8 +53,6 @@ describe("function createInterruptHandler()", () => {
     const COUNT = 3;
 
     for (let i = 0; i < COUNT; ++i) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       process.emit("SIGINT");
     }
 

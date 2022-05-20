@@ -80,11 +80,25 @@ export const PrimitivePipe: Pipe<Partial<PrimitivePipeOptions>> = async (data, o
 };
 
 function getExecutable(): string {
-  const a = arch();
+  const a = getArch();
   const p = platform();
   const e = p === "win32" ? ".exe" : "";
 
   return join(VENDOR_DIR, `primitive-${p}-${a}${e}`);
+}
+
+function getArch(): string {
+  const a = arch();
+  switch (a) {
+    case "x32":
+      return "amd";
+
+    case "x64":
+      return "amd64";
+
+    default:
+      return a;
+  }
 }
 
 export default PrimitivePipe;

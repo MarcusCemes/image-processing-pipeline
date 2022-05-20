@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { bold } from "chalk";
+import chalk from "chalk";
 import leven from "leven";
 import yargs, { Options } from "yargs";
 import { REPOSITORY, VERSION } from "../constants";
@@ -64,7 +64,7 @@ export function validateArgs(args: Args): void {
       `Unrecognised CLI flag "${key}"`,
       CliExceptionCode.ARG_VALIDATION,
       `Unrecognised CLI flag: "${key}"`,
-      `Run ${bold("ipp --help")} to get a list of allowed parameters` +
+      `Run ${chalk.bold("ipp --help")} to get a list of allowed parameters` +
         createDidYouMeanMessage(key, allowedFlags)
     );
   }
@@ -94,7 +94,7 @@ export const createDidYouMeanMessage = (unrecognised: string, allowedOptions: st
     return steps < 3;
   });
 
-  return suggestion ? `\n\nDid you mean ${bold(suggestion)}?` : "";
+  return suggestion ? `\n\nDid you mean ${chalk.bold(suggestion)}?` : "";
 };
 
 function kebabToCamelCase(text: string): string {

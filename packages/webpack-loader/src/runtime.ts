@@ -15,7 +15,7 @@ import {
 } from "@ipp/common";
 import { executePipeline } from "@ipp/core";
 import { parse } from "path";
-import { loader } from "webpack";
+import { LoaderContext } from "webpack";
 import { Options } from "./options";
 
 const PREFERRED_SIZE = 1920;
@@ -43,7 +43,7 @@ type FileFormat = PipelineFormat & { file: string };
  * @param source The `raw` image source for the loader to process
  */
 export async function runtime(
-  ctx: loader.LoaderContext,
+  ctx: LoaderContext<Record<string, never>>,
   options: Options,
   source: Buffer
 ): Promise<SimpleExport | ManifestExport> {
@@ -82,7 +82,7 @@ export async function runtime(
         ? interpolateName(extendedMeta, format.saveKey)
         : format.saveKey;
 
-    ctx.emitFile(path, format.data.buffer, null);
+    ctx.emitFile(path, format.data.buffer, undefined);
     return {
       ...format,
       data: {

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { cyan, greenBright, redBright, whiteBright } from "chalk";
+import chalk from "chalk";
 import { stdout } from "process";
 import { Subscription } from "rxjs";
 import { debounceTime, distinctUntilChanged, map } from "rxjs/operators";
@@ -24,7 +24,7 @@ const concurrency: StateFunction = (obs) =>
       distinctUntilChanged()
     )
     .subscribe((value) => {
-      line(`> Concurrency change: ${value}`, cyan);
+      line(`> Concurrency change: ${value}`, chalk.cyan);
     });
 
 const status: StateFunction = (obs) =>
@@ -34,7 +34,7 @@ const status: StateFunction = (obs) =>
       distinctUntilChanged()
     )
     .subscribe((value) => {
-      line(`> Status change: ${parseStatus(value)}`, cyan);
+      line(`> Status change: ${parseStatus(value)}`, chalk.cyan);
     });
 
 const stats: StateFunction = (obs) =>
@@ -51,8 +51,8 @@ const stats: StateFunction = (obs) =>
 const STATE_FUNCTIONS: StateFunction[] = [concurrency, status, stats];
 
 export const TextUi: UI = (ctx) => {
-  line("Image Processing Pipeline", whiteBright);
-  line(`${REPOSITORY_SHORT} - v${VERSION}\n`, whiteBright);
+  line("Image Processing Pipeline", chalk.whiteBright);
+  line(`${REPOSITORY_SHORT} - v${VERSION}\n`, chalk.whiteBright);
   line("| Total | Completed | Failed |");
 
   const subscriptions = STATE_FUNCTIONS.map((sub) => sub(ctx.state));
@@ -68,10 +68,10 @@ export const TextUi: UI = (ctx) => {
 function printSummary(state: State): void {
   [
     "\n -- Summary --\n",
-    `Total:     ${whiteBright(pad(state.images.found))}`,
-    `Completed: ${greenBright(pad(state.images.completed))}`,
-    `Failed:    ${redBright(pad(state.images.failed))}`,
-  ].forEach((l) => line(l, whiteBright));
+    `Total:     ${chalk.whiteBright(pad(state.images.found))}`,
+    `Completed: ${chalk.greenBright(pad(state.images.completed))}`,
+    `Failed:    ${chalk.redBright(pad(state.images.failed))}`,
+  ].forEach((l) => line(l, chalk.whiteBright));
 }
 
 function parseStatus(status: Status): string {
