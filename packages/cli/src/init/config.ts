@@ -24,6 +24,15 @@ export interface Config {
   clean?: boolean;
   flat?: boolean;
   manifest?: ManifestMappings;
+  /**
+   * Define file path to store errors in json format
+   * (only creates this file if there are actually errors)
+   *
+   * - Keep `undefined` (default) or `true` to create it in outputdir/errors.json
+   * - Use a `string` to change the file path (`./custom-errors.json`)
+   * - Set to `false` to disable creation of errors.json
+   */
+  errorFile?: string | boolean;
 }
 
 export async function getConfig(initial: Partial<Config>, path?: string): Promise<Config> {

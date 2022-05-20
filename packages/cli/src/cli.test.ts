@@ -5,10 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { Exception } from "@ipp/common";
 import { PassThrough } from "stream";
 import { startCli } from "./cli";
 import { Config } from "./init/config";
+import { createObjectStream } from "./lib/stream/object_stream";
+import { TaskSource } from "./operators/types";
 import { UI } from "./ui";
+import fs from "fs";
+import { resolve } from "path";
+
+async function* exceptionList(amount = 3): AsyncGenerator<TaskSource | Exception> {
+  for (let i = 0; i < amount; i++) {
+    yield new Exception("Exception " + i);
+  }
+}
+
+jest.mock("./operators/search", () => ({
+  searchForImages: jest.fn(() => {
+    return createObjectStream(exceptionList());
+  }),
+}));
 
 jest.mock("fs", () => ({
   createReadStream: jest.fn(() => {
@@ -39,5 +56,33 @@ describe("function startCLI()", () => {
 
   test("runs", async () => {
     await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+  });
+});
+
+describe("function startCLI() with custom errorFile", () => {
+  const config: Config = {
+    input: "",
+    output: "",
+    concurrency: 4,
+    pipeline: [],
+  };
+
+  afterEach(() => jest.clearAllMocks());
+
+  test("errorFile with default path", async () => {
+    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+    expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", "errors.json"));
+  });
+
+  test("errorFile with custom path", async () => {
+    config.errorFile = "custom/path/error.json";
+    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+    expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", config.errorFile));
+  });
+
+  test("errorFile disabled", async () => {
+    config.errorFile = false;
+    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+    expect(fs.createWriteStream).toHaveBeenCalledTimes(0);
   });
 });

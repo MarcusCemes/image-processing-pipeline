@@ -55,7 +55,14 @@ export async function startCli(config: Config, ui: UI = DynamicUI): Promise<void
 
         setStatus(ctx, Status.PROCESSING);
 
-        await createPipeline(ctx, config, MANIFEST_FILE, ERROR_FILE).pipe(toPromise());
+        await createPipeline(
+          ctx,
+          config,
+          MANIFEST_FILE,
+          typeof config.errorFile === "string" && config.errorFile.length > 0
+            ? config.errorFile
+            : ERROR_FILE
+        ).pipe(toPromise());
 
         setStatus(ctx, Status.COMPLETE);
       } catch (err) {
@@ -100,7 +107,9 @@ function createPipeline(ctx: CliContext, config: Config, manifestFile: string, e
         : passthrough()
     )
     .pipe(exceptionCounter(ctx))
-    .pipe(saveExceptions(resolve(config.output, errorFile)));
+    .pipe(
+      config.errorFile !== false ? saveExceptions(resolve(config.output, errorFile)) : passthrough()
+    );
 }
 
 function setStatus(ctx: CliContext, status: Status) {
