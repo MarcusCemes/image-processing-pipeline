@@ -4,28 +4,29 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: Build and test
+    name: Test (Node.js v${{ matrix.node-version }})
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ["14", "16", "18"]
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache pnpm store
-        uses: actions/cache@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          version: latest
 
       - name: Install Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
 
-      - name: Install Golang
-        uses: actions/setup-go@v2
-
-      - name: Install pnpm
-        run: npm i -g pnpm
+      - name: Setup Go
+        uses: actions/setup-go@v3
 
       - name: Install dependencies
         run: pnpm install
@@ -40,9 +41,37 @@ jobs:
         run: pnpm build
 
       - name: Upload coverage
+        if: matrix.node-version == '18'
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage/coverage-final.json
+
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check formatting
+        run: pnpm test:format
+
+      - name: Lint
+        run: pnpm test:lint
 
   publish:
     name: Publish
@@ -53,23 +82,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache pnpm store
-        uses: actions/cache@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          version: latest
 
       - name: Install Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
           registry-url: "https://registry.npmjs.org"
+          node-version: "18"
+          cache: pnpm
 
-      - name: Install Golang
-        uses: actions/setup-go@v2
-
-      - name: Install pnpm
-        run: npm i -g pnpm
+      - name: Setup Go
+        uses: actions/setup-go@v3
 
       - name: Install dependencies
         run: pnpm install
