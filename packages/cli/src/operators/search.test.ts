@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { searchForImages } from "./search";
+import fs, { Dirent, Stats } from "fs";
+import { parse } from "path";
 import { PassThrough } from "stream";
-import fs, { Dir, Dirent, Stats } from "fs";
-import { isTaskSource, TaskSource } from "./types";
-import { Exception } from "common/src";
+import { searchForImages } from "./search";
 
 jest.mock("fs", () => ({
   createReadStream: jest.fn(() => {
@@ -22,85 +21,72 @@ jest.mock("fs", () => ({
     opendir: jest.fn(async () => []),
     readdir: jest.fn(async () => []),
     mkdir: jest.fn(async () => void 0),
-    stat: jest.fn(
-      async () => <Partial<Stats>>{ isFile: jest.fn(() => false), isDirectory: jest.fn(() => true) }
-    ),
+    stat: jest.fn(async () => <Partial<Stats>>{ isFile: () => false, isDirectory: () => true }),
   },
 }));
 
-const awaitTaskSource = async (source: AsyncIterable<TaskSource | Exception>) => {
-  const resolved: TaskSource[] = [];
-  for await (const tsk of source) {
-    if (isTaskSource(tsk)) resolved.push(tsk);
-  }
-  return resolved;
-};
+function statsEntry(file: boolean): Partial<Stats> {
+  return { isFile: () => file, isDirectory: () => !file };
+}
 
-describe("search.ts", () => {
+async function collect<T>(it: AsyncIterable<T>): Promise<T[]> {
+  const result: T[] = [];
+  for await (const item of it) result.push(item);
+  return result;
+}
+
+async function* fakeOpendirIterator(files: string[]): AsyncIterableIterator<Dirent> {
+  for (const file of files) {
+    const isFile = parse(file).ext !== "";
+    yield {
+      isDirectory: () => !isFile,
+      isFile: () => isFile,
+      name: file,
+    } as Dirent;
+  }
+}
+
+describe("CLI image searching", () => {
   afterEach(() => jest.clearAllMocks());
 
-  test("handle input of file paths properly", async () => {
-    (fs.promises.stat as jest.Mock).mockResolvedValue({
-      isFile: jest.fn(() => true),
-      isDirectory: jest.fn(() => false),
-    });
+  const statMock = fs.promises.stat as jest.Mock;
+  const opendirMock = fs.promises.opendir as jest.Mock;
 
-    expect(
-      await searchForImages(["path/to/supported.png", "path/to/folder/"]).pipe(awaitTaskSource)
-    ).toHaveLength(1);
+  test("handles a single image input", async () => {
+    statMock.mockResolvedValue(statsEntry(true));
+    const images = await collect(searchForImages(["/path/to/image.jpg"]));
+    expect(images).toEqual([{ root: "/path/to", file: "image.jpg" }]);
   });
 
-  test("handle input of file path and directory properly", async () => {
-    // Setup two paths
-    // 0 is file & 1 is dir
-    (fs.promises.stat as jest.Mock)
-      .mockResolvedValueOnce(<Partial<Stats>>{
-        isFile: jest.fn(() => true),
-        isDirectory: jest.fn(() => false),
-      })
-      .mockResolvedValueOnce(<Partial<Stats>>{
-        isFile: jest.fn(() => false),
-        isDirectory: jest.fn(() => true),
-      });
+  test("differentiates image and directory paths", async () => {
+    statMock.mockResolvedValue(statsEntry(true));
 
-    const folderPath = "path/to/folder/";
-    // setup some read returns for the folder.
-    // Returns 2 supported & one unsupported file
-    (fs.promises.opendir as jest.Mock).mockResolvedValue(<Partial<Dir>>{
-      [Symbol.asyncIterator]: () =>
-        <AsyncIterableIterator<Dirent>>{
-          next: jest
-            .fn()
-            .mockResolvedValueOnce({
-              value: <Partial<Dirent>>{
-                isDirectory: jest.fn(() => false),
-                isFile: jest.fn(() => true),
-                name: "valid1.png",
-              },
-            })
-            .mockResolvedValueOnce({
-              value: <Partial<Dirent>>{
-                isDirectory: jest.fn(() => false),
-                isFile: jest.fn(() => true),
-                name: "valid2.png",
-              },
-            })
-            .mockResolvedValueOnce({
-              value: <Partial<Dirent>>{
-                isDirectory: jest.fn(() => false),
-                isFile: jest.fn(() => true),
-                name: "invalid.file",
-              },
-            })
-            .mockResolvedValueOnce({
-              done: true,
-            }) as unknown,
-        },
-      path: folderPath,
-    });
+    // The image should be found, the folder is mocked to any empty array
+    const paths = ["/path/to/supported.png", "/path/to/folder/"];
+    const foundImages = await collect(searchForImages(paths));
+    expect(foundImages).toEqual([{ root: "/path/to", file: "supported.png" }]);
+    expect(foundImages).toHaveLength(1);
+  });
 
-    expect(
-      await searchForImages(["path/to/supported.png", folderPath]).pipe(awaitTaskSource)
-    ).toHaveLength(3);
+  test("walks a directory and resolves images", async () => {
+    opendirMock.mockImplementation(async () =>
+      fakeOpendirIterator(
+        ["image1.png", "image2.jpg", "image3.svg", "file.txt"].map((file) => `/path/to/${file}`)
+      )
+    );
+
+    statMock.mockResolvedValue(statsEntry(true));
+    [true, false].forEach((isFile) => statMock.mockResolvedValueOnce(statsEntry(isFile)));
+
+    const foundImages = await collect(searchForImages(["/path/to/image.png", "/path/to"]));
+
+    expect(foundImages).toEqual(
+      ["image.png", "image1.png", "image2.jpg", "image3.svg"].map((file) => ({
+        root: "/path/to",
+        file,
+      }))
+    );
+
+    expect(foundImages).toHaveLength(4);
   });
 });
