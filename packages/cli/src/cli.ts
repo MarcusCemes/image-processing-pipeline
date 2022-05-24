@@ -116,8 +116,16 @@ async function ensureOutputPath(path: string): Promise<void> {
 }
 
 async function deleteDirectory(path: string): Promise<void> {
+  // Check if dir actually exists
   try {
-    await promises.rmdir(path, { recursive: true });
+    await promises.access(path, W_OK);
+  } catch (_err) {
+    return; // nothing to delete
+  }
+
+  try {
+    if (!(await promises.stat(path)).isDirectory()) throw new Error("Path is not a directory!");
+    await promises.rm(path, { recursive: true });
   } catch (err) {
     throw new CliException(
       "Output clean error:\n" + (err as Error).message,
