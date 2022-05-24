@@ -75,14 +75,21 @@ describe("function startCLI() with custom errorFile", () => {
   });
 
   test("errorFile with custom path", async () => {
-    config.errorFile = "custom/path/error.json";
-    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
-    expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", config.errorFile));
+    const errorFile = "custom/path/error.json";
+    await expect(startCli({ errorFile, ...config }, mockUI)).resolves.toBeUndefined();
+    expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", errorFile));
   });
 
   test("errorFile disabled", async () => {
-    config.errorFile = false;
-    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+    const errorFile = false;
+    await expect(startCli({ errorFile, ...config }, mockUI)).resolves.toBeUndefined();
     expect(fs.createWriteStream).toHaveBeenCalledTimes(0);
+  });
+
+  test("errorFile with custom callback function", async () => {
+    const errorFile = jest.fn();
+    await expect(startCli({ errorFile, ...config }, mockUI)).resolves.toBeUndefined();
+    expect(fs.createWriteStream).toHaveBeenCalledTimes(0);
+    expect(errorFile).toHaveBeenCalledTimes(3);
   });
 });

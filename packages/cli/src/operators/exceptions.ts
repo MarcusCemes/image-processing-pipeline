@@ -33,6 +33,16 @@ export function saveExceptions<T>(path: string): Operator<T | Exception, T> {
   );
 }
 
+export function callbackExceptions<T>(
+  callback: (item: Exception) => void
+): Operator<T | Exception, T> {
+  return map<T | Exception, T>((item) => {
+    if (!(item instanceof Exception)) return item;
+    callback(item);
+    return null;
+  });
+}
+
 function createExceptionWriter(path: string): ExceptionWriter {
   let first = true;
   const stream = createWriteStream(path);

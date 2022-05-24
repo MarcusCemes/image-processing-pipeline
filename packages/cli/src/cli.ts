@@ -14,11 +14,12 @@ import { createContext } from "./lib/context";
 import { CliException, CliExceptionCode } from "./lib/exception";
 import { InterruptHandler } from "./lib/interrupt";
 import { StateContext, Status } from "./lib/state";
+import { Operator } from "./lib/stream/object_stream";
 import { buffer } from "./lib/stream/operators/buffer";
 import { passthrough } from "./lib/stream/operators/passthrough";
 import { toPromise } from "./lib/stream/operators/to_promise";
 import { completedCounter, exceptionCounter, sourceCounter } from "./operators/counters";
-import { saveExceptions } from "./operators/exceptions";
+import { callbackExceptions, saveExceptions } from "./operators/exceptions";
 import { saveManifest } from "./operators/manifest";
 import { processImages } from "./operators/process";
 import { saveImages } from "./operators/save";
@@ -55,14 +56,7 @@ export async function startCli(config: Config, ui: UI = DynamicUI): Promise<void
 
         setStatus(ctx, Status.PROCESSING);
 
-        await createPipeline(
-          ctx,
-          config,
-          MANIFEST_FILE,
-          typeof config.errorFile === "string" && config.errorFile.length > 0
-            ? config.errorFile
-            : ERROR_FILE
-        ).pipe(toPromise());
+        await createPipeline(ctx, config, MANIFEST_FILE).pipe(toPromise());
 
         setStatus(ctx, Status.COMPLETE);
       } catch (err) {
@@ -91,8 +85,17 @@ async function withCliContext(
   }
 }
 
-function createPipeline(ctx: CliContext, config: Config, manifestFile: string, errorFile: string) {
+function createPipeline(ctx: CliContext, config: Config, manifestFile: string) {
   const paths = typeof config.input === "string" ? [config.input] : config.input;
+
+  let errorOperator: Operator<unknown, unknown> = passthrough();
+  if (config.errorFile === true || config.errorFile === undefined) {
+    errorOperator = saveExceptions(resolve(config.output, ERROR_FILE));
+  } else if (typeof config.errorFile === "string") {
+    errorOperator = saveExceptions(resolve(config.output, config.errorFile));
+  } else if (typeof config.errorFile === "function") {
+    errorOperator = callbackExceptions(config.errorFile);
+  }
 
   return searchForImages(paths)
     .pipe(sourceCounter(ctx))
@@ -107,9 +110,7 @@ function createPipeline(ctx: CliContext, config: Config, manifestFile: string, e
         : passthrough()
     )
     .pipe(exceptionCounter(ctx))
-    .pipe(
-      config.errorFile !== false ? saveExceptions(resolve(config.output, errorFile)) : passthrough()
-    );
+    .pipe(errorOperator);
 }
 
 function setStatus(ctx: CliContext, status: Status) {

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
+import { Exception, ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
 import Ajv, { ErrorObject } from "ajv";
 import chalk from "chalk";
 import { cosmiconfig } from "cosmiconfig";
@@ -28,11 +28,12 @@ export interface Config {
    * Define file path to store errors in json format
    * (only creates this file if there are actually errors)
    *
-   * - Keep `undefined` (default) or `true` to create it in outputdir/errors.json
+   * - Keep `undefined` (default) or use `true` to create it in <outputdir>/errors.json
    * - Use a `string` to change the file path (`./custom-errors.json`)
    * - Set to `false` to disable creation of errors.json
+   * - Use a callback function which takes as input each exception item, e.g: `(item) => console.error(item)`
    */
-  errorFile?: string | boolean;
+  errorFile?: string | boolean | ((item: Exception) => void);
 }
 
 export async function getConfig(initial: Partial<Config>, path?: string): Promise<Config> {
