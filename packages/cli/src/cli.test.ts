@@ -6,26 +6,13 @@
  */
 
 import { Exception } from "@ipp/common";
+import fs from "fs";
+import { resolve } from "path";
 import { PassThrough } from "stream";
 import { startCli } from "./cli";
 import { Config } from "./init/config";
 import { createObjectStream } from "./lib/stream/object_stream";
-import { TaskSource } from "./operators/types";
 import { UI } from "./ui";
-import fs from "fs";
-import { resolve } from "path";
-
-async function* exceptionList(amount = 3): AsyncGenerator<TaskSource | Exception> {
-  for (let i = 0; i < amount; i++) {
-    yield new Exception("Exception " + i);
-  }
-}
-
-jest.mock("./operators/search", () => ({
-  searchForImages: jest.fn(() => {
-    return createObjectStream(exceptionList());
-  }),
-}));
 
 jest.mock("fs", () => ({
   createReadStream: jest.fn(() => {
@@ -42,54 +29,65 @@ jest.mock("fs", () => ({
   },
 }));
 
+jest.mock("./operators/search", () => ({
+  searchForImages: jest.fn(() => createObjectStream(exceptionGenerator(3))),
+}));
+
 const mockUI: UI = jest.fn(() => ({ stop: jest.fn() }));
 
-describe("function startCLI()", () => {
-  const config: Config = {
+function config(config?: Partial<Config>): Config {
+  return {
     input: "",
     output: "",
     concurrency: 4,
     pipeline: [],
+    ...(config || {}),
   };
+}
 
+/** Helper function that generates an async iterator of exceptions. */
+async function* exceptionGenerator(count: number): AsyncGenerator<Exception> {
+  for (let i = 0; i < count; ++i) {
+    yield new Exception(`Exception ${i}`);
+  }
+}
+
+/** Run the CLI function with a custom config. */
+async function runWith(config: Config): Promise<void> {
+  await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+}
+
+describe("function startCLI()", () => {
   afterEach(() => jest.clearAllMocks());
 
   test("runs", async () => {
-    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+    await runWith(config());
   });
 });
 
-describe("function startCLI() with custom errorFile", () => {
-  const config: Config = {
-    input: "",
-    output: "",
-    concurrency: 4,
-    pipeline: [],
-  };
-
+describe("CLI error handling", () => {
   afterEach(() => jest.clearAllMocks());
 
-  test("errorFile with default path", async () => {
-    await expect(startCli(config, mockUI)).resolves.toBeUndefined();
+  test("writes exceptions to errors.json", async () => {
+    await runWith(config());
     expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", "errors.json"));
   });
 
-  test("errorFile with custom path", async () => {
-    const errorFile = "custom/path/error.json";
-    await expect(startCli({ errorFile, ...config }, mockUI)).resolves.toBeUndefined();
-    expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", errorFile));
+  test("writes to a custom error location", async () => {
+    const errorOutput = "custom_file.json";
+    await runWith(config({ errorOutput }));
+    expect(fs.createWriteStream).toHaveBeenCalledWith(resolve(".", errorOutput));
   });
 
-  test("errorFile disabled", async () => {
-    const errorFile = false;
-    await expect(startCli({ errorFile, ...config }, mockUI)).resolves.toBeUndefined();
-    expect(fs.createWriteStream).toHaveBeenCalledTimes(0);
+  test("suppresses errors", async () => {
+    await runWith(config({ suppressErrors: true }));
+    expect(fs.createWriteStream).not.toHaveBeenCalled();
   });
 
-  test("errorFile with custom callback function", async () => {
-    const errorFile = jest.fn();
-    await expect(startCli({ errorFile, ...config }, mockUI)).resolves.toBeUndefined();
-    expect(fs.createWriteStream).toHaveBeenCalledTimes(0);
-    expect(errorFile).toHaveBeenCalledTimes(3);
+  test("supports error callback", async () => {
+    const errorOutput = jest.fn();
+    await runWith(config({ errorOutput }));
+    expect(fs.createWriteStream).not.toHaveBeenCalled();
+    expect(errorOutput).toHaveBeenCalledTimes(3);
   });
 });

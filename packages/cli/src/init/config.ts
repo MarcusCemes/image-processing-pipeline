@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Exception, ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
+import { ManifestMappings, Pipeline, PipelineSchema } from "@ipp/common";
 import Ajv, { ErrorObject } from "ajv";
 import chalk from "chalk";
 import { cosmiconfig } from "cosmiconfig";
 import { CliException, CliExceptionCode } from "../lib/exception";
+import { ExceptionFn } from "../operators/exceptions";
 import configSchema from "../schema/config.json";
 import defaultConfig from "./default_config.json";
 
@@ -24,16 +25,14 @@ export interface Config {
   clean?: boolean;
   flat?: boolean;
   manifest?: ManifestMappings;
+  /** Suppress the output of any image processing errors. */
+  suppressErrors?: boolean;
   /**
-   * Define file path to store errors in json format
-   * (only creates this file if there are actually errors)
-   *
-   * - Keep `undefined` (default) or use `true` to create it in <outputdir>/errors.json
-   * - Use a `string` to change the file path (`./custom-errors.json`)
-   * - Set to `false` to disable creation of errors.json
-   * - Use a callback function which takes as input each exception item, e.g: `(item) => console.error(item)`
+   * Specify a different filename to output processing errors to
+   * (in JSON format), or a callback function that receives the
+   * exception as its first parameter.
    */
-  errorFile?: string | boolean | ((item: Exception) => void);
+  errorOutput?: string | ExceptionFn;
 }
 
 export async function getConfig(initial: Partial<Config>, path?: string): Promise<Config> {

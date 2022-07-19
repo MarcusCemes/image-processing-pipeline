@@ -14,19 +14,17 @@ import { createContext } from "./lib/context";
 import { CliException, CliExceptionCode } from "./lib/exception";
 import { InterruptHandler } from "./lib/interrupt";
 import { StateContext, Status } from "./lib/state";
-import { Operator } from "./lib/stream/object_stream";
 import { buffer } from "./lib/stream/operators/buffer";
 import { passthrough } from "./lib/stream/operators/passthrough";
 import { toPromise } from "./lib/stream/operators/to_promise";
 import { completedCounter, exceptionCounter, sourceCounter } from "./operators/counters";
-import { callbackExceptions, saveExceptions } from "./operators/exceptions";
+import { exceptionHandler } from "./operators/exceptions";
 import { saveManifest } from "./operators/manifest";
 import { processImages } from "./operators/process";
 import { saveImages } from "./operators/save";
 import { searchForImages } from "./operators/search";
 import { DynamicUI, UI, UiInstance as UIInstance } from "./ui";
 
-const ERROR_FILE = "errors.json";
 const MANIFEST_FILE = "manifest.json";
 const BUFFER_SIZE = 8;
 
@@ -88,15 +86,6 @@ async function withCliContext(
 function createPipeline(ctx: CliContext, config: Config, manifestFile: string) {
   const paths = typeof config.input === "string" ? [config.input] : config.input;
 
-  let errorOperator: Operator<unknown, unknown> = passthrough();
-  if (config.errorFile === true || config.errorFile === undefined) {
-    errorOperator = saveExceptions(resolve(config.output, ERROR_FILE));
-  } else if (typeof config.errorFile === "string") {
-    errorOperator = saveExceptions(resolve(config.output, config.errorFile));
-  } else if (typeof config.errorFile === "function") {
-    errorOperator = callbackExceptions(config.errorFile);
-  }
-
   return searchForImages(paths)
     .pipe(sourceCounter(ctx))
     .pipe(buffer(BUFFER_SIZE))
@@ -110,7 +99,9 @@ function createPipeline(ctx: CliContext, config: Config, manifestFile: string) {
         : passthrough()
     )
     .pipe(exceptionCounter(ctx))
-    .pipe(errorOperator);
+    .pipe(
+      config.suppressErrors ? passthrough() : exceptionHandler(config.output, config.errorOutput)
+    );
 }
 
 function setStatus(ctx: CliContext, status: Status) {
