@@ -118,7 +118,24 @@ async function ensureOutputPath(path: string): Promise<void> {
 
 async function deleteDirectory(path: string): Promise<void> {
   try {
-    await promises.rmdir(path, { recursive: true });
+    const stat = await promises.stat(path);
+
+    if (!stat.isDirectory()) {
+      throw new CliException(
+        "Output clean error",
+        CliExceptionCode.CLEAN,
+        "Output clean error",
+        "The output path already exists but is not a directory.\n" +
+          "Please remove the file and try again.\n"
+      );
+    }
+  } catch (error: unknown) {
+    if (hasErrorCode(error, "ENOENT")) return;
+    throw error;
+  }
+
+  try {
+    await promises.rm(path, { recursive: true });
   } catch (err) {
     throw new CliException(
       "Output clean error:\n" + (err as Error).message,
@@ -130,4 +147,8 @@ async function deleteDirectory(path: string): Promise<void> {
         String(err)
     );
   }
+}
+
+function hasErrorCode(error: unknown, code: string): boolean {
+  return error instanceof Error && (error as Error & { code: string }).code === code;
 }
