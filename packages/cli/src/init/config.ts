@@ -10,6 +10,7 @@ import Ajv, { ErrorObject } from "ajv";
 import chalk from "chalk";
 import { cosmiconfig } from "cosmiconfig";
 import { CliException, CliExceptionCode } from "../lib/exception";
+import { ExceptionFn } from "../operators/exceptions";
 import configSchema from "../schema/config.json";
 import defaultConfig from "./default_config.json";
 
@@ -24,6 +25,14 @@ export interface Config {
   clean?: boolean;
   flat?: boolean;
   manifest?: ManifestMappings;
+  /** Suppress the output of any image processing errors. */
+  suppressErrors?: boolean;
+  /**
+   * Specify a different filename to output processing errors to
+   * (in JSON format), or a callback function that receives the
+   * exception as its first parameter.
+   */
+  errorOutput?: string | ExceptionFn;
 }
 
 export async function getConfig(initial: Partial<Config>, path?: string): Promise<Config> {

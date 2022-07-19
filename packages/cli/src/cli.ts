@@ -18,14 +18,13 @@ import { buffer } from "./lib/stream/operators/buffer";
 import { passthrough } from "./lib/stream/operators/passthrough";
 import { toPromise } from "./lib/stream/operators/to_promise";
 import { completedCounter, exceptionCounter, sourceCounter } from "./operators/counters";
-import { saveExceptions } from "./operators/exceptions";
+import { exceptionHandler } from "./operators/exceptions";
 import { saveManifest } from "./operators/manifest";
 import { processImages } from "./operators/process";
 import { saveImages } from "./operators/save";
 import { searchForImages } from "./operators/search";
 import { DynamicUI, UI, UiInstance as UIInstance } from "./ui";
 
-const ERROR_FILE = "errors.json";
 const MANIFEST_FILE = "manifest.json";
 const BUFFER_SIZE = 8;
 
@@ -55,7 +54,7 @@ export async function startCli(config: Config, ui: UI = DynamicUI): Promise<void
 
         setStatus(ctx, Status.PROCESSING);
 
-        await createPipeline(ctx, config, MANIFEST_FILE, ERROR_FILE).pipe(toPromise());
+        await createPipeline(ctx, config, MANIFEST_FILE).pipe(toPromise());
 
         setStatus(ctx, Status.COMPLETE);
       } catch (err) {
@@ -84,7 +83,7 @@ async function withCliContext(
   }
 }
 
-function createPipeline(ctx: CliContext, config: Config, manifestFile: string, errorFile: string) {
+function createPipeline(ctx: CliContext, config: Config, manifestFile: string) {
   const paths = typeof config.input === "string" ? [config.input] : config.input;
 
   return searchForImages(paths)
@@ -100,7 +99,9 @@ function createPipeline(ctx: CliContext, config: Config, manifestFile: string, e
         : passthrough()
     )
     .pipe(exceptionCounter(ctx))
-    .pipe(saveExceptions(resolve(config.output, errorFile)));
+    .pipe(
+      config.suppressErrors ? passthrough() : exceptionHandler(config.output, config.errorOutput)
+    );
 }
 
 function setStatus(ctx: CliContext, status: Status) {
