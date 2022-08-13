@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Pipe } from "@ipp/common";
+import { Pipe } from '@ipp/common';
 
-import { ConvertPipe } from "./convert";
-import { PassthroughPipe } from "./passthrough";
-import { ResizePipe } from "./resize";
+import { ConvertPipe } from './convert';
+import { PassthroughPipe } from './passthrough';
+import { ResizePipe } from './resize';
+import { RotatePipe } from './rotate';
 
 export const PIPES: { [index: string]: Pipe<any> } = {
   convert: ConvertPipe,
   passthrough: PassthroughPipe,
   resize: ResizePipe,
+  rotate: RotatePipe,
 } as const;
