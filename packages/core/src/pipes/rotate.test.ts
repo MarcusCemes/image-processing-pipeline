@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DataObject, sampleMetadata } from '@ipp/common';
+import { DataObject, sampleMetadata } from "@ipp/common";
 
-import { randomBytes } from 'crypto';
-import sharp, { OutputInfo, Sharp } from 'sharp';
+import { randomBytes } from "crypto";
+import sharp, { OutputInfo, Sharp } from "sharp";
 
-import { RotateOptions, RotatePipe } from './rotate';
+import { RotateOptions, RotatePipe } from "./rotate";
 
 jest.mock("sharp");
 

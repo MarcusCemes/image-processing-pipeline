@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Pipe } from '@ipp/common';
+import { Pipe } from "@ipp/common";
 
-import produce from 'immer';
-import sharp, { RotateOptions as SharpOptions } from 'sharp';
+import produce from "immer";
+import sharp, { RotateOptions as SharpOptions } from "sharp";
 
 sharp.concurrency(1);
 
