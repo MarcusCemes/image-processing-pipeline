@@ -16,8 +16,19 @@ import defaultConfig from "./default_config.json";
 
 const MODULE_NAME = "ipp";
 
+/**
+ * Callback function which must return true to include the image for processing
+ */
+export type InputFilterCallback = (file: string) => boolean;
+
+/**
+ * Filter which can exclude images from processing
+ */
+export type InputFilter = (InputFilterCallback | RegExp)[] | InputFilterCallback | RegExp;
+
 export interface Config {
   input: string | string[];
+  inputFilter?: InputFilter;
   output: string;
   pipeline: Pipeline;
 

@@ -19,6 +19,7 @@ import { passthrough } from "./lib/stream/operators/passthrough";
 import { toPromise } from "./lib/stream/operators/to_promise";
 import { completedCounter, exceptionCounter, sourceCounter } from "./operators/counters";
 import { exceptionHandler } from "./operators/exceptions";
+import { filterImages } from "./operators/filter";
 import { saveManifest } from "./operators/manifest";
 import { processImages } from "./operators/process";
 import { saveImages } from "./operators/save";
@@ -87,6 +88,7 @@ function createPipeline(ctx: CliContext, config: Config, manifestFile: string) {
   const paths = typeof config.input === "string" ? [config.input] : config.input;
 
   return searchForImages(paths)
+    .pipe(filterImages(config.inputFilter))
     .pipe(sourceCounter(ctx))
     .pipe(buffer(BUFFER_SIZE))
     .pipe(processImages(config.pipeline, config.concurrency))
