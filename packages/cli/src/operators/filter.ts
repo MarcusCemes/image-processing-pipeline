@@ -14,7 +14,6 @@ import { isTaskSource } from "./types";
 export function filterImages<T>(inputFilter?: InputFilter): Operator<T, T> {
   return filter((item) => {
     if (!inputFilter || !isTaskSource(item)) {
-      console.log(item);
       return true;
     }
 
