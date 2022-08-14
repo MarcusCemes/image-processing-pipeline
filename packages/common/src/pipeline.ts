@@ -51,6 +51,21 @@ export interface PipelineResult {
 }
 
 /**
+ * PipelineTest type which decides if the given file is executed for the pipeline
+ */
+export type PipelineTest =
+  | Array<PipelineTestCallback | RegExp>
+  | string
+  | PipelineTestCallback
+  | RegExp
+  | boolean;
+
+/**
+ * Callback function which is executed on each image to test if the given file should be processed by the pipeline
+ */
+export type PipelineTestCallback = (filepath: string, metadata: Metadata) => boolean;
+
+/**
  * The template of a single branch of a pipeline schema. It may only have one input, but the
  * result of the first pipe may be sent to multiple consecutive pipes.
  *
@@ -60,6 +75,15 @@ export interface PipelineResult {
 export interface PipelineBranch<O = any> {
   pipe: string | { resolve: string; module?: string } | Pipe;
   options?: O;
+  /**
+   * (Optional) Test each file if the given pipeline should be executed on it.
+   *
+   * - A string to strict equal test the relative file path against it `filepath === test`
+   * - A callback function with the relative file path and metadata as argument. `(filepath, metadata) => boolean`
+   * - A RegExp to test the relative file path against it `/.+/.test(filepath)`
+   * - A boolean. `True` executes the pipeline and `false` will skip it.
+   */
+  test?: PipelineTest;
   save?: PrimitiveValue;
   then?: Pipeline;
 }

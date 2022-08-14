@@ -16,6 +16,7 @@ import {
   PipelineException,
   PipelineFormats,
   PipelineResult,
+  PipelineTest,
   PrimitiveValue,
 } from "@ipp/common";
 import { Mutex } from "async-mutex";
@@ -78,12 +79,36 @@ async function processPipeline(
 
   for (const format of wrapInArray(formats)) {
     for (const branch of pipeline) {
+      if (branch.test !== undefined && !processBranchTest(branch.test, format.metadata)) {
+        groupedFormats.push(processBranchNoop(branch, format));
+        continue;
+      }
       groupedFormats.push(processBranch(branch, format, mutex));
     }
   }
 
   // Execute all branch/format trees in parallel
   return (await Promise.all(groupedFormats)).flat();
+}
+
+function processBranchTest(test: PipelineTest, metadata: Metadata): boolean {
+  if (typeof test === "boolean") return test; // test boolean
+
+  const filePath = metadata.source.path as string;
+  if (typeof test === "string") return test === filePath; // path strict equal check
+
+  if (!Array.isArray(test)) test = [test];
+
+  for (const t of test) {
+    if (
+      (filePath && t instanceof RegExp && !t.test(filePath)) ||
+      (typeof t === "function" && !t(filePath, metadata))
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /** Runs the data object through a pipeline branch, processing any remaining pipelines */
@@ -112,6 +137,17 @@ async function processBranch(
   }
 
   return groupedFormats;
+}
+
+/** Runs the data object through a pipeline branch, processing any remaining pipelines */
+async function processBranchNoop(
+  branch: PipelineBranch,
+  dataObject: DataObject
+): Promise<PipelineFormats> {
+  return wrapInArray(dataObject).map((data) => ({
+    data,
+    saveKey: branch.save as PrimitiveValue,
+  }));
 }
 
 /** Runs the data object through a single pipe */
